@@ -1,0 +1,41 @@
+services:
+  medusa-db:
+    image: postgres:15
+    container_name: medusa-db
+    restart: always
+    environment:
+      POSTGRES_USER: medusa
+      POSTGRES_PASSWORD: medusa_password
+      POSTGRES_DB: medusa_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - medusa-db-data:/var/lib/postgresql/data
+
+  medusa-redis:
+    image: redis:alpine
+    container_name: medusa-redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  medusa-server:
+    # 官方推荐使用你在本地构建好的包含你自定义逻辑的镜像
+    # 这里为了演示方便，假设你已经构建了镜像或使用基础镜像
+    image: node:18-alpine 
+    container_name: medusa-server
+    depends_on:
+      - medusa-db
+      - medusa-redis
+    ports:
+      - "9000:9000"
+    working_dir: /app
+    volumes:
+      # 将本地生成的 medusa 后端代码挂载进去
+      - ./my-medusa-store:/app 
+    env_file:
+      - .env
+    command: sh -c "npm run start"
+
+volumes:
+  medusa-db-data:
