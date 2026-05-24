@@ -47,4 +47,8 @@ medusa-db.sql
 
 # Local Git metadata backups created during monorepo conversion
 .git-backups/
+
+# Local worktrees
+.worktrees/
+
 image/
