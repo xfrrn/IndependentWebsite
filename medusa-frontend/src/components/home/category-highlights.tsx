@@ -2,10 +2,18 @@ import Image from "next/image"
 import Link from "next/link"
 
 import { CATEGORY_HIGHLIGHTS } from "@lib/data/homepage"
-import { getSiteContentSection } from "@lib/data/site-content"
+import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
 
-export default async function CategoryHighlights() {
-  const content = await getSiteContentSection("category_highlights", CATEGORY_HIGHLIGHTS)
+export default async function CategoryHighlights({
+  currentLocale,
+}: {
+  currentLocale: string | null
+}) {
+  const content = await getLocalizedHomeContentSection(
+    "category_highlights",
+    CATEGORY_HIGHLIGHTS,
+    currentLocale
+  )
 
   return (
     <section className="bg-[var(--bg-canvas)]">

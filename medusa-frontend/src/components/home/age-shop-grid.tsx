@@ -1,10 +1,18 @@
 import Link from "next/link"
 
 import { AGE_HIGHLIGHTS } from "@lib/data/homepage"
-import { getSiteContentSection } from "@lib/data/site-content"
+import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
 
-export default async function AgeShopGrid() {
-  const content = await getSiteContentSection("age_highlights", AGE_HIGHLIGHTS)
+export default async function AgeShopGrid({
+  currentLocale,
+}: {
+  currentLocale: string | null
+}) {
+  const content = await getLocalizedHomeContentSection(
+    "age_highlights",
+    AGE_HIGHLIGHTS,
+    currentLocale
+  )
 
   return (
     <section className="bg-[var(--bg-canvas)]">

@@ -51,6 +51,30 @@ export const HEADER_CONTENT = {
   links: HEADER_LINKS,
 }
 
+export const HEADER_CONTENT_ZH = {
+  brandName: BRAND_NAME,
+  searchAriaLabel: "搜索",
+  searchPlaceholder: "按年龄、年级或类别搜索",
+  mobileMenuLabel: "菜单",
+  links: [
+    {
+      label: "邮箱",
+      detail: emailAddress || "设置联系邮箱",
+      href: emailAddress ? `mailto:${emailAddress}` : "#",
+    },
+    {
+      label: "微信",
+      detail: "立即咨询",
+      href: process.env.NEXT_PUBLIC_WECHAT_URL || "#",
+    },
+    {
+      label: "WhatsApp",
+      detail: "立即咨询",
+      href: process.env.NEXT_PUBLIC_WHATSAPP_URL || "#",
+    },
+  ],
+}
+
 export const MARKETING_NAV: MarketingNavItem[] = [
   { label: "ALL PRODUCTS", href: "/products" },
   {
@@ -98,6 +122,51 @@ export const NAV_CONTENT = {
   items: MARKETING_NAV,
 }
 
+export const NAV_CONTENT_ZH = {
+  mobileBrowseLabel: "浏览",
+  mobileCloseLabel: "关闭",
+  exploreLabel: "探索",
+  megaMenuIntroLabelPrefix: "浏览",
+  megaMenuIntroDescription: "精选快捷入口，帮助家庭更快找到合适玩具。",
+  mobileGoToPrefix: "前往",
+  items: [
+    { label: "全部产品", href: "/products" },
+    {
+      label: "产品类别",
+      groups: [
+        {
+          title: "类别",
+          links: [
+            { label: "搭建玩具", href: "/shop/category/building" },
+            { label: "感官玩具", href: "/shop/category/sensory" },
+            { label: "拼图", href: "/shop/category/puzzles" },
+            { label: "STEM 学习", href: "/shop/category/stem" },
+            { label: "角色扮演", href: "/shop/category/pretend" },
+            { label: "旅行玩具", href: "/shop/category/travel" },
+          ],
+        },
+      ],
+    },
+    { label: "热卖推荐", href: "/shop/scenario/featured" },
+    {
+      label: "年龄",
+      groups: [
+        {
+          title: "年龄",
+          links: [
+            { label: "0-24 个月", href: "/shop/age/0-24-months" },
+            { label: "2-4 岁", href: "/shop/age/2-4-years" },
+            { label: "5-7 岁", href: "/shop/age/5-7-years" },
+            { label: "8-10 岁", href: "/shop/age/8-10-years" },
+            { label: "11-13 岁", href: "/shop/age/11-13-years" },
+            { label: "14 岁以上", href: "/shop/age/14-plus-years" },
+          ],
+        },
+      ],
+    },
+  ] as MarketingNavItem[],
+}
+
 export const HERO_IMAGE = {
   alt: "FritzS Learning hero",
   src:
@@ -117,6 +186,19 @@ export const HERO_CONTENT = {
   badgeText: "Bright ideas for curious little minds.",
 }
 
+export const HERO_CONTENT_ZH = {
+  eyebrow: "精选推荐",
+  title: "爱玩，\n爱学。",
+  body:
+    "为孩子精选兼具启发性与趣味性的玩具，陪伴日常探索、亲子互动和快乐成长。",
+  primaryCtaLabel: "查看全部产品",
+  primaryCtaHref: "/products",
+  secondaryCtaLabel: "查看玩具",
+  secondaryCtaHref: "/shop/scenario/featured",
+  badgeLabel: "KID GOFUN",
+  badgeText: "给好奇小脑袋的明亮灵感。",
+}
+
 export const BRAND_INTRO = {
   eyebrow: "Our approach",
   title: "Learning-led play, curated for real families",
@@ -131,6 +213,13 @@ export const FEATURED_PRODUCTS = {
   eyebrow: "All Products",
   title: "All Products",
   subtitle: "Browse all learning tools.",
+  strategy: "default" as const,
+}
+
+export const FEATURED_PRODUCTS_ZH = {
+  eyebrow: "全部产品",
+  title: "全部产品",
+  subtitle: "浏览所有启发式学习玩具。",
   strategy: "default" as const,
 }
 
@@ -260,6 +349,34 @@ export const PRODUCT_UI_CONTENT = {
     "Just return your product and we'll refund your money. No questions asked - we'll do our best to make sure your return is hassle-free.",
 }
 
+export const PRODUCT_UI_CONTENT_ZH = {
+  addToCartLabel: "加入购物车",
+  selectVariantLabel: "选择规格",
+  outOfStockLabel: "暂时缺货",
+  selectOptionsLabel: "选择选项",
+  viewDetailsLabel: "查看详情",
+  agePrefix: "年龄 ",
+  agesPrefix: "年龄 ",
+  noImageLabel: "暂无图片",
+  fallbackDescription: "适龄玩具，给家长清晰的选择参考。",
+  productInformationLabel: "产品信息",
+  shippingReturnsLabel: "配送与退换",
+  materialLabel: "材质",
+  countryOfOriginLabel: "产地",
+  typeLabel: "类型",
+  weightLabel: "重量",
+  dimensionsLabel: "尺寸",
+  fastDeliveryTitle: "快速配送",
+  fastDeliveryBody:
+    "订单将在 3-5 个工作日内送达取货点或送到家中。",
+  simpleExchangesTitle: "轻松换货",
+  simpleExchangesBody:
+    "如果产品不合适，可以联系我们更换新的商品。",
+  easyReturnsTitle: "便捷退货",
+  easyReturnsBody:
+    "按流程退回商品后，我们会为你处理退款，并尽力让退货过程更省心。",
+}
+
 export const COLLECTION_SPOTLIGHT = {
   eyebrow: "Collections",
   title: "Curated play paths",
@@ -360,6 +477,62 @@ export const CATEGORY_HIGHLIGHTS = {
   ],
 }
 
+export const CATEGORY_HIGHLIGHTS_ZH = {
+  eyebrow: "类别",
+  title: "按类别选购",
+  subtitle: "探索不同玩具类别，找到适合孩子的学习与玩耍方式。",
+  items: [
+    {
+      title: "搭建玩具",
+      description: "通过动手搭建培养专注力、空间感和自信心。",
+      ctaLabel: "了解更多",
+      href: "/shop/category/building",
+      image:
+        "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1200&q=80",
+    },
+    {
+      title: "感官玩具",
+      description: "用触感、动作和节奏带来平静而好奇的探索体验。",
+      ctaLabel: "了解更多",
+      href: "/shop/category/sensory",
+      image:
+        "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1200&q=80",
+    },
+    {
+      title: "拼图",
+      description: "让解决问题变得有趣，帮助孩子练习观察与思考。",
+      ctaLabel: "了解更多",
+      href: "/shop/category/puzzles",
+      image:
+        "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=1200&q=80",
+    },
+    {
+      title: "STEM 学习",
+      description: "面向科学、工程和逻辑启蒙的探索型学习工具。",
+      ctaLabel: "了解更多",
+      href: "/shop/category/stem",
+      image:
+        "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1200&q=80",
+    },
+    {
+      title: "角色扮演",
+      description: "在故事和想象中练习表达、同理心与社交能力。",
+      ctaLabel: "了解更多",
+      href: "/shop/category/pretend",
+      image:
+        "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=1200&q=80",
+    },
+    {
+      title: "旅行玩具",
+      description: "轻便易携，适合出行途中保持专注和快乐玩耍。",
+      ctaLabel: "了解更多",
+      href: "/shop/category/travel",
+      image:
+        "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?auto=format&fit=crop&w=1200&q=80",
+    },
+  ],
+}
+
 export const AGE_HIGHLIGHTS = {
   eyebrow: "Age",
   title: "Shop by age",
@@ -399,6 +572,50 @@ export const AGE_HIGHLIGHTS = {
       value: "14+",
       unit: "Years",
       title: "14+ Years",
+      href: "/shop/age/14-plus-years",
+    },
+  ],
+}
+
+export const AGE_HIGHLIGHTS_ZH = {
+  eyebrow: "年龄",
+  title: "按年龄选购",
+  subtitle: "选择合适的年龄段，快速找到匹配孩子阶段的产品。",
+  items: [
+    {
+      value: "0-24",
+      unit: "个月",
+      title: "0-24 个月",
+      href: "/shop/age/0-24-months",
+    },
+    {
+      value: "2-4",
+      unit: "岁",
+      title: "2-4 岁",
+      href: "/shop/age/2-4-years",
+    },
+    {
+      value: "5-7",
+      unit: "岁",
+      title: "5-7 岁",
+      href: "/shop/age/5-7-years",
+    },
+    {
+      value: "8-10",
+      unit: "岁",
+      title: "8-10 岁",
+      href: "/shop/age/8-10-years",
+    },
+    {
+      value: "11-13",
+      unit: "岁",
+      title: "11-13 岁",
+      href: "/shop/age/11-13-years",
+    },
+    {
+      value: "14+",
+      unit: "岁",
+      title: "14 岁以上",
       href: "/shop/age/14-plus-years",
     },
   ],
@@ -489,6 +706,42 @@ export const FOOTER_CONTENT = {
       href: process.env.NEXT_PUBLIC_INSTAGRAM_URL || "#",
     },
   ],
+}
+
+export const FOOTER_CONTENT_ZH = {
+  ...FOOTER_CONTENT,
+  contactLabel: "联系: +86 15575725092",
+}
+
+export function isChineseLocale(locale?: string | null) {
+  return locale?.toLowerCase().replace("_", "-").startsWith("zh") ?? false
+}
+
+export function getHomepageFallback(section: string, locale?: string | null) {
+  if (!isChineseLocale(locale)) {
+    return null
+  }
+
+  switch (section) {
+    case "header_content":
+      return HEADER_CONTENT_ZH
+    case "nav_content":
+      return NAV_CONTENT_ZH
+    case "hero_content":
+      return HERO_CONTENT_ZH
+    case "featured_products":
+      return FEATURED_PRODUCTS_ZH
+    case "product_ui_content":
+      return PRODUCT_UI_CONTENT_ZH
+    case "category_highlights":
+      return CATEGORY_HIGHLIGHTS_ZH
+    case "age_highlights":
+      return AGE_HIGHLIGHTS_ZH
+    case "footer_content":
+      return FOOTER_CONTENT_ZH
+    default:
+      return null
+  }
 }
 
 export const FOOTER_LINKS = {

@@ -5,29 +5,46 @@ import CategoryHighlights from "../../../components/home/category-highlights"
 import FeaturedProductsSection from "../../../components/home/featured-products-section"
 import HeroIntro from "../../../components/home/hero-intro"
 import { HEADER_CONTENT, NAV_CONTENT } from "@lib/data/homepage"
-import { getSiteContentSection } from "@lib/data/site-content"
+import { getLocale } from "@lib/data/locale-actions"
+import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
+import { listLocales } from "@lib/data/locales"
 
 export default async function Home(props: {
   params: Promise<{ countryCode: string }>
 }) {
-  const [params, headerContent, navContent] = await Promise.all([
+  const [params, locales, currentLocale] = await Promise.all([
     props.params,
-    getSiteContentSection("header_content", HEADER_CONTENT),
-    getSiteContentSection("nav_content", NAV_CONTENT),
+    listLocales(),
+    getLocale(),
+  ])
+  const [headerContent, navContent] = await Promise.all([
+    getLocalizedHomeContentSection(
+      "header_content",
+      HEADER_CONTENT,
+      currentLocale
+    ),
+    getLocalizedHomeContentSection("nav_content", NAV_CONTENT, currentLocale),
   ])
 
   return (
     <div className="bg-[var(--bg-canvas)]">
       <div className="sticky top-0 z-50">
-        <MainHeader content={headerContent} />
+        <MainHeader
+          content={headerContent}
+          locales={locales}
+          currentLocale={currentLocale}
+        />
         <PrimaryNav content={navContent} />
       </div>
 
       <main>
-        <HeroIntro />
-        <FeaturedProductsSection countryCode={params.countryCode} />
-        <CategoryHighlights />
-        <AgeShopGrid />
+        <HeroIntro currentLocale={currentLocale} />
+        <FeaturedProductsSection
+          countryCode={params.countryCode}
+          currentLocale={currentLocale}
+        />
+        <CategoryHighlights currentLocale={currentLocale} />
+        <AgeShopGrid currentLocale={currentLocale} />
       </main>
     </div>
   )

@@ -8,16 +8,21 @@ function getCountryCode(pathname: string) {
   return parts[0] || "us"
 }
 
-export default function HomeLink() {
+export default function HomeLink({
+  currentLocale,
+}: {
+  currentLocale: string | null
+}) {
   const pathname = usePathname()
   const countryCode = getCountryCode(pathname)
+  const isChinese = currentLocale?.toLowerCase().startsWith("zh") ?? false
 
   return (
     <Link
       href={`/${countryCode}`}
       className="rounded-full border border-black/10 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-black/60 hover:border-black/20"
     >
-      Home
+      {isChinese ? "首页" : "Home"}
     </Link>
   )
 }

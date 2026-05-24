@@ -2,19 +2,21 @@ import { HttpTypes } from "@medusajs/types"
 import { PRODUCT_UI_CONTENT } from "@lib/data/homepage"
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
-import { getSiteContentSection } from "@lib/data/site-content"
+import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
 import ProductPreview from "@modules/products/components/product-preview"
 
 type QueryStrategy = "default" | "newest"
 
 export default async function ProductsRow({
   countryCode,
+  currentLocale,
   title,
   subtitle,
   description,
   strategy = "default",
 }: {
   countryCode: string
+  currentLocale?: string | null
   title: string
   subtitle: string
   description?: string
@@ -22,7 +24,11 @@ export default async function ProductsRow({
 }) {
   const [region, productUiContent] = await Promise.all([
     getRegion(countryCode),
-    getSiteContentSection("product_ui_content", PRODUCT_UI_CONTENT),
+    getLocalizedHomeContentSection(
+      "product_ui_content",
+      PRODUCT_UI_CONTENT,
+      currentLocale
+    ),
   ])
 
   if (!region) {

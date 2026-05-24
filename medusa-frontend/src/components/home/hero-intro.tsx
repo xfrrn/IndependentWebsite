@@ -2,10 +2,18 @@ import Image from "next/image"
 import Link from "next/link"
 
 import { HERO_CONTENT, HERO_IMAGE } from "@lib/data/homepage"
-import { getSiteContentSection } from "@lib/data/site-content"
+import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
 
-export default async function HeroIntro() {
-  const content = await getSiteContentSection("hero_content", HERO_CONTENT)
+export default async function HeroIntro({
+  currentLocale,
+}: {
+  currentLocale: string | null
+}) {
+  const content = await getLocalizedHomeContentSection(
+    "hero_content",
+    HERO_CONTENT,
+    currentLocale
+  )
 
   return (
     <section className="bg-[var(--bg-canvas)]">

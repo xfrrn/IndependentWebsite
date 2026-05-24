@@ -2,7 +2,8 @@ import Link from "next/link"
 
 import { Text } from "@medusajs/ui"
 import { FOOTER_CONTENT } from "@lib/data/homepage"
-import { getSiteContentSection } from "@lib/data/site-content"
+import { getLocale } from "@lib/data/locale-actions"
+import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
@@ -46,7 +47,15 @@ function SocialIcon({ label }: { label: string }) {
 }
 
 export default async function Footer() {
-  const content = await getSiteContentSection("footer_content", FOOTER_CONTENT)
+  const currentLocale = await getLocale()
+  const content = await getLocalizedHomeContentSection(
+    "footer_content",
+    FOOTER_CONTENT,
+    currentLocale
+  )
+  const rightsLabel = currentLocale?.toLowerCase().startsWith("zh")
+    ? "版权所有。"
+    : "All rights reserved."
 
   return (
     <footer className="w-full border-t border-[color:var(--border-soft)] bg-[var(--bg-surface)]">
@@ -84,7 +93,7 @@ export default async function Footer() {
 
         <div className="mb-16 flex w-full items-center justify-center text-[color:var(--text-muted)]">
           <Text className="txt-compact-small">
-            (c) {new Date().getFullYear()} {content.brandName}. All rights reserved.
+            (c) {new Date().getFullYear()} {content.brandName}. {rightsLabel}
           </Text>
         </div>
       </div>

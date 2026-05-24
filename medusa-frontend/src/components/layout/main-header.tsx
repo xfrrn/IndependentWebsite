@@ -4,7 +4,9 @@ import { FormEvent, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 
+import type { Locale } from "@lib/data/locales"
 import HomeLink from "./home-link"
+import HeaderLanguageSwitcher from "./header-language-switcher"
 
 type HeaderContent = {
   brandName: string
@@ -23,7 +25,15 @@ function getCountryCode(pathname: string) {
   return parts[0] || "us"
 }
 
-export default function MainHeader({ content }: { content: HeaderContent }) {
+export default function MainHeader({
+  content,
+  locales,
+  currentLocale,
+}: {
+  content: HeaderContent
+  locales: Locale[] | null
+  currentLocale: string | null
+}) {
   const pathname = usePathname()
   const router = useRouter()
   const [query, setQuery] = useState("")
@@ -44,7 +54,7 @@ export default function MainHeader({ content }: { content: HeaderContent }) {
             {content.brandName}
           </div>
           <div className="flex items-center gap-2">
-            <HomeLink />
+            <HomeLink currentLocale={currentLocale} />
             <button
               className="rounded-full border border-[color:var(--border-soft)] bg-[var(--bg-card)] px-3 py-1 text-xs uppercase tracking-[0.2em] text-[color:var(--text-body)] md:hidden"
               type="button"
@@ -83,7 +93,7 @@ export default function MainHeader({ content }: { content: HeaderContent }) {
           />
         </form>
 
-        <div className="hidden items-center justify-end gap-6 text-xs text-[color:var(--text-body)] md:flex">
+        <div className="hidden items-center justify-end gap-5 text-xs text-[color:var(--text-body)] md:flex">
           {content.links.map((item) => (
             <Link
               key={item.label}
@@ -96,18 +106,28 @@ export default function MainHeader({ content }: { content: HeaderContent }) {
               <span className="text-sm text-black/80">{item.detail}</span>
             </Link>
           ))}
+          <HeaderLanguageSwitcher
+            locales={locales}
+            currentLocale={currentLocale}
+          />
         </div>
 
-        <div className="flex items-center justify-between gap-4 text-xs text-black/60 md:hidden">
-          {content.links.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={`text-sm uppercase tracking-[0.18em] text-black/80 ${item.href === "#" ? "pointer-events-none opacity-50" : ""}`}
-            >
-              {item.label}
-            </Link>
-          ))}
+        <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-black/60 md:hidden">
+          <div className="flex flex-wrap items-center gap-4">
+            {content.links.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                className={`text-sm uppercase tracking-[0.18em] text-black/80 ${item.href === "#" ? "pointer-events-none opacity-50" : ""}`}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+          <HeaderLanguageSwitcher
+            locales={locales}
+            currentLocale={currentLocale}
+          />
         </div>
       </div>
     </div>
