@@ -54,6 +54,11 @@ services:
       COOKIE_SECRET: supersecret
       CONTENT_ADMIN_SECRET: local-content-secret
       ENABLE_DEV_PUBLISHABLE_KEY_ENDPOINT: "true"
+      HMR_BIND_HOST: 0.0.0.0
+      HMR_HOST: localhost
+      HMR_PORT: 9001
+      HMR_CLIENT_PORT: 9001
+      HMR_PROTOCOL: ws
       AUTO_MIGRATE: "true"
       AUTO_SEED: "true"
       AUTO_ADMIN_USER: "true"
@@ -61,6 +66,7 @@ services:
       MEDUSA_ADMIN_PASSWORD: ${MEDUSA_ADMIN_PASSWORD:-supersecret}
     ports:
       - "9000:9000"
+      - "9001:9001"
     volumes:
       - ./medusa-backend:/app
       - medusa-backend-node-modules:/app/node_modules
