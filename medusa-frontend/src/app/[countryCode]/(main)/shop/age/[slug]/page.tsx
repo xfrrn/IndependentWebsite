@@ -2,6 +2,7 @@
 import { Metadata } from "next"
 import Link from "next/link"
 
+import { PRODUCT_LIST_FIELDS } from "@lib/data/product-fields"
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
 import ShopLandingPage from "@components/shop/shop-landing-page"
@@ -49,7 +50,7 @@ export default async function AgeLandingPage(props: Props) {
     regionId: region.id,
     queryParams: {
       limit: 24,
-      fields: "*variants.calculated_price,+metadata,created_at",
+      fields: PRODUCT_LIST_FIELDS,
     },
   })
 

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 
 import { HttpTypes } from "@medusajs/types"
 import { PRODUCTS_PAGE_CONTENT } from "@lib/data/homepage"
+import { PRODUCT_LIST_FIELDS } from "@lib/data/product-fields"
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
 import { getSiteContentSection } from "@lib/data/site-content"
@@ -47,7 +48,7 @@ export default async function ProductsPage(props: Props) {
     regionId: region.id,
     queryParams: {
       limit: 24,
-      fields: "*variants.calculated_price,+metadata",
+      fields: PRODUCT_LIST_FIELDS,
     },
   })
 
