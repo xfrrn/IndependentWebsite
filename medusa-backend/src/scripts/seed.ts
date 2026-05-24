@@ -378,35 +378,61 @@ export default async function seedDemoData({ container }: ExecArgs) {
     input: {
       product_categories: [
         {
-          name: "Shirts",
+          name: "Building Toys",
+          handle: "building",
           is_active: true,
         },
         {
-          name: "Sweatshirts",
+          name: "Sensory Play",
+          handle: "sensory",
           is_active: true,
         },
         {
-          name: "Pants",
+          name: "Puzzles",
+          handle: "puzzles",
           is_active: true,
         },
         {
-          name: "Merch",
+          name: "STEM Learning",
+          handle: "stem",
+          is_active: true,
+        },
+        {
+          name: "Pretend Play",
+          handle: "pretend",
+          is_active: true,
+        },
+        {
+          name: "Travel Toys",
+          handle: "travel",
           is_active: true,
         },
       ],
     },
   });
 
+  const categoryIdByHandle = (handle: string) => {
+    const category = categoryResult.find((cat) => cat.handle === handle);
+
+    if (!category) {
+      throw new Error(`Seed category not found: ${handle}`);
+    }
+
+    return category.id;
+  };
+
   await createProductsWorkflow(container).run({
     input: {
       products: [
         {
           title: "Medusa T-Shirt",
-          category_ids: [
-            categoryResult.find((cat) => cat.name === "Shirts")!.id,
-          ],
+          category_ids: [categoryIdByHandle("building")],
           description:
             "Reimagine the feeling of a classic T-shirt. With our cotton T-shirts, everyday essentials no longer have to be ordinary.",
+          metadata: {
+            age_range: "5-7 years",
+            scenario_keys: "featured|gifts",
+          },
           handle: "t-shirt",
           weight: 400,
           status: ProductStatus.PUBLISHED,
@@ -589,11 +615,13 @@ export default async function seedDemoData({ container }: ExecArgs) {
         },
         {
           title: "Medusa Sweatshirt",
-          category_ids: [
-            categoryResult.find((cat) => cat.name === "Sweatshirts")!.id,
-          ],
+          category_ids: [categoryIdByHandle("sensory")],
           description:
             "Reimagine the feeling of a classic sweatshirt. With our cotton sweatshirt, everyday essentials no longer have to be ordinary.",
+          metadata: {
+            age_range: "2-4 years",
+            scenario_keys: "featured|quiet-time",
+          },
           handle: "sweatshirt",
           weight: 400,
           status: ProductStatus.PUBLISHED,
@@ -690,11 +718,13 @@ export default async function seedDemoData({ container }: ExecArgs) {
         },
         {
           title: "Medusa Sweatpants",
-          category_ids: [
-            categoryResult.find((cat) => cat.name === "Pants")!.id,
-          ],
+          category_ids: [categoryIdByHandle("puzzles")],
           description:
             "Reimagine the feeling of classic sweatpants. With our cotton sweatpants, everyday essentials no longer have to be ordinary.",
+          metadata: {
+            age_range: "8-10 years",
+            scenario_keys: "featured",
+          },
           handle: "sweatpants",
           weight: 400,
           status: ProductStatus.PUBLISHED,
@@ -791,11 +821,13 @@ export default async function seedDemoData({ container }: ExecArgs) {
         },
         {
           title: "Medusa Shorts",
-          category_ids: [
-            categoryResult.find((cat) => cat.name === "Merch")!.id,
-          ],
+          category_ids: [categoryIdByHandle("travel")],
           description:
             "Reimagine the feeling of classic shorts. With our cotton shorts, everyday essentials no longer have to be ordinary.",
+          metadata: {
+            age_range: "0-24 months",
+            scenario_keys: "featured|travel",
+          },
           handle: "shorts",
           weight: 400,
           status: ProductStatus.PUBLISHED,

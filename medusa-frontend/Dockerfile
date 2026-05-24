@@ -1,4 +1,5 @@
-FROM node:20-bookworm
+ARG NODE_IMAGE=node:20-bookworm
+FROM ${NODE_IMAGE}
 
 WORKDIR /app
 
@@ -9,4 +10,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["npm", "run", "dev", "--", "-H", "0.0.0.0"]
+CMD ["npm", "run", "docker:dev"]

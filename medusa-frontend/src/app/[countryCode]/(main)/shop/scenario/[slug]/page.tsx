@@ -1,11 +1,12 @@
-﻿import { Metadata } from "next"
+import { Metadata } from "next"
+import { notFound } from "next/navigation"
 
+import ShopLandingPage from "@components/shop/shop-landing-page"
+import ShopSortBar from "@components/shop/shop-sort-bar"
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
-import ShopLandingPage from "@components/shop/shop-landing-page"
 import { matchesScenarioKey } from "@lib/util/product-meta"
 import { sortProducts } from "@lib/util/shop-sort"
-import ShopSortBar from "@components/shop/shop-sort-bar"
 
 const SCENARIO_PAGES: Record<string, { title: string; description: string }> = {
   gifts: {
@@ -43,9 +44,15 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
   const page = SCENARIO_PAGES[params.slug]
 
+  if (!page) {
+    return {
+      title: "Scenario not found",
+    }
+  }
+
   return {
-    title: page ? `${page.title} | Scenarios` : "Scenario",
-    description: page?.description,
+    title: `${page.title} | Scenarios`,
+    description: page.description,
   }
 }
 
@@ -54,9 +61,13 @@ export default async function ScenarioLandingPage(props: Props) {
   const searchParams = await props.searchParams
   const page = SCENARIO_PAGES[params.slug]
 
+  if (!page) {
+    notFound()
+  }
+
   const region = await getRegion(params.countryCode)
   if (!region) {
-    return null
+    notFound()
   }
 
   const {
@@ -78,8 +89,8 @@ export default async function ScenarioLandingPage(props: Props) {
   return (
     <ShopLandingPage
       eyebrow="Scenario"
-      title={page?.title ?? "Scenario"}
-      description={page?.description ?? "More curated scenarios coming soon."}
+      title={page.title}
+      description={page.description}
       emptyMessage="No products tagged for this scenario yet. Add metadata.scenario_key or metadata.scenario_keys to match this scenario."
       products={sorted}
       region={region}

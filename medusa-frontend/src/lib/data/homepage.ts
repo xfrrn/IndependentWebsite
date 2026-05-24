@@ -137,7 +137,7 @@ export const FEATURED_PRODUCTS = {
 export const CATEGORY_PAGE_CONTENT = {
   eyebrow: "Category",
   emptyMessage:
-    "No products tagged for this category yet. Add metadata.category_key to match this category.",
+    "No products are assigned to this category yet. Add products to the matching Medusa category.",
   pages: [
     {
       slug: "building",

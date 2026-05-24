@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { Metadata } from "next"
+import { notFound } from "next/navigation"
 
 import { HttpTypes } from "@medusajs/types"
 import { PRODUCTS_PAGE_CONTENT } from "@lib/data/homepage"
@@ -37,7 +38,7 @@ export default async function ProductsPage(props: Props) {
 
   const region = await getRegion(params.countryCode)
   if (!region) {
-    return null
+    notFound()
   }
 
   const {

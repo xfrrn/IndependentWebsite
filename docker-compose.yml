@@ -7,8 +7,6 @@ services:
       POSTGRES_USER: medusa
       POSTGRES_PASSWORD: medusa_password
       POSTGRES_DB: medusa_db
-    ports:
-      - "5433:5432"
     volumes:
       - medusa-db-data:/var/lib/postgresql/data
     healthcheck:
@@ -21,8 +19,6 @@ services:
     image: redis:7-alpine
     container_name: medusa-redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
     volumes:
       - medusa-redis-data:/data
     healthcheck:
@@ -35,6 +31,8 @@ services:
     build:
       context: ./medusa-backend
       dockerfile: Dockerfile
+      args:
+        NODE_IMAGE: ${NODE_IMAGE:-docker.m.daocloud.io/library/node:20-bookworm}
     container_name: medusa-backend
     restart: unless-stopped
     depends_on:
@@ -46,7 +44,8 @@ services:
       NODE_ENV: development
       HOST: 0.0.0.0
       PORT: 9000
-      DATABASE_URL: postgres://medusa:medusa_password@medusa-db:5432/medusa_db
+      DATABASE_URL: postgres://medusa:medusa_password@medusa-db:5432/medusa_db?sslmode=disable
+      PGSSLMODE: disable
       REDIS_URL: redis://medusa-redis:6379
       STORE_CORS: http://localhost:8000,http://127.0.0.1:8000,http://medusa-frontend:8000
       ADMIN_CORS: http://localhost:9000,http://127.0.0.1:9000,http://medusa-backend:9000
@@ -54,8 +53,12 @@ services:
       JWT_SECRET: supersecret
       COOKIE_SECRET: supersecret
       CONTENT_ADMIN_SECRET: local-content-secret
+      ENABLE_DEV_PUBLISHABLE_KEY_ENDPOINT: "true"
       AUTO_MIGRATE: "true"
       AUTO_SEED: "true"
+      AUTO_ADMIN_USER: "true"
+      MEDUSA_ADMIN_EMAIL: ${MEDUSA_ADMIN_EMAIL:-admin@example.com}
+      MEDUSA_ADMIN_PASSWORD: ${MEDUSA_ADMIN_PASSWORD:-supersecret}
     ports:
       - "9000:9000"
     volumes:
@@ -67,6 +70,8 @@ services:
     build:
       context: ./medusa-frontend
       dockerfile: Dockerfile
+      args:
+        NODE_IMAGE: ${NODE_IMAGE:-docker.m.daocloud.io/library/node:20-bookworm}
     container_name: medusa-frontend
     restart: unless-stopped
     depends_on:
@@ -74,9 +79,9 @@ services:
     environment:
       NODE_ENV: development
       MEDUSA_BACKEND_URL: http://medusa-backend:9000
-      NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: pk_b42edf3b5d8fd0d251d1575bbe968469d736ed0e7b6e491299fe1c3170fa8bcd
+      NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: auto
       NEXT_PUBLIC_BASE_URL: http://localhost:8000
-      NEXT_PUBLIC_DEFAULT_REGION: us
+      NEXT_PUBLIC_DEFAULT_REGION: dk
       NEXT_PUBLIC_STRIPE_KEY: ""
       NEXT_PUBLIC_MEDUSA_PAYMENTS_PUBLISHABLE_KEY: ""
       NEXT_PUBLIC_MEDUSA_PAYMENTS_ACCOUNT_ID: ""
@@ -88,7 +93,7 @@ services:
       - ./medusa-frontend:/app
       - medusa-frontend-node-modules:/app/node_modules
       - medusa-frontend-next:/app/.next
-    command: npm run dev -- -H 0.0.0.0
+    command: npm run docker:dev
 
 volumes:
   medusa-db-data:

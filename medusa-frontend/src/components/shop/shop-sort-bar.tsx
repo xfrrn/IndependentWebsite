@@ -30,6 +30,7 @@ export default function ShopSortBar({
     } else {
       next.sort = value
     }
+    delete next.page
     return next
   }
 

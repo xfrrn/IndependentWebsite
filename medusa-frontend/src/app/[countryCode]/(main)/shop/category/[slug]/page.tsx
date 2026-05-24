@@ -1,18 +1,22 @@
-﻿import { Metadata } from "next"
+import { Metadata } from "next"
+import { notFound } from "next/navigation"
 
+import ShopLandingPage from "@components/shop/shop-landing-page"
+import ShopSortBar from "@components/shop/shop-sort-bar"
+import { getCategoryByHandle } from "@lib/data/categories"
+import { CATEGORY_PAGE_CONTENT } from "@lib/data/homepage"
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
-import ShopLandingPage from "@components/shop/shop-landing-page"
-import { CATEGORY_PAGE_CONTENT } from "@lib/data/homepage"
 import { getSiteContentSection } from "@lib/data/site-content"
-import { matchesCategoryKey } from "@lib/util/product-meta"
 import { sortProducts } from "@lib/util/shop-sort"
-import ShopSortBar from "@components/shop/shop-sort-bar"
+import { Pagination } from "@modules/store/components/pagination"
 
 type Props = {
   params: Promise<{ countryCode: string; slug: string }>
-  searchParams: Promise<{ sort?: string }>
+  searchParams: Promise<{ page?: string; sort?: string }>
 }
+
+const PRODUCT_LIMIT = 24
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
@@ -22,9 +26,23 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   )
   const page = content.pages.find((item) => item.slug === params.slug)
 
+  if (!page) {
+    return {
+      title: "Category not found",
+    }
+  }
+
+  const category = await getCategoryByHandle([params.slug])
+
+  if (!category) {
+    return {
+      title: "Category not found",
+    }
+  }
+
   return {
-    title: page ? `${page.title} | Categories` : "Category",
-    description: page?.description,
+    title: `${page.title} | Categories`,
+    description: page.description,
   }
 }
 
@@ -37,32 +55,43 @@ export default async function CategoryLandingPage(props: Props) {
   )
   const page = content.pages.find((item) => item.slug === params.slug)
 
-  const region = await getRegion(params.countryCode)
-  if (!region) {
-    return null
+  if (!page) {
+    notFound()
   }
 
+  const category = await getCategoryByHandle([params.slug])
+
+  if (!category) {
+    notFound()
+  }
+
+  const region = await getRegion(params.countryCode)
+  if (!region) {
+    notFound()
+  }
+
+  const pageNumber = Math.max(Number(searchParams.page) || 1, 1)
+
   const {
-    response: { products },
+    response: { products, count },
   } = await listProducts({
+    pageParam: pageNumber,
     regionId: region.id,
     queryParams: {
-      limit: 24,
+      limit: PRODUCT_LIMIT,
+      category_id: [category.id],
       fields: "*variants.calculated_price,+metadata,created_at",
     },
   })
 
-  const filtered = products.filter((product) =>
-    matchesCategoryKey(product, params.slug)
-  )
-
-  const sorted = sortProducts(filtered, searchParams.sort)
+  const sorted = sortProducts(products, searchParams.sort)
+  const totalPages = Math.ceil(count / PRODUCT_LIMIT)
 
   return (
     <ShopLandingPage
       eyebrow={content.eyebrow}
-      title={page?.title ?? "Category"}
-      description={page?.description ?? "More curated play styles coming soon."}
+      title={page.title}
+      description={page.description}
       emptyMessage={content.emptyMessage}
       products={sorted}
       region={region}
@@ -71,9 +100,14 @@ export default async function CategoryLandingPage(props: Props) {
         <ShopSortBar
           countryCode={params.countryCode}
           pathname={`/shop/category/${params.slug}`}
-          searchParams={{ sort: searchParams.sort }}
-          total={sorted.length}
+          searchParams={{ page: searchParams.page, sort: searchParams.sort }}
+          total={count}
         />
+      }
+      footer={
+        totalPages > 1 ? (
+          <Pagination page={pageNumber} totalPages={totalPages} />
+        ) : null
       }
     />
   )

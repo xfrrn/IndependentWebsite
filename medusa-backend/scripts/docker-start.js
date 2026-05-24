@@ -67,6 +67,49 @@ async function getRegionCount() {
   }
 }
 
+async function getUserCount(email) {
+  const { Client } = require("pg")
+  const client = new Client({ connectionString: process.env.DATABASE_URL })
+
+  await client.connect()
+  try {
+    const result = await client.query(
+      'select count(*)::int as count from "user" where lower(email) = lower($1) and deleted_at is null',
+      [email]
+    )
+    return result.rows[0]?.count ?? 0
+  } finally {
+    await client.end()
+  }
+}
+
+async function ensureAdminUser() {
+  if (process.env.AUTO_ADMIN_USER === "false") {
+    return
+  }
+
+  const email = process.env.MEDUSA_ADMIN_EMAIL
+  const password = process.env.MEDUSA_ADMIN_PASSWORD
+
+  if (!email || !password) {
+    console.log("Admin user credentials not configured; skipping admin user setup")
+    return
+  }
+
+  const userCount = await getUserCount(email).catch((error) => {
+    console.warn(`Could not check admin user state: ${error.message}`)
+    return 0
+  })
+
+  if (userCount > 0) {
+    console.log(`Admin user ${email} already exists; skipping admin user setup`)
+    return
+  }
+
+  console.log(`Creating admin user ${email}`)
+  await run("npx", ["medusa", "user", "-e", email, "-p", password])
+}
+
 async function main() {
   if (process.env.DATABASE_URL) {
     await waitForTcp(process.env.DATABASE_URL, "Postgres")
@@ -92,6 +135,8 @@ async function main() {
       console.log("Seed data already exists; skipping seed")
     }
   }
+
+  await ensureAdminUser()
 
   await run("npm", ["run", "dev"])
 }

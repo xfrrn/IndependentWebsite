@@ -12,6 +12,7 @@ export default function ShopLandingPage({
   products,
   region,
   actions,
+  footer,
   homeHref,
 }: {
   eyebrow: string
@@ -21,6 +22,7 @@ export default function ShopLandingPage({
   products: HttpTypes.StoreProduct[]
   region: HttpTypes.StoreRegion
   actions?: ReactNode
+  footer?: ReactNode
   homeHref: string
 }) {
   return (
@@ -63,6 +65,8 @@ export default function ShopLandingPage({
             </ul>
           )}
         </div>
+
+        {footer ? <div className="mt-10">{footer}</div> : null}
       </div>
     </div>
   )
