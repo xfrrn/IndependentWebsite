@@ -5,6 +5,7 @@ import ShopLandingPage from "@components/shop/shop-landing-page"
 import ShopSortBar from "@components/shop/shop-sort-bar"
 import { getCategoryByHandle } from "@lib/data/categories"
 import { CATEGORY_PAGE_CONTENT } from "@lib/data/homepage"
+import { PRODUCT_LIST_FIELDS } from "@lib/data/product-fields"
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
 import { getSiteContentSection } from "@lib/data/site-content"
@@ -80,7 +81,7 @@ export default async function CategoryLandingPage(props: Props) {
     queryParams: {
       limit: PRODUCT_LIMIT,
       category_id: [category.id],
-      fields: "*variants.calculated_price,+metadata,created_at",
+      fields: PRODUCT_LIST_FIELDS,
     },
   })
 
