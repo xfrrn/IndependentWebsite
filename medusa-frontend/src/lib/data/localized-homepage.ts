@@ -8,6 +8,18 @@ export async function getLocalizedHomeContentSection<T>(
   fallback: T,
   locale?: string | null
 ): Promise<T> {
+  if (locale) {
+    const localizedContent = await getSiteContentSection<T>(
+      section,
+      null as T,
+      locale
+    )
+
+    if (localizedContent) {
+      return localizedContent
+    }
+  }
+
   const localizedFallback = getHomepageFallback(section, locale)
 
   if (localizedFallback) {

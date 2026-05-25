@@ -13,7 +13,7 @@ import {
   PRODUCTS_PAGE_CONTENT,
   PRODUCT_UI_CONTENT,
 } from "@lib/data/homepage"
-import { getSiteContentSection } from "@lib/data/site-content"
+import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
 import {
   getContentManagerKey,
   isContentManagerAuthorized,
@@ -137,7 +137,9 @@ function StatusBanner({
   const message = isError
     ? error === "invalid-key"
       ? "Access key is incorrect."
-      : "Unable to continue. Please sign in again."
+      : error === "missing-key"
+        ? "Content manager key is not configured."
+        : "Unable to continue. Please sign in again."
     : `Saved: ${saved}`
 
   return (
@@ -149,9 +151,20 @@ function StatusBanner({
   )
 }
 
+const EDITOR_LOCALES = [
+  { code: "en-US", label: "English" },
+  { code: "zh-CN", label: "简体中文" },
+] as const
+
+function normalizeEditorLocale(locale?: string) {
+  return EDITOR_LOCALES.some((item) => item.code === locale)
+    ? locale!
+    : "en-US"
+}
+
 export default async function ContentManagerPage(props: {
   params: Promise<{ countryCode: string }>
-  searchParams: Promise<{ error?: string; saved?: string }>
+  searchParams: Promise<{ error?: string; locale?: string; saved?: string }>
 }) {
   const [{ countryCode }, searchParams] = await Promise.all([
     props.params,
@@ -160,8 +173,9 @@ export default async function ContentManagerPage(props: {
 
   const accessKeyConfigured = Boolean(getContentManagerKey())
   const authorized = await isContentManagerAuthorized()
+  const currentLocale = normalizeEditorLocale(searchParams.locale)
 
-  if (accessKeyConfigured && !authorized) {
+  if (!authorized) {
     return (
       <main className="bg-[var(--bg-canvas)] px-4 py-12 md:px-8">
         <div className="mx-auto max-w-xl rounded-[2rem] border border-[color:var(--border-soft)] bg-[var(--bg-card)] p-8 shadow-[0_22px_55px_-38px_rgba(92,72,45,0.2)]">
@@ -180,7 +194,7 @@ export default async function ContentManagerPage(props: {
           </div>
 
           <form
-            action={loginContentManager.bind(null, countryCode)}
+            action={loginContentManager.bind(null, countryCode, currentLocale)}
             className="mt-6 flex flex-col gap-4"
           >
             <Field label="Access key" name="accessKey" defaultValue="" type="password" />
@@ -210,17 +224,17 @@ export default async function ContentManagerPage(props: {
     agePageContent,
   ] =
     await Promise.all([
-      getSiteContentSection("hero_content", HERO_CONTENT),
-      getSiteContentSection("header_content", HEADER_CONTENT),
-      getSiteContentSection("nav_content", NAV_CONTENT),
-      getSiteContentSection("featured_products", FEATURED_PRODUCTS),
-      getSiteContentSection("products_page_content", PRODUCTS_PAGE_CONTENT),
-      getSiteContentSection("product_ui_content", PRODUCT_UI_CONTENT),
-      getSiteContentSection("category_highlights", CATEGORY_HIGHLIGHTS),
-      getSiteContentSection("age_highlights", AGE_HIGHLIGHTS),
-      getSiteContentSection("footer_content", FOOTER_CONTENT),
-      getSiteContentSection("category_page_content", CATEGORY_PAGE_CONTENT),
-      getSiteContentSection("age_page_content", AGE_PAGE_CONTENT),
+      getLocalizedHomeContentSection("hero_content", HERO_CONTENT, currentLocale),
+      getLocalizedHomeContentSection("header_content", HEADER_CONTENT, currentLocale),
+      getLocalizedHomeContentSection("nav_content", NAV_CONTENT, currentLocale),
+      getLocalizedHomeContentSection("featured_products", FEATURED_PRODUCTS, currentLocale),
+      getLocalizedHomeContentSection("products_page_content", PRODUCTS_PAGE_CONTENT, currentLocale),
+      getLocalizedHomeContentSection("product_ui_content", PRODUCT_UI_CONTENT, currentLocale),
+      getLocalizedHomeContentSection("category_highlights", CATEGORY_HIGHLIGHTS, currentLocale),
+      getLocalizedHomeContentSection("age_highlights", AGE_HIGHLIGHTS, currentLocale),
+      getLocalizedHomeContentSection("footer_content", FOOTER_CONTENT, currentLocale),
+      getLocalizedHomeContentSection("category_page_content", CATEGORY_PAGE_CONTENT, currentLocale),
+      getLocalizedHomeContentSection("age_page_content", AGE_PAGE_CONTENT, currentLocale),
     ])
 
   return (
@@ -248,7 +262,7 @@ export default async function ContentManagerPage(props: {
                 View homepage
               </Link>
               {accessKeyConfigured ? (
-                <form action={logoutContentManager.bind(null, countryCode)}>
+                <form action={logoutContentManager.bind(null, countryCode, currentLocale)}>
                   <button
                     type="submit"
                     className="inline-flex items-center justify-center rounded-full border border-[color:var(--border-soft)] bg-transparent px-5 py-3 text-sm font-semibold text-[color:var(--text-body)] transition duration-300 ease-out hover:border-[color:var(--accent)]/35 hover:bg-[rgba(255,250,242,0.72)]"
@@ -266,11 +280,32 @@ export default async function ContentManagerPage(props: {
         </div>
 
         <SectionCard
+          title="Language"
+          description="Choose which storefront language you are editing. English and Simplified Chinese are saved separately."
+        >
+          <div className="flex flex-wrap gap-3">
+            {EDITOR_LOCALES.map((locale) => (
+              <Link
+                key={locale.code}
+                href={`/${countryCode}/content-manager?locale=${locale.code}`}
+                className={`inline-flex items-center justify-center rounded-full border px-5 py-3 text-sm font-semibold transition duration-300 ease-out ${
+                  currentLocale === locale.code
+                    ? "border-[color:var(--accent)] bg-[var(--accent-soft)] text-[color:var(--accent-strong)]"
+                    : "border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.9)] text-[color:var(--text-strong)] hover:border-[color:var(--accent)]/35 hover:bg-[var(--accent-soft)]"
+                }`}
+              >
+                {locale.label}
+              </Link>
+            ))}
+          </div>
+        </SectionCard>
+
+        <SectionCard
           title="Header"
           description="Controls the top brand name, search bar copy, and the contact links shown on the homepage header."
         >
           <form
-            action={saveHeaderContent.bind(null, countryCode)}
+            action={saveHeaderContent.bind(null, countryCode, currentLocale)}
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-2">
@@ -319,7 +354,7 @@ export default async function ContentManagerPage(props: {
           description="Controls the main homepage navigation labels, dropdown groups, and helper copy used inside the mega menu."
         >
           <form
-            action={saveNavContent.bind(null, countryCode)}
+            action={saveNavContent.bind(null, countryCode, currentLocale)}
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -401,7 +436,7 @@ export default async function ContentManagerPage(props: {
           description="Controls the first screen banner copy and the two main action buttons."
         >
           <form
-            action={saveHeroContent.bind(null, countryCode)}
+            action={saveHeroContent.bind(null, countryCode, currentLocale)}
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-2">
@@ -426,7 +461,7 @@ export default async function ContentManagerPage(props: {
           description="Controls the section label and title above the homepage product grid."
         >
           <form
-            action={saveFeaturedProducts.bind(null, countryCode)}
+            action={saveFeaturedProducts.bind(null, countryCode, currentLocale)}
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-2">
@@ -445,7 +480,7 @@ export default async function ContentManagerPage(props: {
           description="Controls the standalone /products page header, search result copy, home link label, and empty state."
         >
           <form
-            action={saveProductsPageContent.bind(null, countryCode)}
+            action={saveProductsPageContent.bind(null, countryCode, currentLocale)}
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -469,7 +504,7 @@ export default async function ContentManagerPage(props: {
           description="Controls button labels, age badges, fallback copy, and the fixed text inside the product detail tabs."
         >
           <form
-            action={saveProductUiContent.bind(null, countryCode)}
+            action={saveProductUiContent.bind(null, countryCode, currentLocale)}
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -506,7 +541,7 @@ export default async function ContentManagerPage(props: {
           description="Controls the category section title and the six image cards shown on the homepage."
         >
           <form
-            action={saveCategoryHighlights.bind(null, countryCode)}
+            action={saveCategoryHighlights.bind(null, countryCode, currentLocale)}
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-3">
@@ -567,7 +602,7 @@ export default async function ContentManagerPage(props: {
           description="Controls the age section title and the six circular age entry points."
         >
           <form
-            action={saveAgeHighlights.bind(null, countryCode)}
+            action={saveAgeHighlights.bind(null, countryCode, currentLocale)}
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-3">
@@ -620,7 +655,7 @@ export default async function ContentManagerPage(props: {
           description="Controls the brand, website, contact line, and the social icon links shown at the bottom of every page."
         >
           <form
-            action={saveFooterContent.bind(null, countryCode)}
+            action={saveFooterContent.bind(null, countryCode, currentLocale)}
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-2">
@@ -665,7 +700,7 @@ export default async function ContentManagerPage(props: {
           description="Controls the eyebrow and descriptions used on each /shop/category/... landing page."
         >
           <form
-            action={saveCategoryPageContent.bind(null, countryCode)}
+            action={saveCategoryPageContent.bind(null, countryCode, currentLocale)}
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-2">
@@ -715,7 +750,7 @@ export default async function ContentManagerPage(props: {
           description="Controls the title prefix, empty state, filter pills, and descriptions used on each /shop/age/... landing page."
         >
           <form
-            action={saveAgePageContent.bind(null, countryCode)}
+            action={saveAgePageContent.bind(null, countryCode, currentLocale)}
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-3">

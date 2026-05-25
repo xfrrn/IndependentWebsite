@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 
-import { updateLocale } from "@lib/data/locale-actions"
 import type { Locale } from "@lib/data/locales"
 
 type HeaderLanguageSwitcherProps = {
@@ -15,6 +14,8 @@ const FALLBACK_LOCALES: Locale[] = [
   { code: "en-US", name: "English" },
   { code: "zh-CN", name: "简体中文" },
 ]
+
+const LOCALE_COOKIE_NAME = "_medusa_locale"
 
 function getLanguageLabel(
   code: string,
@@ -56,8 +57,10 @@ export default function HeaderLanguageSwitcher({
   const handleChange = (localeCode: string) => {
     setSelectedLocale(localeCode)
 
-    startTransition(async () => {
-      await updateLocale(localeCode)
+    startTransition(() => {
+      document.cookie = `${LOCALE_COOKIE_NAME}=${encodeURIComponent(
+        localeCode
+      )}; path=/; max-age=31536000; samesite=strict`
       router.refresh()
     })
   }

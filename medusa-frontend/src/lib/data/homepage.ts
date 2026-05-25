@@ -261,6 +261,44 @@ export const CATEGORY_PAGE_CONTENT = {
   ],
 }
 
+export const CATEGORY_PAGE_CONTENT_ZH = {
+  eyebrow: "类别",
+  emptyMessage:
+    "这个类别暂时还没有关联产品。请在 Medusa 分类中添加匹配的产品。",
+  pages: [
+    {
+      slug: "building",
+      title: "搭建玩具",
+      description: "通过搭建与组合培养专注力、空间感和自信心。",
+    },
+    {
+      slug: "sensory",
+      title: "感官玩具",
+      description: "用触感、动作和节奏带来平静探索。",
+    },
+    {
+      slug: "puzzles",
+      title: "拼图",
+      description: "让解决问题变得有趣而不挫败。",
+    },
+    {
+      slug: "stem",
+      title: "STEM 学习",
+      description: "以好奇心驱动的科学与工程启蒙玩具。",
+    },
+    {
+      slug: "pretend",
+      title: "角色扮演",
+      description: "通过情境游戏练习表达、故事力和同理心。",
+    },
+    {
+      slug: "travel",
+      title: "旅行玩具",
+      description: "适合外出携带的轻便学习玩具。",
+    },
+  ],
+}
+
 export const AGE_PAGE_CONTENT = {
   eyebrow: "Shop by age",
   titlePrefix: "Ages ",
@@ -309,6 +347,54 @@ export const AGE_PAGE_CONTENT = {
   ],
 }
 
+export const AGE_PAGE_CONTENT_ZH = {
+  eyebrow: "按年龄选购",
+  titlePrefix: "年龄 ",
+  emptyMessage:
+    "这个年龄段暂时没有匹配产品。请给产品添加 metadata.age_range 来匹配该年龄段。",
+  filters: [
+    { label: "全部", value: "all" },
+    { label: "搭建", value: "building" },
+    { label: "感官", value: "sensory" },
+    { label: "拼图", value: "puzzles" },
+    { label: "STEM", value: "stem" },
+    { label: "角色扮演", value: "pretend" },
+    { label: "旅行", value: "travel" },
+  ],
+  pages: [
+    {
+      slug: "0-24-months",
+      title: "0-24 个月",
+      description: "温和的感官探索和早期发展玩具。",
+    },
+    {
+      slug: "2-4-years",
+      title: "2-4 岁",
+      description: "适合早期想象、动作练习和动手探索。",
+    },
+    {
+      slug: "5-7-years",
+      title: "5-7 岁",
+      description: "帮助孩子建立专注力、自信和创造性解决问题能力。",
+    },
+    {
+      slug: "8-10-years",
+      title: "8-10 岁",
+      description: "适合更独立学习和探索的进阶玩具。",
+    },
+    {
+      slug: "11-13-years",
+      title: "11-13 岁",
+      description: "更具挑战性的项目，支持深入思考和持续练习。",
+    },
+    {
+      slug: "14-plus-years",
+      title: "14 岁以上",
+      description: "适合青少年和更高年龄段的进阶选择。",
+    },
+  ],
+}
+
 export const PRODUCTS_PAGE_CONTENT = {
   eyebrow: "Products",
   defaultTitle: "All products",
@@ -319,6 +405,18 @@ export const PRODUCTS_PAGE_CONTENT = {
   searchResultsLabelSuffix: " results.",
   homeLabel: "Home",
   emptyMessage: "No products match your search yet.",
+}
+
+export const PRODUCTS_PAGE_CONTENT_ZH = {
+  eyebrow: "产品",
+  defaultTitle: "全部产品",
+  searchTitlePrefix: "搜索结果：“",
+  searchTitleSuffix: "”",
+  defaultDescription: "从首页按年龄、类别或场景浏览产品。",
+  searchResultsLabelPrefix: "共找到 ",
+  searchResultsLabelSuffix: " 个结果。",
+  homeLabel: "首页",
+  emptyMessage: "暂时没有匹配的产品。",
 }
 
 export const PRODUCT_UI_CONTENT = {
@@ -731,12 +829,18 @@ export function getHomepageFallback(section: string, locale?: string | null) {
       return HERO_CONTENT_ZH
     case "featured_products":
       return FEATURED_PRODUCTS_ZH
+    case "products_page_content":
+      return PRODUCTS_PAGE_CONTENT_ZH
     case "product_ui_content":
       return PRODUCT_UI_CONTENT_ZH
     case "category_highlights":
       return CATEGORY_HIGHLIGHTS_ZH
     case "age_highlights":
       return AGE_HIGHLIGHTS_ZH
+    case "category_page_content":
+      return CATEGORY_PAGE_CONTENT_ZH
+    case "age_page_content":
+      return AGE_PAGE_CONTENT_ZH
     case "footer_content":
       return FOOTER_CONTENT_ZH
     default:

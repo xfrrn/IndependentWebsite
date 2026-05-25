@@ -449,6 +449,7 @@ function buildAgePageContent(formData: FormData) {
 
 async function saveSection(
   countryCode: string,
+  locale: string,
   section: string,
   formData: FormData
 ) {
@@ -494,25 +495,26 @@ async function saveSection(
       redirect(`/${countryCode}/content-manager?error=unknown-section`)
   }
 
-  await saveSiteContentSection(section, payload)
+  await saveSiteContentSection(section, payload, locale)
   revalidatePath(`/${countryCode}`)
   revalidatePath(`/${countryCode}/content-manager`)
-  redirect(`/${countryCode}/content-manager?saved=${section}`)
+  redirect(`/${countryCode}/content-manager?locale=${locale}&saved=${section}`)
 }
 
 export async function loginContentManager(
   countryCode: string,
+  locale: string,
   formData: FormData
 ) {
   const key = getContentManagerKey()
   const submitted = readString(formData, "accessKey")
 
   if (!key) {
-    redirect(`/${countryCode}/content-manager`)
+    redirect(`/${countryCode}/content-manager?locale=${locale}&error=missing-key`)
   }
 
   if (submitted !== key) {
-    redirect(`/${countryCode}/content-manager?error=invalid-key`)
+    redirect(`/${countryCode}/content-manager?locale=${locale}&error=invalid-key`)
   }
 
   const cookieStore = await cookies()
@@ -525,88 +527,99 @@ export async function loginContentManager(
     maxAge: 60 * 60 * 8,
   })
 
-  redirect(`/${countryCode}/content-manager`)
+  redirect(`/${countryCode}/content-manager?locale=${locale}`)
 }
 
-export async function logoutContentManager(countryCode: string) {
+export async function logoutContentManager(countryCode: string, locale: string) {
   const cookieStore = await cookies()
   cookieStore.delete(CONTENT_MANAGER_COOKIE)
-  redirect(`/${countryCode}/content-manager`)
+  redirect(`/${countryCode}/content-manager?locale=${locale}`)
 }
 
 export async function saveHeroContent(
   countryCode: string,
+  locale: string,
   formData: FormData
 ) {
-  await saveSection(countryCode, "hero_content", formData)
+  await saveSection(countryCode, locale, "hero_content", formData)
 }
 
 export async function saveHeaderContent(
   countryCode: string,
+  locale: string,
   formData: FormData
 ) {
-  await saveSection(countryCode, "header_content", formData)
+  await saveSection(countryCode, locale, "header_content", formData)
 }
 
 export async function saveNavContent(
   countryCode: string,
+  locale: string,
   formData: FormData
 ) {
-  await saveSection(countryCode, "nav_content", formData)
+  await saveSection(countryCode, locale, "nav_content", formData)
 }
 
 export async function saveFeaturedProducts(
   countryCode: string,
+  locale: string,
   formData: FormData
 ) {
-  await saveSection(countryCode, "featured_products", formData)
+  await saveSection(countryCode, locale, "featured_products", formData)
 }
 
 export async function saveProductsPageContent(
   countryCode: string,
+  locale: string,
   formData: FormData
 ) {
-  await saveSection(countryCode, "products_page_content", formData)
+  await saveSection(countryCode, locale, "products_page_content", formData)
 }
 
 export async function saveProductUiContent(
   countryCode: string,
+  locale: string,
   formData: FormData
 ) {
-  await saveSection(countryCode, "product_ui_content", formData)
+  await saveSection(countryCode, locale, "product_ui_content", formData)
 }
 
 export async function saveCategoryHighlights(
   countryCode: string,
+  locale: string,
   formData: FormData
 ) {
-  await saveSection(countryCode, "category_highlights", formData)
+  await saveSection(countryCode, locale, "category_highlights", formData)
 }
 
 export async function saveAgeHighlights(
   countryCode: string,
+  locale: string,
   formData: FormData
 ) {
-  await saveSection(countryCode, "age_highlights", formData)
+  await saveSection(countryCode, locale, "age_highlights", formData)
 }
 
 export async function saveFooterContent(
   countryCode: string,
+  locale: string,
   formData: FormData
 ) {
-  await saveSection(countryCode, "footer_content", formData)
+  await saveSection(countryCode, locale, "footer_content", formData)
 }
 
 export async function saveCategoryPageContent(
   countryCode: string,
+  locale: string,
   formData: FormData
 ) {
-  await saveSection(countryCode, "category_page_content", formData)
+  await saveSection(countryCode, locale, "category_page_content", formData)
 }
 
 export async function saveAgePageContent(
   countryCode: string,
+  locale: string,
   formData: FormData
 ) {
-  await saveSection(countryCode, "age_page_content", formData)
+  await saveSection(countryCode, locale, "age_page_content", formData)
 }

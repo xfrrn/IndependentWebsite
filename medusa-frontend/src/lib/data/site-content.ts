@@ -3,12 +3,36 @@ import "server-only"
 const MEDUSA_BACKEND_URL =
   process.env.MEDUSA_BACKEND_URL || process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"
 
-export async function getSiteContentSection<T>(section: string, fallback: T): Promise<T> {
+function getStoreHeaders() {
+  const headers: Record<string, string> = {}
+
+  if (process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY) {
+    headers["x-publishable-api-key"] =
+      process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+  }
+
+  return headers
+}
+
+export async function getSiteContentSection<T>(
+  section: string,
+  fallback: T,
+  locale?: string | null
+): Promise<T> {
   try {
+    const params = new URLSearchParams({
+      section,
+    })
+
+    if (locale) {
+      params.set("locale", locale)
+    }
+
     const response = await fetch(
-      `${MEDUSA_BACKEND_URL}/store/site-content?section=${encodeURIComponent(section)}`,
+      `${MEDUSA_BACKEND_URL}/store/site-content?${params.toString()}`,
       {
         method: "GET",
+        headers: getStoreHeaders(),
         cache: "no-store",
       }
     )
@@ -25,7 +49,11 @@ export async function getSiteContentSection<T>(section: string, fallback: T): Pr
   }
 }
 
-export async function saveSiteContentSection(section: string, data: unknown) {
+export async function saveSiteContentSection(
+  section: string,
+  data: unknown,
+  locale?: string | null
+) {
   const response = await fetch(`${MEDUSA_BACKEND_URL}/store/site-content`, {
     method: "POST",
     headers: {
@@ -34,6 +62,7 @@ export async function saveSiteContentSection(section: string, data: unknown) {
     },
     body: JSON.stringify({
       section,
+      locale: locale || undefined,
       data,
     }),
     cache: "no-store",

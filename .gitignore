@@ -24,6 +24,7 @@
 
 # Local environment files
 .env
+.env.production
 **/.env
 **/.env.local
 **/.env.development.local
@@ -52,3 +53,4 @@ medusa-db.sql
 .worktrees/
 
 image/
+.claude/

@@ -1,11 +1,7 @@
 node_modules
+.medusa
+coverage
+jest-coverage
 .env
 .env.*
-!.env.template
-!.env.test
-.medusa
-.cache
-coverage
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*

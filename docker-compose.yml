@@ -53,6 +53,8 @@ services:
       JWT_SECRET: supersecret
       COOKIE_SECRET: supersecret
       CONTENT_ADMIN_SECRET: local-content-secret
+      STOREFRONT_BASE_URL: http://localhost:8000
+      DEFAULT_STORE_COUNTRY_CODE: dk
       ENABLE_DEV_PUBLISHABLE_KEY_ENDPOINT: "true"
       HMR_BIND_HOST: 0.0.0.0
       HMR_HOST: localhost
@@ -87,7 +89,7 @@ services:
       MEDUSA_BACKEND_URL: http://medusa-backend:9000
       NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: auto
       NEXT_PUBLIC_BASE_URL: http://localhost:8000
-      NEXT_PUBLIC_DEFAULT_REGION: us
+      NEXT_PUBLIC_DEFAULT_REGION: dk
       NEXT_PUBLIC_STRIPE_KEY: ""
       NEXT_PUBLIC_MEDUSA_PAYMENTS_PUBLISHABLE_KEY: ""
       NEXT_PUBLIC_MEDUSA_PAYMENTS_ACCOUNT_ID: ""

@@ -12,7 +12,7 @@ export async function isContentManagerAuthorized() {
   const key = getContentManagerKey()
 
   if (!key) {
-    return true
+    return process.env.NODE_ENV !== "production"
   }
 
   const cookieStore = await cookies()
