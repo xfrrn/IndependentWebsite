@@ -1,8 +1,10 @@
 "use server"
 
+import { mkdir, writeFile } from "fs/promises"
 import { revalidatePath } from "next/cache"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
+import path from "path"
 
 import { saveSiteContentSection } from "@lib/data/site-content"
 import {
@@ -10,6 +12,7 @@ import {
   AGE_PAGE_CONTENT,
   CATEGORY_PAGE_CONTENT,
   CATEGORY_HIGHLIGHTS,
+  CONTACT_IMAGES_CONTENT,
   FOOTER_CONTENT,
   HEADER_CONTENT,
   HERO_CONTENT,
@@ -17,6 +20,7 @@ import {
   FEATURED_PRODUCTS,
   PRODUCTS_PAGE_CONTENT,
   PRODUCT_UI_CONTENT,
+  type ContactImagesContent,
 } from "@lib/data/homepage"
 import {
   CONTENT_MANAGER_COOKIE,
@@ -38,12 +42,62 @@ function readString(
   return value.trim()
 }
 
+async function saveUploadedImage(
+  formData: FormData,
+  key: string,
+  fallback: string,
+  index: number
+) {
+  const value = formData.get(key)
+
+  if (!(value instanceof File) || value.size === 0) {
+    return fallback
+  }
+
+  if (!value.type.startsWith("image/")) {
+    return fallback
+  }
+
+  const extensionByType: Record<string, string> = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp",
+  }
+  const extension = extensionByType[value.type] || "jpg"
+  const uploadDir = path.resolve(process.cwd(), "public", "contact")
+  const filename = `header-contact-${index + 1}-${Date.now()}.${extension}`
+  const destination = path.resolve(uploadDir, filename)
+
+  if (!destination.startsWith(uploadDir)) {
+    return fallback
+  }
+
+  await mkdir(uploadDir, { recursive: true })
+  await writeFile(destination, Buffer.from(await value.arrayBuffer()))
+
+  return `/contact/${filename}`
+}
+
 async function requireContentManagerAccess(countryCode: string) {
   const authorized = await isContentManagerAuthorized()
 
   if (!authorized) {
     redirect(`/${countryCode}/content-manager?error=unauthorized`)
   }
+}
+
+function getContactImageKey(link: { href?: string; label?: string }) {
+  const value = `${link.href || ""} ${link.label || ""}`.toLowerCase()
+
+  if (value.includes("wechat") || value.includes("微信")) {
+    return "wechat" as const
+  }
+
+  if (value.includes("whatsapp")) {
+    return "whatsapp" as const
+  }
+
+  return null
 }
 
 function buildHeroContent(formData: FormData) {
@@ -76,29 +130,69 @@ function buildHeroContent(formData: FormData) {
   }
 }
 
-function buildHeaderContent(formData: FormData) {
+async function buildHeaderContent(formData: FormData) {
+  const contactImages: ContactImagesContent = { ...CONTACT_IMAGES_CONTENT }
+  const links = await Promise.all(
+    HEADER_CONTENT.links.map(async (item, index) => {
+      const typedUrl = readString(
+        formData,
+        `links.${index}.modalImageSrc`,
+        item.modalImageSrc || ""
+      )
+      const modalImageSrc = await saveUploadedImage(
+        formData,
+        `links.${index}.modalImageFile`,
+        typedUrl,
+        index
+      )
+      const modalImageAlt = readString(
+        formData,
+        `links.${index}.modalImageAlt`,
+        item.modalImageAlt || ""
+      )
+      const contactKey = getContactImageKey({
+        href: readString(formData, `links.${index}.href`, item.href),
+        label: readString(formData, `links.${index}.label`, item.label),
+      })
+
+      if (contactKey && modalImageSrc) {
+        contactImages[contactKey] = {
+          src: modalImageSrc,
+          alt: modalImageAlt,
+        }
+      }
+
+      return {
+        label: readString(formData, `links.${index}.label`, item.label),
+        detail: readString(formData, `links.${index}.detail`, item.detail),
+        href: readString(formData, `links.${index}.href`, item.href),
+        modalImageSrc,
+        modalImageAlt,
+      }
+    })
+  )
+
   return {
-    brandName: readString(formData, "brandName", HEADER_CONTENT.brandName),
-    searchAriaLabel: readString(
-      formData,
-      "searchAriaLabel",
-      HEADER_CONTENT.searchAriaLabel
-    ),
-    searchPlaceholder: readString(
-      formData,
-      "searchPlaceholder",
-      HEADER_CONTENT.searchPlaceholder
-    ),
-    mobileMenuLabel: readString(
-      formData,
-      "mobileMenuLabel",
-      HEADER_CONTENT.mobileMenuLabel
-    ),
-    links: HEADER_CONTENT.links.map((item, index) => ({
-      label: readString(formData, `links.${index}.label`, item.label),
-      detail: readString(formData, `links.${index}.detail`, item.detail),
-      href: readString(formData, `links.${index}.href`, item.href),
-    })),
+    headerContent: {
+      brandName: readString(formData, "brandName", HEADER_CONTENT.brandName),
+      searchAriaLabel: readString(
+        formData,
+        "searchAriaLabel",
+        HEADER_CONTENT.searchAriaLabel
+      ),
+      searchPlaceholder: readString(
+        formData,
+        "searchPlaceholder",
+        HEADER_CONTENT.searchPlaceholder
+      ),
+      mobileMenuLabel: readString(
+        formData,
+        "mobileMenuLabel",
+        HEADER_CONTENT.mobileMenuLabel
+      ),
+      links,
+    },
+    contactImages,
   }
 }
 
@@ -456,13 +550,18 @@ async function saveSection(
   await requireContentManagerAccess(countryCode)
 
   let payload: unknown
+  let sharedContactImages: ContactImagesContent | null = null
 
   switch (section) {
     case "hero_content":
       payload = buildHeroContent(formData)
       break
     case "header_content":
-      payload = buildHeaderContent(formData)
+      {
+        const result = await buildHeaderContent(formData)
+        payload = result.headerContent
+        sharedContactImages = result.contactImages
+      }
       break
     case "nav_content":
       payload = buildNavContent(formData)
@@ -496,6 +595,9 @@ async function saveSection(
   }
 
   await saveSiteContentSection(section, payload, locale)
+  if (sharedContactImages) {
+    await saveSiteContentSection("contact_images", sharedContactImages)
+  }
   revalidatePath(`/${countryCode}`)
   revalidatePath(`/${countryCode}/content-manager`)
   redirect(`/${countryCode}/content-manager?locale=${locale}&saved=${section}`)

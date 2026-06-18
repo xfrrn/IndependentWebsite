@@ -1,8 +1,8 @@
-import Image from "next/image"
 import Link from "next/link"
 
-import { HERO_CONTENT, HERO_IMAGE } from "@lib/data/homepage"
+import { HERO_CONTENT, HERO_IMAGES } from "@lib/data/homepage"
 import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
+import HeroCarousel from "./hero-carousel"
 
 export default async function HeroIntro({
   currentLocale,
@@ -60,17 +60,7 @@ export default async function HeroIntro({
 
             <div className="relative min-h-[280px] lg:min-h-full">
               <div className="absolute inset-y-0 left-[-8%] hidden w-28 rounded-[2.5rem] bg-[#c43629] lg:block" />
-              <div className="absolute inset-0 rounded-t-[2.5rem] lg:left-[4%] lg:top-[4%] lg:bottom-[4%] lg:right-[4%] lg:rounded-[2.5rem]">
-                <Image
-                  src={HERO_IMAGE.src}
-                  alt={HERO_IMAGE.alt}
-                  fill
-                  priority
-                  sizes="(min-width: 1024px) 560px, 100vw"
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,250,242,0.02)_0%,rgba(52,45,36,0.08)_100%)]" />
-              </div>
+              <HeroCarousel images={HERO_IMAGES} />
 
               <div className="absolute left-6 top-6 rounded-[1.75rem] bg-[rgba(255,248,239,0.9)] px-5 py-4 text-[#342d24] shadow-[0_20px_35px_-28px_rgba(52,45,36,0.38)] backdrop-blur-sm">
                 <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-[color:var(--accent-strong)]">

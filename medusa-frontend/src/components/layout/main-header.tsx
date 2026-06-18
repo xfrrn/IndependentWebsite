@@ -1,6 +1,7 @@
 "use client"
 
-import { FormEvent, useState } from "react"
+import { FormEvent, useEffect, useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 
@@ -17,7 +18,16 @@ type HeaderContent = {
     label: string
     detail: string
     href: string
+    modalImageSrc?: string
+    modalImageAlt?: string
   }[]
+}
+
+type ContactModal = {
+  label: string
+  detail: string
+  imageSrc: string
+  imageAlt: string
 }
 
 function getCountryCode(pathname: string) {
@@ -37,7 +47,26 @@ export default function MainHeader({
   const pathname = usePathname()
   const router = useRouter()
   const [query, setQuery] = useState("")
+  const [contactModal, setContactModal] = useState<ContactModal | null>(null)
   const countryCode = getCountryCode(pathname)
+
+  useEffect(() => {
+    if (!contactModal) return
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setContactModal(null)
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown)
+    document.body.style.overflow = "hidden"
+
+    return () => {
+      document.removeEventListener("keydown", onKeyDown)
+      document.body.style.overflow = ""
+    }
+  }, [contactModal])
 
   const onSubmit = (event: FormEvent) => {
     event.preventDefault()
@@ -94,18 +123,39 @@ export default function MainHeader({
         </form>
 
         <div className="hidden items-center justify-end gap-5 text-xs text-[color:var(--text-body)] md:flex">
-          {content.links.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={`flex flex-col items-end ui-link ${item.href === "#" ? "pointer-events-none opacity-50" : ""}`}
-            >
-              <span className="uppercase tracking-[0.2em] text-[10px]">
-                {item.label}
-              </span>
-              <span className="text-sm text-black/80">{item.detail}</span>
-            </Link>
-          ))}
+          {content.links.map((item) =>
+            item.modalImageSrc ? (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() =>
+                  setContactModal({
+                    label: item.label,
+                    detail: item.detail,
+                    imageSrc: item.modalImageSrc as string,
+                    imageAlt: item.modalImageAlt || item.label,
+                  })
+                }
+                className="flex flex-col items-end text-right ui-link"
+              >
+                <span className="uppercase tracking-[0.2em] text-[10px]">
+                  {item.label}
+                </span>
+                <span className="text-sm text-black/80">{item.detail}</span>
+              </button>
+            ) : (
+              <Link
+                key={item.label}
+                href={item.href}
+                className={`flex flex-col items-end ui-link ${item.href === "#" ? "pointer-events-none opacity-50" : ""}`}
+              >
+                <span className="uppercase tracking-[0.2em] text-[10px]">
+                  {item.label}
+                </span>
+                <span className="text-sm text-black/80">{item.detail}</span>
+              </Link>
+            )
+          )}
           <HeaderLanguageSwitcher
             locales={locales}
             currentLocale={currentLocale}
@@ -114,15 +164,33 @@ export default function MainHeader({
 
         <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-black/60 md:hidden">
           <div className="flex flex-wrap items-center gap-4">
-            {content.links.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className={`text-sm uppercase tracking-[0.18em] text-black/80 ${item.href === "#" ? "pointer-events-none opacity-50" : ""}`}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {content.links.map((item) =>
+              item.modalImageSrc ? (
+                <button
+                  key={item.label}
+                  type="button"
+                  onClick={() =>
+                    setContactModal({
+                      label: item.label,
+                      detail: item.detail,
+                      imageSrc: item.modalImageSrc as string,
+                      imageAlt: item.modalImageAlt || item.label,
+                    })
+                  }
+                  className="text-sm uppercase tracking-[0.18em] text-black/80 ui-link"
+                >
+                  {item.label}
+                </button>
+              ) : (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={`text-sm uppercase tracking-[0.18em] text-black/80 ${item.href === "#" ? "pointer-events-none opacity-50" : ""}`}
+                >
+                  {item.label}
+                </Link>
+              )
+            )}
           </div>
           <HeaderLanguageSwitcher
             locales={locales}
@@ -130,6 +198,49 @@ export default function MainHeader({
           />
         </div>
       </div>
+
+      {contactModal ? (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 px-4 py-6 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-label={contactModal.label}
+          onClick={() => setContactModal(null)}
+        >
+          <div
+            className="w-full max-w-sm rounded-[1rem] bg-[var(--bg-surface)] p-4 shadow-[0_24px_80px_-28px_rgba(0,0,0,0.45)]"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mb-3 flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--text-muted)]">
+                  {contactModal.label}
+                </p>
+                <p className="mt-1 text-sm font-semibold text-[color:var(--text-strong)]">
+                  {contactModal.detail}
+                </p>
+              </div>
+              <button
+                type="button"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[color:var(--border-soft)] text-xl leading-none text-[color:var(--text-body)] transition hover:bg-[var(--bg-card)]"
+                onClick={() => setContactModal(null)}
+                aria-label="Close contact QR code"
+              >
+                X
+              </button>
+            </div>
+            <div className="relative aspect-[4/5] overflow-hidden rounded-[0.75rem] bg-white">
+              <Image
+                src={contactModal.imageSrc}
+                alt={contactModal.imageAlt}
+                fill
+                sizes="(min-width: 768px) 360px, calc(100vw - 64px)"
+                className="object-contain"
+              />
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }

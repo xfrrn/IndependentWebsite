@@ -25,7 +25,7 @@ export async function getSiteContentSection<T>(
     })
 
     if (locale) {
-      params.set("locale", locale)
+      params.set("content_locale", locale)
     }
 
     const response = await fetch(
@@ -57,6 +57,7 @@ export async function saveSiteContentSection(
   const response = await fetch(`${MEDUSA_BACKEND_URL}/store/site-content`, {
     method: "POST",
     headers: {
+      ...getStoreHeaders(),
       "content-type": "application/json",
       "x-content-admin-secret": process.env.CONTENT_ADMIN_SECRET || "",
     },

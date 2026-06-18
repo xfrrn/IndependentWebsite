@@ -15,31 +15,46 @@ export type MarketingNavItem = {
   groups?: MarketingNavGroup[]
 }
 
+export type ContactImagesContent = {
+  wechat?: {
+    src: string
+    alt?: string
+  }
+  whatsapp?: {
+    src: string
+    alt?: string
+  }
+}
+
 export const ANNOUNCEMENT = {
   text: "New Year Sale: Spend $350 to get $40 off plus free shipping.",
   ctaLabel: "See details",
   href: "/shop/scenario/shipping",
 }
 
-export const BRAND_NAME = "KID GOFUN"
+export const BRAND_NAME = "SIRA ACC"
 
-const emailAddress = process.env.NEXT_PUBLIC_CONTACT_EMAIL || ""
+const emailAddress = "tara@siraacc.cn"
 
 export const HEADER_LINKS = [
   {
     label: "Email",
-    detail: emailAddress || "Set contact email",
-    href: emailAddress ? `mailto:${emailAddress}` : "#",
+    detail: emailAddress,
+    href: `mailto:${emailAddress}`,
   },
   {
     label: "WeChat",
     detail: "Chat now",
-    href: process.env.NEXT_PUBLIC_WECHAT_URL || "#",
+    href: "#wechat",
+    modalImageSrc: "/contact/wechat.jpg",
+    modalImageAlt: "SIRA ACC WeChat QR code",
   },
   {
     label: "WhatsApp",
     detail: "Chat now",
-    href: process.env.NEXT_PUBLIC_WHATSAPP_URL || "#",
+    href: "#whatsapp",
+    modalImageSrc: "/contact/whatsapp.jpg",
+    modalImageAlt: "SIRA ACC WhatsApp contact card",
   },
 ]
 
@@ -51,6 +66,17 @@ export const HEADER_CONTENT = {
   links: HEADER_LINKS,
 }
 
+export const CONTACT_IMAGES_CONTENT: ContactImagesContent = {
+  wechat: {
+    src: "/contact/wechat.jpg",
+    alt: "SIRA ACC WeChat QR code",
+  },
+  whatsapp: {
+    src: "/contact/whatsapp.jpg",
+    alt: "SIRA ACC WhatsApp contact card",
+  },
+}
+
 export const HEADER_CONTENT_ZH = {
   brandName: BRAND_NAME,
   searchAriaLabel: "搜索",
@@ -59,18 +85,22 @@ export const HEADER_CONTENT_ZH = {
   links: [
     {
       label: "邮箱",
-      detail: emailAddress || "设置联系邮箱",
-      href: emailAddress ? `mailto:${emailAddress}` : "#",
+      detail: emailAddress,
+      href: `mailto:${emailAddress}`,
     },
     {
       label: "微信",
       detail: "立即咨询",
-      href: process.env.NEXT_PUBLIC_WECHAT_URL || "#",
+      href: "#wechat",
+      modalImageSrc: "/contact/wechat.jpg",
+      modalImageAlt: "SIRA ACC 微信二维码",
     },
     {
       label: "WhatsApp",
       detail: "立即咨询",
-      href: process.env.NEXT_PUBLIC_WHATSAPP_URL || "#",
+      href: "#whatsapp",
+      modalImageSrc: "/contact/whatsapp.jpg",
+      modalImageAlt: "SIRA ACC WhatsApp 名片",
     },
   ],
 }
@@ -89,23 +119,6 @@ export const MARKETING_NAV: MarketingNavItem[] = [
           { label: "STEM Learning", href: "/shop/category/stem" },
           { label: "Pretend Play", href: "/shop/category/pretend" },
           { label: "Travel Toys", href: "/shop/category/travel" },
-        ],
-      },
-    ],
-  },
-  { label: "HOT SELL", href: "/shop/scenario/featured" },
-  {
-    label: "AGE",
-    groups: [
-      {
-        title: "Age",
-        links: [
-          { label: "0-24 Months", href: "/shop/age/0-24-months" },
-          { label: "2-4 Years", href: "/shop/age/2-4-years" },
-          { label: "5-7 Years", href: "/shop/age/5-7-years" },
-          { label: "8-10 Years", href: "/shop/age/8-10-years" },
-          { label: "11-13 Years", href: "/shop/age/11-13-years" },
-          { label: "14+ Years", href: "/shop/age/14-plus-years" },
         ],
       },
     ],
@@ -147,31 +160,32 @@ export const NAV_CONTENT_ZH = {
         },
       ],
     },
-    { label: "热卖推荐", href: "/shop/scenario/featured" },
-    {
-      label: "年龄",
-      groups: [
-        {
-          title: "年龄",
-          links: [
-            { label: "0-24 个月", href: "/shop/age/0-24-months" },
-            { label: "2-4 岁", href: "/shop/age/2-4-years" },
-            { label: "5-7 岁", href: "/shop/age/5-7-years" },
-            { label: "8-10 岁", href: "/shop/age/8-10-years" },
-            { label: "11-13 岁", href: "/shop/age/11-13-years" },
-            { label: "14 岁以上", href: "/shop/age/14-plus-years" },
-          ],
-        },
-      ],
-    },
   ] as MarketingNavItem[],
 }
 
 export const HERO_IMAGE = {
-  alt: "FritzS Learning hero",
+  alt: "SIRA ACC learning products hero",
   src:
     "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=2000&q=80",
 }
+
+export const HERO_IMAGES = [
+  {
+    alt: "Learning toys arranged in a bright classroom",
+    src:
+      "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=2000&q=80",
+  },
+  {
+    alt: "Children's building blocks and creative play tools",
+    src:
+      "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=2000&q=80",
+  },
+  {
+    alt: "Colorful toys for playful early learning",
+    src:
+      "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=2000&q=80",
+  },
+]
 
 export const HERO_CONTENT = {
   eyebrow: "Featured",
@@ -182,7 +196,7 @@ export const HERO_CONTENT = {
   primaryCtaHref: "/products",
   secondaryCtaLabel: "View Toy",
   secondaryCtaHref: "/shop/scenario/featured",
-  badgeLabel: "KID GOFUN",
+  badgeLabel: "SIRA ACC",
   badgeText: "Bright ideas for curious little minds.",
 }
 
@@ -195,7 +209,7 @@ export const HERO_CONTENT_ZH = {
   primaryCtaHref: "/products",
   secondaryCtaLabel: "查看玩具",
   secondaryCtaHref: "/shop/scenario/featured",
-  badgeLabel: "KID GOFUN",
+  badgeLabel: "SIRA ACC",
   badgeText: "给好奇小脑袋的明亮灵感。",
 }
 
@@ -781,19 +795,19 @@ export const PROMO_HERO = {
 }
 
 export const FOOTER_CONTENT = {
-  brandName: "KID GOFUN",
-  websiteLabel: "www.kidgofun.com",
-  websiteHref: "https://www.kidgofun.com",
-  contactLabel: "Contact: +86 15575725092",
-  contactHref: "tel:+8615575725092",
+  brandName: "SIRA ACC",
+  websiteLabel: "www.siraa.cn",
+  websiteHref: "https://www.siraa.cn",
+  contactLabel: "Contact: +86 17820659786",
+  contactHref: "tel:+8617820659786",
   socialLinks: [
     {
       label: "WeChat",
-      href: process.env.NEXT_PUBLIC_WECHAT_URL || "#",
+      href: "/contact/wechat.jpg",
     },
     {
       label: "WhatsApp",
-      href: process.env.NEXT_PUBLIC_WHATSAPP_URL || "#",
+      href: "/contact/whatsapp.jpg",
     },
     {
       label: "Facebook",
@@ -808,7 +822,7 @@ export const FOOTER_CONTENT = {
 
 export const FOOTER_CONTENT_ZH = {
   ...FOOTER_CONTENT,
-  contactLabel: "联系: +86 15575725092",
+  contactLabel: "联系: +86 17820659786",
 }
 
 export function isChineseLocale(locale?: string | null) {

@@ -5,6 +5,7 @@ import {
   AGE_PAGE_CONTENT,
   CATEGORY_PAGE_CONTENT,
   CATEGORY_HIGHLIGHTS,
+  CONTACT_IMAGES_CONTENT,
   FOOTER_CONTENT,
   HEADER_CONTENT,
   HERO_CONTENT,
@@ -12,8 +13,10 @@ import {
   FEATURED_PRODUCTS,
   PRODUCTS_PAGE_CONTENT,
   PRODUCT_UI_CONTENT,
+  type ContactImagesContent,
 } from "@lib/data/homepage"
 import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
+import { getSiteContentSection } from "@lib/data/site-content"
 import {
   getContentManagerKey,
   isContentManagerAuthorized,
@@ -83,6 +86,35 @@ function TextareaField({
         rows={rows}
         className="rounded-2xl border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.9)] px-4 py-3 text-sm text-[color:var(--text-strong)] outline-none transition duration-300 ease-out hover:border-[color:var(--accent)]/35 focus:border-[color:var(--accent)]"
       />
+    </label>
+  )
+}
+
+function FileField({
+  label,
+  name,
+  currentValue,
+}: {
+  label: string
+  name: string
+  currentValue?: string
+}) {
+  return (
+    <label className="flex flex-col gap-2">
+      <span className="text-sm font-medium text-[color:var(--text-body)]">
+        {label}
+      </span>
+      <input
+        type="file"
+        name={name}
+        accept="image/jpeg,image/png,image/webp"
+        className="rounded-2xl border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.9)] px-4 py-3 text-sm text-[color:var(--text-strong)] outline-none transition duration-300 ease-out file:mr-4 file:rounded-full file:border-0 file:bg-[var(--accent-soft)] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[color:var(--accent-strong)] hover:border-[color:var(--accent)]/35 focus:border-[color:var(--accent)]"
+      />
+      {currentValue ? (
+        <span className="break-all text-xs text-[color:var(--text-muted)]">
+          Current: {currentValue}
+        </span>
+      ) : null}
     </label>
   )
 }
@@ -162,6 +194,43 @@ function normalizeEditorLocale(locale?: string) {
     : "en-US"
 }
 
+function getContactImageKey(link: { href?: string; label?: string }) {
+  const value = `${link.href || ""} ${link.label || ""}`.toLowerCase()
+
+  if (value.includes("wechat") || value.includes("微信")) {
+    return "wechat" as const
+  }
+
+  if (value.includes("whatsapp")) {
+    return "whatsapp" as const
+  }
+
+  return null
+}
+
+function applySharedContactImages<T extends typeof HEADER_CONTENT>(
+  headerContent: T,
+  contactImages: ContactImagesContent
+): T {
+  return {
+    ...headerContent,
+    links: headerContent.links.map((link) => {
+      const key = getContactImageKey(link)
+      const image = key ? contactImages[key] : null
+
+      if (!image?.src) {
+        return link
+      }
+
+      return {
+        ...link,
+        modalImageSrc: image.src,
+        modalImageAlt: image.alt || link.modalImageAlt,
+      }
+    }),
+  } as T
+}
+
 export default async function ContentManagerPage(props: {
   params: Promise<{ countryCode: string }>
   searchParams: Promise<{ error?: string; locale?: string; saved?: string }>
@@ -222,6 +291,7 @@ export default async function ContentManagerPage(props: {
     footerContent,
     categoryPageContent,
     agePageContent,
+    contactImages,
   ] =
     await Promise.all([
       getLocalizedHomeContentSection("hero_content", HERO_CONTENT, currentLocale),
@@ -235,7 +305,15 @@ export default async function ContentManagerPage(props: {
       getLocalizedHomeContentSection("footer_content", FOOTER_CONTENT, currentLocale),
       getLocalizedHomeContentSection("category_page_content", CATEGORY_PAGE_CONTENT, currentLocale),
       getLocalizedHomeContentSection("age_page_content", AGE_PAGE_CONTENT, currentLocale),
+      getSiteContentSection<ContactImagesContent>(
+        "contact_images",
+        CONTACT_IMAGES_CONTENT
+      ),
     ])
+  const headerContentWithSharedImages = applySharedContactImages(
+    headerContent,
+    contactImages
+  )
 
   return (
     <main className="bg-[var(--bg-canvas)] px-4 py-10 md:px-8">
@@ -309,14 +387,14 @@ export default async function ContentManagerPage(props: {
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Brand name" name="brandName" defaultValue={headerContent.brandName} />
-              <Field label="Search button aria label" name="searchAriaLabel" defaultValue={headerContent.searchAriaLabel} />
-              <Field label="Search placeholder" name="searchPlaceholder" defaultValue={headerContent.searchPlaceholder} />
-              <Field label="Mobile menu button label" name="mobileMenuLabel" defaultValue={headerContent.mobileMenuLabel} />
+              <Field label="Brand name" name="brandName" defaultValue={headerContentWithSharedImages.brandName} />
+              <Field label="Search button aria label" name="searchAriaLabel" defaultValue={headerContentWithSharedImages.searchAriaLabel} />
+              <Field label="Search placeholder" name="searchPlaceholder" defaultValue={headerContentWithSharedImages.searchPlaceholder} />
+              <Field label="Mobile menu button label" name="mobileMenuLabel" defaultValue={headerContentWithSharedImages.mobileMenuLabel} />
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
-              {headerContent.links.map((item, index) => (
+              {headerContentWithSharedImages.links.map((item, index) => (
                 <div
                   key={`${item.label}-${index}`}
                   className="rounded-[1.5rem] border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.7)] p-5"
@@ -339,6 +417,21 @@ export default async function ContentManagerPage(props: {
                       label="Link"
                       name={`links.${index}.href`}
                       defaultValue={item.href}
+                    />
+                    <Field
+                      label="QR image URL"
+                      name={`links.${index}.modalImageSrc`}
+                      defaultValue={item.modalImageSrc || ""}
+                    />
+                    <FileField
+                      label="Upload QR image"
+                      name={`links.${index}.modalImageFile`}
+                      currentValue={item.modalImageSrc || ""}
+                    />
+                    <Field
+                      label="QR image alt text"
+                      name={`links.${index}.modalImageAlt`}
+                      defaultValue={item.modalImageAlt || ""}
                     />
                   </div>
                 </div>

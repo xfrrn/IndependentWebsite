@@ -11,7 +11,9 @@ import {
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const section = req.query.section as string | undefined
-  const locale = req.query.locale as string | undefined
+  const locale =
+    (req.query.content_locale as string | undefined) ||
+    (req.query.locale as string | undefined)
 
   if (section) {
     const record = locale
