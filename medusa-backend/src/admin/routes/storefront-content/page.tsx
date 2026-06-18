@@ -5,7 +5,8 @@ import { useEffect, useMemo, useState } from "react"
 
 const locales = [
   { value: "en-US", label: "English" },
-  { value: "zh-CN", label: "简体中文" },
+  { value: "ar-SA", label: "العربية" },
+  { value: "zh-CN", label: "中文" },
 ] as const
 
 type StorefrontContentConfig = {

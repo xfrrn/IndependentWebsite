@@ -4,6 +4,7 @@ import { sdk } from "@lib/config"
 import { revalidateTag } from "next/cache"
 import { cookies as nextCookies } from "next/headers"
 import { getAuthHeaders, getCacheTag, getCartId } from "./cookies"
+import { normalizeLocale } from "./supported-locales"
 
 const LOCALE_COOKIE_NAME = "_medusa_locale"
 
@@ -13,9 +14,9 @@ const LOCALE_COOKIE_NAME = "_medusa_locale"
 export const getLocale = async (): Promise<string | null> => {
   try {
     const cookies = await nextCookies()
-    return cookies.get(LOCALE_COOKIE_NAME)?.value ?? null
+    return normalizeLocale(cookies.get(LOCALE_COOKIE_NAME)?.value)
   } catch {
-    return null
+    return "en-US"
   }
 }
 
@@ -24,7 +25,7 @@ export const getLocale = async (): Promise<string | null> => {
  */
 export const setLocaleCookie = async (locale: string) => {
   const cookies = await nextCookies()
-  cookies.set(LOCALE_COOKIE_NAME, locale, {
+  cookies.set(LOCALE_COOKIE_NAME, normalizeLocale(locale), {
     maxAge: 60 * 60 * 24 * 365, // 1 year
     httpOnly: false, // Allow client-side access
     path: "/",
@@ -38,7 +39,9 @@ export const setLocaleCookie = async (locale: string) => {
  * Also updates the cart with the new locale if one exists.
  */
 export const updateLocale = async (localeCode: string): Promise<string> => {
-  await setLocaleCookie(localeCode)
+  const normalizedLocale = normalizeLocale(localeCode)
+
+  await setLocaleCookie(normalizedLocale)
 
   // Update cart with the new locale if a cart exists
   const cartId = await getCartId()
@@ -47,7 +50,7 @@ export const updateLocale = async (localeCode: string): Promise<string> => {
       ...(await getAuthHeaders()),
     }
 
-    await sdk.store.cart.update(cartId, { locale: localeCode }, {}, headers)
+    await sdk.store.cart.update(cartId, { locale: normalizedLocale }, {}, headers)
 
     const cartCacheTag = await getCacheTag("carts")
     if (cartCacheTag) {
@@ -71,5 +74,5 @@ export const updateLocale = async (localeCode: string): Promise<string> => {
     revalidateTag(collectionsCacheTag)
   }
 
-  return localeCode
+  return normalizedLocale
 }

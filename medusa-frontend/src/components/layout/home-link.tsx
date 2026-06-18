@@ -20,7 +20,7 @@ export default function HomeLink({
   return (
     <Link
       href={`/${countryCode}`}
-      className="rounded-full border border-black/10 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-black/60 hover:border-black/20"
+      className="rounded-full border border-[color:var(--border-soft)] px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-[color:var(--text-body)] hover:border-[color:var(--accent)]"
     >
       {isChinese ? "首页" : "Home"}
     </Link>

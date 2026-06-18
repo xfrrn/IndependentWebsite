@@ -58,19 +58,19 @@ export default async function ProductsPage(props: Props) {
     : products
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#f8f4ed_0%,#f3efe6_55%,#efe9df_100%)]">
+    <div className="min-h-screen bg-[var(--bg-canvas)]">
       <div className="content-container py-12">
-        <div className="mb-8 flex items-start justify-between gap-6 rounded-3xl border border-black/5 bg-white/90 p-8 shadow-[0_20px_45px_-30px_rgba(0,0,0,0.35)]">
+        <div className="mb-8 flex items-start justify-between gap-6 rounded-3xl border border-[color:var(--border-soft)] bg-[var(--bg-card)] p-8 shadow-[var(--shadow-soft)]">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-black/40">
+            <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--text-muted)]">
               {content.eyebrow}
             </p>
-            <h1 className="mt-3 text-3xl font-semibold text-black">
+            <h1 className="mt-3 text-3xl font-semibold text-[color:var(--text-strong)]">
               {query
                 ? `${content.searchTitlePrefix}${query}${content.searchTitleSuffix}`
                 : content.defaultTitle}
             </h1>
-            <p className="mt-3 text-sm text-black/60">
+            <p className="mt-3 text-sm text-[color:var(--text-body)]">
               {query
                 ? `${content.searchResultsLabelPrefix}${filtered.length}${content.searchResultsLabelSuffix}`
                 : content.defaultDescription}
@@ -78,14 +78,14 @@ export default async function ProductsPage(props: Props) {
           </div>
           <Link
             href={`/${params.countryCode}`}
-            className="rounded-full border border-black/10 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-black/60 hover:border-black/20"
+            className="rounded-full border border-[color:var(--border-soft)] px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-[color:var(--text-body)] hover:border-[color:var(--accent)]"
           >
             {content.homeLabel}
           </Link>
         </div>
 
         {filtered.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-black/20 bg-white/70 p-12 text-center text-sm text-black/60">
+          <div className="rounded-3xl border border-dashed border-[color:var(--border-soft)] bg-[var(--bg-card)] p-12 text-center text-sm text-[color:var(--text-body)]">
             {content.emptyMessage}
           </div>
         ) : (
@@ -93,7 +93,7 @@ export default async function ProductsPage(props: Props) {
             {filtered.map((product) => (
               <li
                 key={product.id}
-                className="rounded-3xl border border-black/5 bg-white p-4 shadow-[0_18px_40px_-30px_rgba(0,0,0,0.3)]"
+                className="rounded-3xl border border-[color:var(--border-soft)] bg-[var(--bg-card)] p-4 shadow-[var(--shadow-soft)]"
               >
                 <ProductPreview product={product} region={region} />
               </li>

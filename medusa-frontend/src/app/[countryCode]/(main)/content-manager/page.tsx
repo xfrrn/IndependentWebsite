@@ -4,7 +4,6 @@ import {
   AGE_HIGHLIGHTS,
   AGE_PAGE_CONTENT,
   CATEGORY_PAGE_CONTENT,
-  CATEGORY_HIGHLIGHTS,
   CONTACT_IMAGES_CONTENT,
   FOOTER_CONTENT,
   HEADER_CONTENT,
@@ -17,6 +16,7 @@ import {
 } from "@lib/data/homepage"
 import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
 import { getSiteContentSection } from "@lib/data/site-content"
+import { normalizeLocale, SUPPORTED_LOCALES } from "@lib/data/supported-locales"
 import {
   getContentManagerKey,
   isContentManagerAuthorized,
@@ -28,7 +28,6 @@ import {
   saveAgePageContent,
   saveAgeHighlights,
   saveCategoryPageContent,
-  saveCategoryHighlights,
   saveFooterContent,
   saveFeaturedProducts,
   saveHeaderContent,
@@ -86,6 +85,28 @@ function TextareaField({
         rows={rows}
         className="rounded-2xl border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.9)] px-4 py-3 text-sm text-[color:var(--text-strong)] outline-none transition duration-300 ease-out hover:border-[color:var(--accent)]/35 focus:border-[color:var(--accent)]"
       />
+    </label>
+  )
+}
+
+function CheckboxField({
+  label,
+  name,
+  defaultChecked,
+}: {
+  label: string
+  name: string
+  defaultChecked: boolean
+}) {
+  return (
+    <label className="flex items-center gap-3 rounded-2xl border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.9)] px-4 py-3 text-sm font-medium text-[color:var(--text-body)]">
+      <input
+        type="checkbox"
+        name={name}
+        defaultChecked={defaultChecked}
+        className="h-4 w-4 accent-[color:var(--accent)]"
+      />
+      <span>{label}</span>
     </label>
   )
 }
@@ -183,15 +204,8 @@ function StatusBanner({
   )
 }
 
-const EDITOR_LOCALES = [
-  { code: "en-US", label: "English" },
-  { code: "zh-CN", label: "简体中文" },
-] as const
-
 function normalizeEditorLocale(locale?: string) {
-  return EDITOR_LOCALES.some((item) => item.code === locale)
-    ? locale!
-    : "en-US"
+  return normalizeLocale(locale)
 }
 
 function getContactImageKey(link: { href?: string; label?: string }) {
@@ -286,7 +300,6 @@ export default async function ContentManagerPage(props: {
     featuredProducts,
     productsPageContent,
     productUiContent,
-    categoryHighlights,
     ageHighlights,
     footerContent,
     categoryPageContent,
@@ -300,7 +313,6 @@ export default async function ContentManagerPage(props: {
       getLocalizedHomeContentSection("featured_products", FEATURED_PRODUCTS, currentLocale),
       getLocalizedHomeContentSection("products_page_content", PRODUCTS_PAGE_CONTENT, currentLocale),
       getLocalizedHomeContentSection("product_ui_content", PRODUCT_UI_CONTENT, currentLocale),
-      getLocalizedHomeContentSection("category_highlights", CATEGORY_HIGHLIGHTS, currentLocale),
       getLocalizedHomeContentSection("age_highlights", AGE_HIGHLIGHTS, currentLocale),
       getLocalizedHomeContentSection("footer_content", FOOTER_CONTENT, currentLocale),
       getLocalizedHomeContentSection("category_page_content", CATEGORY_PAGE_CONTENT, currentLocale),
@@ -359,10 +371,10 @@ export default async function ContentManagerPage(props: {
 
         <SectionCard
           title="Language"
-          description="Choose which storefront language you are editing. English and Simplified Chinese are saved separately."
+          description="Choose which storefront language you are editing. English, Arabic, and Chinese are saved separately."
         >
           <div className="flex flex-wrap gap-3">
-            {EDITOR_LOCALES.map((locale) => (
+            {SUPPORTED_LOCALES.map((locale) => (
               <Link
                 key={locale.code}
                 href={`/${countryCode}/content-manager?locale=${locale.code}`}
@@ -564,6 +576,19 @@ export default async function ContentManagerPage(props: {
               <Field label="Strategy" name="strategy" defaultValue={featuredProducts.strategy} />
             </div>
 
+            <div className="grid gap-4 md:grid-cols-2">
+              <CheckboxField
+                label="Show product names"
+                name="showProductNames"
+                defaultChecked={featuredProducts.showProductNames ?? FEATURED_PRODUCTS.showProductNames}
+              />
+              <CheckboxField
+                label="Show product prices"
+                name="showProductPrices"
+                defaultChecked={featuredProducts.showProductPrices ?? FEATURED_PRODUCTS.showProductPrices}
+              />
+            </div>
+
             <SaveButton label="Save all products section" />
           </form>
         </SectionCard>
@@ -630,69 +655,8 @@ export default async function ContentManagerPage(props: {
         </SectionCard>
 
         <SectionCard
-          title="Shop by category"
-          description="Controls the category section title and the six image cards shown on the homepage."
-        >
-          <form
-            action={saveCategoryHighlights.bind(null, countryCode, currentLocale)}
-            className="space-y-6"
-          >
-            <div className="grid gap-4 md:grid-cols-3">
-              <Field label="Eyebrow" name="eyebrow" defaultValue={categoryHighlights.eyebrow} />
-              <Field label="Title" name="title" defaultValue={categoryHighlights.title} />
-              <TextareaField label="Subtitle" name="subtitle" defaultValue={categoryHighlights.subtitle} rows={2} />
-            </div>
-
-            <div className="grid gap-4">
-              {categoryHighlights.items.map((item, index) => (
-                <div
-                  key={`${item.title}-${index}`}
-                  className="rounded-[1.5rem] border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.7)] p-5"
-                >
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
-                    Card {index + 1}
-                  </p>
-                  <div className="mt-4 grid gap-4 md:grid-cols-2">
-                    <Field
-                      label="Title"
-                      name={`items.${index}.title`}
-                      defaultValue={item.title}
-                    />
-                    <Field
-                      label="Button label"
-                      name={`items.${index}.ctaLabel`}
-                      defaultValue={item.ctaLabel}
-                    />
-                    <Field
-                      label="Link"
-                      name={`items.${index}.href`}
-                      defaultValue={item.href}
-                    />
-                    <Field
-                      label="Image URL"
-                      name={`items.${index}.image`}
-                      defaultValue={item.image}
-                    />
-                  </div>
-                  <div className="mt-4">
-                    <TextareaField
-                      label="Description"
-                      name={`items.${index}.description`}
-                      defaultValue={item.description}
-                      rows={3}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <SaveButton label="Save category section" />
-          </form>
-        </SectionCard>
-
-        <SectionCard
-          title="Shop by age"
-          description="Controls the age section title and the six circular age entry points."
+          title="Shop by category circles"
+          description="Controls the category section title and the six circular category entry points."
         >
           <form
             action={saveAgeHighlights.bind(null, countryCode, currentLocale)}
@@ -711,16 +675,16 @@ export default async function ContentManagerPage(props: {
                   className="rounded-[1.5rem] border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.7)] p-5"
                 >
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
-                    Age card {index + 1}
+                    Category circle {index + 1}
                   </p>
-                  <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                  <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
                     <Field
-                      label="Value"
+                      label="Circle text"
                       name={`items.${index}.value`}
                       defaultValue={item.value}
                     />
                     <Field
-                      label="Unit"
+                      label="Small text"
                       name={`items.${index}.unit`}
                       defaultValue={item.unit}
                     />
@@ -734,12 +698,17 @@ export default async function ContentManagerPage(props: {
                       name={`items.${index}.href`}
                       defaultValue={item.href}
                     />
+                    <Field
+                      label="Image URL"
+                      name={`items.${index}.image`}
+                      defaultValue={item.image || ""}
+                    />
                   </div>
                 </div>
               ))}
             </div>
 
-            <SaveButton label="Save age section" />
+            <SaveButton label="Save category circles" />
           </form>
         </SectionCard>
 

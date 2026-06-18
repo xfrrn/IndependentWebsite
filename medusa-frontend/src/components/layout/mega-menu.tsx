@@ -28,7 +28,7 @@ export default function MegaMenu({
       <div className="border-t border-[color:var(--border-soft)]">
         <div className="content-container py-8">
           <div className="grid gap-8 lg:grid-cols-[220px_1fr]">
-            <div className="rounded-[1.5rem] border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.88)] p-5">
+            <div className="rounded-[1.5rem] border border-[color:var(--border-soft)] bg-[var(--bg-card)] p-5">
               <p className="text-xs uppercase tracking-[0.22em] text-[color:var(--text-muted)]">
                 {content.megaMenuIntroLabelPrefix} {item.label}
               </p>
@@ -37,7 +37,7 @@ export default function MegaMenu({
               </p>
             </div>
 
-            <div className="rounded-[1.5rem] border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.88)] p-6">
+            <div className="rounded-[1.5rem] border border-[color:var(--border-soft)] bg-[var(--bg-card)] p-6">
               <div className="grid gap-8 md:grid-cols-2">
                 {item.groups.map((group) => (
                   <div key={group.title}>

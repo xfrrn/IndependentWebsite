@@ -19,10 +19,76 @@ type NavContent = {
 
 const CLOSE_DELAY_MS = 120
 
+const JEWELRY_CATEGORY_GROUPS = [
+  {
+    title: "Category",
+    links: [
+      { label: "Necklaces", href: "/shop/category/necklaces" },
+      { label: "Earrings", href: "/shop/category/earrings" },
+      { label: "Bracelets", href: "/shop/category/bracelets" },
+      { label: "Rings", href: "/shop/category/rings" },
+      { label: "Sets", href: "/shop/category/sets" },
+      { label: "Accessories", href: "/shop/category/accessories" },
+    ],
+  },
+]
+
+const JEWELRY_CATEGORY_GROUPS_ZH = [
+  {
+    title: "分类",
+    links: [
+      { label: "项链", href: "/shop/category/necklaces" },
+      { label: "耳环", href: "/shop/category/earrings" },
+      { label: "手链", href: "/shop/category/bracelets" },
+      { label: "戒指", href: "/shop/category/rings" },
+      { label: "套装", href: "/shop/category/sets" },
+      { label: "配饰", href: "/shop/category/accessories" },
+    ],
+  },
+]
+
 function stripCountry(pathname: string) {
   const parts = pathname.split("/").filter(Boolean)
   if (parts.length === 0) return "/"
   return `/${parts.slice(1).join("/")}`
+}
+
+function isAllProductsItem(item: MarketingNavItem) {
+  const label = item.label.toLowerCase()
+  return item.href === "/products" || label.includes("all products")
+}
+
+function isCategoryItem(item: MarketingNavItem) {
+  const label = item.label.toLowerCase()
+  return (
+    label.includes("category") ||
+    item.label.includes("类别") ||
+    item.label.includes("分类") ||
+    Boolean(item.groups?.length)
+  )
+}
+
+function getVisibleItems(items: MarketingNavItem[]) {
+  const allProducts = items.find(isAllProductsItem) ?? {
+    label: "ALL PRODUCTS",
+    href: "/products",
+  }
+  const category = items.find(isCategoryItem) ?? {
+    label: "CATEGORY",
+    groups: JEWELRY_CATEGORY_GROUPS,
+  }
+  const allProductsLabel = allProducts.label.toLowerCase().includes("all products")
+    ? allProducts.label
+    : "全部产品"
+  const categoryLabel =
+    category.label.toLowerCase().includes("category") ? "CATEGORY" : "分类"
+  const categoryGroups =
+    categoryLabel === "分类" ? JEWELRY_CATEGORY_GROUPS_ZH : JEWELRY_CATEGORY_GROUPS
+
+  return [
+    { ...allProducts, label: allProductsLabel, href: "/products" },
+    { ...category, label: categoryLabel, href: undefined, groups: categoryGroups },
+  ]
 }
 
 export default function PrimaryNav({ content }: { content: NavContent }) {
@@ -31,6 +97,7 @@ export default function PrimaryNav({ content }: { content: NavContent }) {
   const closeTimer = useRef<number | null>(null)
   const pathname = usePathname()
   const normalizedPath = stripCountry(pathname)
+  const visibleItems = getVisibleItems(content.items)
 
   const clearCloseTimer = () => {
     if (closeTimer.current) {
@@ -65,7 +132,7 @@ export default function PrimaryNav({ content }: { content: NavContent }) {
     >
       <div className="content-container flex items-center justify-between py-3">
         <button
-          className="text-xs uppercase tracking-[0.2em] text-black/60 md:hidden"
+          className="text-xs uppercase tracking-[0.2em] text-[color:var(--text-body)] md:hidden"
           type="button"
           onClick={() => setMobileOpen((prev) => !prev)}
           aria-expanded={mobileOpen}
@@ -74,8 +141,8 @@ export default function PrimaryNav({ content }: { content: NavContent }) {
           {mobileOpen ? content.mobileCloseLabel : content.mobileBrowseLabel}
         </button>
 
-        <ul className="hidden items-center gap-8 text-sm text-black/70 md:flex">
-          {content.items.map((item) => {
+        <ul className="hidden items-center gap-8 text-sm text-[color:var(--text-body)] md:flex">
+          {visibleItems.map((item) => {
             const href = item.href ?? item.groups?.[0]?.links[0]?.href ?? "#"
             const isActive =
               item.href && normalizedPath.startsWith(item.href)
@@ -118,7 +185,7 @@ export default function PrimaryNav({ content }: { content: NavContent }) {
         </div>
       </div>
 
-      {content.items.map((item) =>
+      {visibleItems.map((item) =>
         item.groups && openItem === item.label ? (
           <div
             key={item.label}
@@ -132,8 +199,8 @@ export default function PrimaryNav({ content }: { content: NavContent }) {
 
       {mobileOpen ? (
         <div id="primary-nav-mobile" className="border-t border-[color:var(--border-soft)] bg-[var(--bg-surface)] md:hidden">
-          <div className="content-container flex flex-col gap-3 py-4 text-sm text-black/70">
-            {content.items.map((item) => {
+          <div className="content-container flex flex-col gap-3 py-4 text-sm text-[color:var(--text-body)]">
+            {visibleItems.map((item) => {
               const href = item.href ?? item.groups?.[0]?.links[0]?.href ?? "#"
 
               return (

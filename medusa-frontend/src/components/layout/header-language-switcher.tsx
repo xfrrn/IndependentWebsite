@@ -4,69 +4,53 @@ import { useEffect, useMemo, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 
 import type { Locale } from "@lib/data/locales"
+import { normalizeLocale, SUPPORTED_LOCALES } from "@lib/data/supported-locales"
 
 type HeaderLanguageSwitcherProps = {
   locales: Locale[] | null
   currentLocale: string | null
 }
 
-const FALLBACK_LOCALES: Locale[] = [
-  { code: "en-US", name: "English" },
-  { code: "zh-CN", name: "简体中文" },
-]
-
 const LOCALE_COOKIE_NAME = "_medusa_locale"
-
-function getLanguageLabel(
-  code: string,
-  fallback: string,
-  displayLocale: string | null
-) {
-  try {
-    const names = new Intl.DisplayNames([displayLocale || code || "en-US"], {
-      type: "language",
-    })
-
-    return names.of(code) ?? fallback
-  } catch {
-    return fallback
-  }
-}
 
 export default function HeaderLanguageSwitcher({
   locales,
   currentLocale,
 }: HeaderLanguageSwitcherProps) {
   const router = useRouter()
-  const [selectedLocale, setSelectedLocale] = useState(currentLocale || "en-US")
+  const [selectedLocale, setSelectedLocale] = useState(
+    normalizeLocale(currentLocale)
+  )
   const [isPending, startTransition] = useTransition()
 
   const options = useMemo(() => {
-    const availableLocales = locales?.length ? locales : FALLBACK_LOCALES
+    const availableByCode = new Map(
+      (locales ?? []).map((locale) => [locale.code, locale])
+    )
 
-    return availableLocales.map((locale) => ({
+    return SUPPORTED_LOCALES.map((locale) => ({
       ...locale,
-      label: getLanguageLabel(locale.code, locale.name, currentLocale),
+      name: availableByCode.get(locale.code)?.name ?? locale.name,
     }))
-  }, [currentLocale, locales])
+  }, [locales])
 
   useEffect(() => {
-    setSelectedLocale(currentLocale || "en-US")
+    setSelectedLocale(normalizeLocale(currentLocale))
   }, [currentLocale])
 
   const handleChange = (localeCode: string) => {
-    setSelectedLocale(localeCode)
+    const nextLocale = normalizeLocale(localeCode)
+    setSelectedLocale(nextLocale)
 
     startTransition(() => {
       document.cookie = `${LOCALE_COOKIE_NAME}=${encodeURIComponent(
-        localeCode
+        nextLocale
       )}; path=/; max-age=31536000; samesite=strict`
       router.refresh()
     })
   }
-  const languageLabel = selectedLocale.toLowerCase().startsWith("zh")
-    ? "语言"
-    : "Language"
+
+  const languageLabel = selectedLocale === "ar-SA" ? "اللغة" : "Language"
 
   return (
     <label className="flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-[color:var(--text-body)]">
@@ -77,7 +61,7 @@ export default function HeaderLanguageSwitcher({
         aria-label="Language"
         className="h-9 rounded-full border border-[color:var(--border-soft)] bg-[var(--bg-card)] px-3 text-xs font-semibold uppercase tracking-[0.16em] text-[color:var(--text-strong)] transition duration-200 ease-out hover:border-[color:var(--accent)] focus:border-[color:var(--accent)] focus:outline-none disabled:cursor-wait disabled:opacity-60"
         disabled={isPending}
-        value={selectedLocale || "en-US"}
+        value={selectedLocale}
         onChange={(event) => handleChange(event.target.value)}
       >
         {options.map((locale) => (

@@ -1,35 +1,28 @@
 import { HttpTypes } from "@medusajs/types"
-import { PRODUCT_UI_CONTENT } from "@lib/data/homepage"
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
-import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
 import ProductPreview from "@modules/products/components/product-preview"
 
 type QueryStrategy = "default" | "newest"
 
 export default async function ProductsRow({
   countryCode,
-  currentLocale,
   title,
   subtitle,
   description,
   strategy = "default",
+  showProductNames = true,
+  showProductPrices = true,
 }: {
   countryCode: string
-  currentLocale?: string | null
   title: string
   subtitle: string
   description?: string
   strategy?: QueryStrategy
+  showProductNames?: boolean
+  showProductPrices?: boolean
 }) {
-  const [region, productUiContent] = await Promise.all([
-    getRegion(countryCode),
-    getLocalizedHomeContentSection(
-      "product_ui_content",
-      PRODUCT_UI_CONTENT,
-      currentLocale
-    ),
-  ])
+  const region = await getRegion(countryCode)
 
   if (!region) {
     return null
@@ -72,30 +65,19 @@ export default async function ProductsRow({
         </div>
 
         <ul className="grid grid-cols-2 gap-6 md:grid-cols-4">
-          {sorted.map((product) => {
-            const ageRange =
-              typeof product.metadata?.age_range === "string"
-                ? product.metadata.age_range
-                : null
-
-            return (
-              <li key={product.id} className="group relative">
-                {ageRange ? (
-                  <span className="absolute left-3 top-3 z-10 rounded-full border border-[color:var(--border-soft)] bg-[rgba(251,247,240,0.92)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[color:var(--text-body)] shadow-[0_8px_18px_-12px_rgba(85,63,39,0.22)] transition duration-300 ease-out group-hover:border-[color:var(--accent)]/30 group-hover:bg-[var(--accent-soft)] group-hover:text-[color:var(--accent-strong)]">
-                    {productUiContent.agesPrefix}
-                    {ageRange}
-                  </span>
-                ) : null}
-                <div className="ui-card ui-card-hover bg-[var(--bg-card)] p-4 transition duration-300 ease-out group-hover:border-[color:var(--accent)]/20">
-                  <ProductPreview
-                    product={product as HttpTypes.StoreProduct}
-                    region={region}
-                    isFeatured
-                  />
-                </div>
-              </li>
-            )
-          })}
+          {sorted.map((product) => (
+            <li key={product.id} className="group relative">
+              <div className="ui-card ui-card-hover bg-[var(--bg-card)] p-4 transition duration-300 ease-out group-hover:border-[color:var(--accent)]/20">
+                <ProductPreview
+                  product={product as HttpTypes.StoreProduct}
+                  region={region}
+                  isFeatured
+                  showTitle={showProductNames}
+                  showPrice={showProductPrices}
+                />
+              </div>
+            </li>
+          ))}
         </ul>
       </div>
     </section>

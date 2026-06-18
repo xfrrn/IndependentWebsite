@@ -26,7 +26,7 @@ export default function ShopLandingPage({
   homeHref: string
 }) {
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#f8f4ed_0%,#f3efe6_55%,#efe9df_100%)]">
+    <div className="min-h-screen bg-[var(--bg-canvas)]">
       <div className="content-container py-12">
         <div className="mb-6 flex items-center justify-between">
           <Link
@@ -37,7 +37,7 @@ export default function ShopLandingPage({
           </Link>
         </div>
 
-        <div className="rounded-3xl border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.9)] p-8 shadow-[0_20px_45px_-30px_rgba(92,72,45,0.18)]">
+        <div className="rounded-3xl border border-[color:var(--border-soft)] bg-[var(--bg-card)] p-8 shadow-[var(--shadow-soft)]">
           <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--text-muted)]">
             {eyebrow}
           </p>
@@ -49,7 +49,7 @@ export default function ShopLandingPage({
 
         <div className="mt-10">
           {products.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.72)] p-12 text-center text-sm text-[color:var(--text-body)]">
+            <div className="rounded-3xl border border-dashed border-[color:var(--border-soft)] bg-[var(--bg-card)] p-12 text-center text-sm text-[color:var(--text-body)]">
               {emptyMessage}
             </div>
           ) : (

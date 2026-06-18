@@ -3,24 +3,26 @@
 @import "tailwindcss/utilities";
 
 :root {
-  --bg-canvas: #f8f4ec;
-  --bg-surface: #fffaf2;
-  --bg-panel: #f4eee2;
-  --bg-card: #fbf6ed;
-  --text-strong: #342d24;
-  --text-body: #655949;
-  --text-muted: #9c8d79;
-  --border-soft: rgba(90, 72, 49, 0.12);
-  --shadow-soft: 0 22px 48px -34px rgba(92, 72, 45, 0.18);
-  --accent: #4e8b57;
-  --accent-strong: #2f6d3d;
-  --accent-soft: #e8f1e4;
-  --accent-warm: #d96d4f;
+  --bg-canvas: #080706;
+  --bg-surface: #11100e;
+  --bg-panel: #1a1712;
+  --bg-card: #14120f;
+  --text-strong: #f8efd7;
+  --text-body: #d7c6a3;
+  --text-muted: #9d8b66;
+  --border-soft: rgba(212, 175, 55, 0.18);
+  --shadow-soft: 0 24px 58px -34px rgba(0, 0, 0, 0.88);
+  --accent: #d4af37;
+  --accent-strong: #f4d35e;
+  --accent-soft: rgba(212, 175, 55, 0.14);
+  --accent-warm: #b87333;
 }
 
 html,
 body {
-  background: var(--bg-canvas);
+  background:
+    radial-gradient(circle at 18% 0%, rgba(212, 175, 55, 0.16), transparent 32rem),
+    linear-gradient(180deg, #100d09 0%, var(--bg-canvas) 36rem);
   color: var(--text-strong);
   font-family: var(--font-sans), "Trebuchet MS", sans-serif;
 }
@@ -102,7 +104,7 @@ body {
 
   .ui-card {
     border-color: var(--border-soft);
-    background: color-mix(in srgb, var(--bg-surface) 88%, white 12%);
+    background: color-mix(in srgb, var(--bg-card) 90%, #3f2f15 10%);
     box-shadow: var(--shadow-soft);
     @apply rounded-3xl border;
   }
@@ -124,9 +126,9 @@ body {
   }
 
   .ui-button-primary {
-    background: #2f2a24;
-    border-color: #2f2a24;
-    color: #fffaf2;
+    background: #d4af37;
+    border-color: #d4af37;
+    color: #080706;
     @apply hover:text-white;
   }
 
@@ -147,9 +149,9 @@ body {
 
   .ui-dropdown-surface {
     background:
-      linear-gradient(180deg, rgba(255, 250, 242, 0.98) 0%, rgba(248, 244, 236, 0.98) 100%);
+      linear-gradient(180deg, rgba(17, 16, 14, 0.98) 0%, rgba(8, 7, 6, 0.98) 100%);
     border: 1px solid var(--border-soft);
-    box-shadow: 0 26px 54px -34px rgba(92, 72, 45, 0.26);
+    box-shadow: 0 26px 54px -34px rgba(0, 0, 0, 0.88);
     backdrop-filter: blur(12px);
   }
 

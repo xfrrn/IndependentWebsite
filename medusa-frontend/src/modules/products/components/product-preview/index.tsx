@@ -1,5 +1,4 @@
 import { Text } from "@medusajs/ui"
-import { listProducts } from "@lib/data/products"
 import { getProductPrice } from "@lib/util/get-product-price"
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
@@ -10,10 +9,14 @@ export default async function ProductPreview({
   product,
   isFeatured,
   region,
+  showTitle = true,
+  showPrice = true,
 }: {
   product: HttpTypes.StoreProduct
   isFeatured?: boolean
   region: HttpTypes.StoreRegion
+  showTitle?: boolean
+  showPrice?: boolean
 }) {
   // const pricedProduct = await listProducts({
   //   regionId: region.id,
@@ -24,9 +27,11 @@ export default async function ProductPreview({
   //   return null
   // }
 
-  const { cheapestPrice } = getProductPrice({
-    product,
-  })
+  const { cheapestPrice } = showPrice
+    ? getProductPrice({
+        product,
+      })
+    : { cheapestPrice: null }
 
   return (
     <LocalizedClientLink
@@ -41,17 +46,23 @@ export default async function ProductPreview({
           size="full"
           isFeatured={isFeatured}
         />
-        <div className="mt-4 flex items-start justify-between gap-3 txt-compact-medium">
-          <Text
-            className="text-ui-fg-subtle text-[15px] font-semibold leading-6 transition duration-300 ease-out group-hover:-translate-y-0.5 group-hover:text-[color:var(--accent-strong)]"
-            data-testid="product-title"
-          >
-            {product.title}
-          </Text>
-          <div className="flex items-center gap-x-2">
-            {cheapestPrice && <PreviewPrice price={cheapestPrice} />}
+        {showTitle || showPrice ? (
+          <div className="mt-4 flex items-start justify-between gap-3 txt-compact-medium">
+            {showTitle ? (
+              <Text
+                className="text-[15px] font-semibold leading-6 text-[color:var(--text-strong)] transition duration-300 ease-out group-hover:-translate-y-0.5 group-hover:text-[color:var(--accent)]"
+                data-testid="product-title"
+              >
+                {product.title}
+              </Text>
+            ) : null}
+            {showPrice ? (
+              <div className="flex items-center gap-x-2">
+                {cheapestPrice && <PreviewPrice price={cheapestPrice} />}
+              </div>
+            ) : null}
           </div>
-        </div>
+        ) : null}
       </div>
     </LocalizedClientLink>
   )

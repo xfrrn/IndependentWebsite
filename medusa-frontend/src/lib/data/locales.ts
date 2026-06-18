@@ -2,6 +2,7 @@
 
 import { sdk } from "@lib/config"
 import { getCacheOptions } from "./cookies"
+import { SUPPORTED_LOCALES } from "./supported-locales"
 
 export type Locale = {
   code: string
@@ -23,6 +24,17 @@ export const listLocales = async (): Promise<Locale[] | null> => {
       next,
       cache: "force-cache",
     })
-    .then(({ locales }) => locales)
-    .catch(() => null)
+    .then(({ locales }) => {
+      const supportedCodes = new Set(SUPPORTED_LOCALES.map((item) => item.code))
+      const backendLocales = locales.filter((locale) =>
+        supportedCodes.has(locale.code)
+      )
+      const backendCodes = new Set(backendLocales.map((locale) => locale.code))
+      const missingLocales = SUPPORTED_LOCALES.filter(
+        (locale) => !backendCodes.has(locale.code)
+      )
+
+      return [...backendLocales, ...missingLocales]
+    })
+    .catch(() => [...SUPPORTED_LOCALES])
 }

@@ -18,12 +18,8 @@ export default async function HeroIntro({
   return (
     <section className="bg-[var(--bg-canvas)]">
       <div className="content-container ui-section-tight">
-        <div className="relative overflow-hidden rounded-[2.25rem] bg-[#d94b3d] shadow-[0_30px_70px_-40px_rgba(126,61,34,0.42)]">
-          <div className="absolute left-[-5%] top-[-12%] h-40 w-40 rounded-[2rem] bg-[#c43629]/70 blur-sm md:h-64 md:w-64" />
-          <div className="absolute left-[12%] top-[8%] h-14 w-14 rounded-full bg-[#f6a28a]/60 md:h-20 md:w-20" />
-          <div className="absolute left-[30%] bottom-[12%] h-12 w-12 rounded-full bg-[#f5c14e]" />
-          <div className="absolute right-[42%] top-[16%] h-10 w-10 rounded-full bg-[#f5b0a2]/70" />
-          <div className="absolute right-[8%] bottom-[10%] h-20 w-20 rounded-full bg-[#f4aa3f]/20 blur-[2px]" />
+        <div className="relative overflow-hidden rounded-[2.25rem] border border-[color:var(--border-soft)] bg-[linear-gradient(135deg,#070605_0%,#17120b_48%,#30220d_100%)] shadow-[0_34px_82px_-42px_rgba(0,0,0,0.9)]">
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(212,175,55,0.14)_0%,rgba(212,175,55,0)_34%,rgba(0,0,0,0.22)_100%)]" />
 
           <div className="grid min-h-[460px] items-stretch lg:min-h-[560px] lg:grid-cols-[1.05fr_0.95fr]">
             <div className="relative z-10 flex flex-col justify-center px-8 py-14 text-white md:px-14 lg:px-16">
@@ -45,7 +41,7 @@ export default async function HeroIntro({
               <div className="mt-8 flex flex-wrap gap-4">
                 <Link
                   href={content.primaryCtaHref}
-                  className="inline-flex items-center gap-2 rounded-full bg-[#f2a26b] px-6 py-3 text-sm font-bold text-[#342d24] transition duration-300 ease-out hover:-translate-y-0.5 hover:bg-[#f6b27f]"
+                  className="inline-flex items-center gap-2 rounded-full bg-[color:var(--accent)] px-6 py-3 text-sm font-bold text-[#080706] transition duration-300 ease-out hover:-translate-y-0.5 hover:bg-[color:var(--accent-strong)]"
                 >
                   {content.primaryCtaLabel}
                 </Link>
@@ -59,10 +55,10 @@ export default async function HeroIntro({
             </div>
 
             <div className="relative min-h-[280px] lg:min-h-full">
-              <div className="absolute inset-y-0 left-[-8%] hidden w-28 rounded-[2.5rem] bg-[#c43629] lg:block" />
+              <div className="absolute inset-y-0 left-[-8%] hidden w-28 rounded-[2.5rem] bg-[rgba(212,175,55,0.16)] lg:block" />
               <HeroCarousel images={HERO_IMAGES} />
 
-              <div className="absolute left-6 top-6 rounded-[1.75rem] bg-[rgba(255,248,239,0.9)] px-5 py-4 text-[#342d24] shadow-[0_20px_35px_-28px_rgba(52,45,36,0.38)] backdrop-blur-sm">
+              <div className="absolute left-6 top-6 rounded-[1.75rem] border border-[rgba(212,175,55,0.25)] bg-[rgba(8,7,6,0.78)] px-5 py-4 text-[color:var(--text-strong)] shadow-[0_20px_35px_-28px_rgba(0,0,0,0.7)] backdrop-blur-sm">
                 <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-[color:var(--accent-strong)]">
                   {content.badgeLabel}
                 </p>

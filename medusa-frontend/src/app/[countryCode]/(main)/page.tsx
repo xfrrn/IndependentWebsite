@@ -1,7 +1,6 @@
 import MainHeader from "../../../components/layout/main-header"
 import PrimaryNav from "../../../components/layout/primary-nav"
 import AgeShopGrid from "../../../components/home/age-shop-grid"
-import CategoryHighlights from "../../../components/home/category-highlights"
 import FeaturedProductsSection from "../../../components/home/featured-products-section"
 import HeroIntro from "../../../components/home/hero-intro"
 import {
@@ -94,7 +93,6 @@ export default async function Home(props: {
           countryCode={params.countryCode}
           currentLocale={currentLocale}
         />
-        <CategoryHighlights currentLocale={currentLocale} />
         <AgeShopGrid currentLocale={currentLocale} />
       </main>
     </div>

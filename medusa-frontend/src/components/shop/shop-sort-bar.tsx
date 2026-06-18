@@ -35,7 +35,7 @@ export default function ShopSortBar({
   }
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.9)] px-4 py-3 text-sm text-[color:var(--text-body)] shadow-[0_12px_30px_-24px_rgba(92,72,45,0.18)]">
+    <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[color:var(--border-soft)] bg-[var(--bg-card)] px-4 py-3 text-sm text-[color:var(--text-body)] shadow-[var(--shadow-soft)]">
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-xs uppercase tracking-[0.22em] text-[color:var(--text-muted)]">
           Sort

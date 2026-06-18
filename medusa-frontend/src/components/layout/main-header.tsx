@@ -95,7 +95,7 @@ export default function MainHeader({
 
         <form
           onSubmit={onSubmit}
-          className="flex flex-1 items-center gap-2 rounded-full border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.88)] px-4 py-2 shadow-[0_10px_30px_-22px_rgba(85,63,39,0.14)] transition duration-300 ease-out focus-within:border-[color:var(--accent)] focus-within:shadow-[0_16px_34px_-24px_rgba(78,139,87,0.28)]"
+          className="flex flex-1 items-center gap-2 rounded-full border border-[color:var(--border-soft)] bg-[rgba(20,18,15,0.88)] px-4 py-2 shadow-[0_18px_38px_-28px_rgba(0,0,0,0.9)] transition duration-300 ease-out focus-within:border-[color:var(--accent)] focus-within:shadow-[0_18px_42px_-28px_rgba(212,175,55,0.34)]"
         >
           <button
             className="flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--accent)] text-white transition duration-300 ease-out hover:bg-[color:var(--accent-strong)]"
@@ -141,7 +141,7 @@ export default function MainHeader({
                 <span className="uppercase tracking-[0.2em] text-[10px]">
                   {item.label}
                 </span>
-                <span className="text-sm text-black/80">{item.detail}</span>
+                <span className="text-sm text-[color:var(--text-body)]">{item.detail}</span>
               </button>
             ) : (
               <Link
@@ -152,7 +152,7 @@ export default function MainHeader({
                 <span className="uppercase tracking-[0.2em] text-[10px]">
                   {item.label}
                 </span>
-                <span className="text-sm text-black/80">{item.detail}</span>
+                <span className="text-sm text-[color:var(--text-body)]">{item.detail}</span>
               </Link>
             )
           )}
@@ -162,7 +162,7 @@ export default function MainHeader({
           />
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-black/60 md:hidden">
+        <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-[color:var(--text-body)] md:hidden">
           <div className="flex flex-wrap items-center gap-4">
             {content.links.map((item) =>
               item.modalImageSrc ? (
@@ -177,7 +177,7 @@ export default function MainHeader({
                       imageAlt: item.modalImageAlt || item.label,
                     })
                   }
-                  className="text-sm uppercase tracking-[0.18em] text-black/80 ui-link"
+                  className="text-sm uppercase tracking-[0.18em] text-[color:var(--text-body)] ui-link"
                 >
                   {item.label}
                 </button>
@@ -185,7 +185,7 @@ export default function MainHeader({
                 <Link
                   key={item.label}
                   href={item.href}
-                  className={`text-sm uppercase tracking-[0.18em] text-black/80 ${item.href === "#" ? "pointer-events-none opacity-50" : ""}`}
+                  className={`text-sm uppercase tracking-[0.18em] text-[color:var(--text-body)] ${item.href === "#" ? "pointer-events-none opacity-50" : ""}`}
                 >
                   {item.label}
                 </Link>

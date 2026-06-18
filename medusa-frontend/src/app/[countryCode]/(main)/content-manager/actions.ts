@@ -42,6 +42,20 @@ function readString(
   return value.trim()
 }
 
+function readBoolean(formData: FormData, key: string, fallback = false) {
+  const value = formData.get(key)
+
+  if (value === null) {
+    return false
+  }
+
+  if (typeof value !== "string") {
+    return fallback
+  }
+
+  return value === "on" || value === "true"
+}
+
 async function saveUploadedImage(
   formData: FormData,
   key: string,
@@ -265,6 +279,16 @@ function buildFeaturedProducts(formData: FormData) {
     title: readString(formData, "title", FEATURED_PRODUCTS.title),
     subtitle: readString(formData, "subtitle", FEATURED_PRODUCTS.subtitle),
     strategy: readString(formData, "strategy", FEATURED_PRODUCTS.strategy),
+    showProductNames: readBoolean(
+      formData,
+      "showProductNames",
+      FEATURED_PRODUCTS.showProductNames
+    ),
+    showProductPrices: readBoolean(
+      formData,
+      "showProductPrices",
+      FEATURED_PRODUCTS.showProductPrices
+    ),
   }
 }
 
@@ -458,6 +482,7 @@ function buildAgeHighlights(formData: FormData) {
       unit: readString(formData, `items.${index}.unit`, item.unit),
       title: readString(formData, `items.${index}.title`, item.title),
       href: readString(formData, `items.${index}.href`, item.href),
+      image: readString(formData, `items.${index}.image`, item.image || ""),
     })),
   }
 }

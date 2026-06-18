@@ -27,7 +27,7 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
   return (
     <Container
       className={clx(
-        "relative w-full overflow-hidden rounded-[1.75rem] border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.92)] p-4 shadow-[0_18px_36px_-30px_rgba(92,72,45,0.18)] transition duration-300 ease-out group-hover:-translate-y-1 group-hover:border-[color:var(--accent)]/25 group-hover:shadow-[0_24px_44px_-28px_rgba(92,72,45,0.24)]",
+        "relative w-full overflow-hidden rounded-[1.75rem] border border-[color:var(--border-soft)] bg-[radial-gradient(circle_at_50%_18%,#312414_0%,#11100e_44%,#060504_100%)] p-4 shadow-[0_22px_52px_-30px_rgba(0,0,0,0.82)] transition duration-300 ease-out group-hover:-translate-y-1 group-hover:border-[rgba(244,211,94,0.5)] group-hover:shadow-[0_30px_62px_-30px_rgba(212,175,55,0.32)]",
         className,
         {
           "aspect-[11/14]": isFeatured,
@@ -54,7 +54,7 @@ const ImageOrPlaceholder = ({
     <Image
       src={image}
       alt="Thumbnail"
-      className="absolute inset-0 object-cover object-center transition duration-500 ease-out group-hover:scale-[1.07] group-hover:rotate-[0.35deg]"
+      className="absolute inset-0 object-contain object-center p-5 transition duration-500 ease-out group-hover:scale-[1.05]"
       draggable={false}
       quality={50}
       sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"

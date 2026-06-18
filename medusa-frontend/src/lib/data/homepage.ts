@@ -113,12 +113,12 @@ export const MARKETING_NAV: MarketingNavItem[] = [
       {
         title: "Category",
         links: [
-          { label: "Building Toys", href: "/shop/category/building" },
-          { label: "Sensory Play", href: "/shop/category/sensory" },
-          { label: "Puzzles", href: "/shop/category/puzzles" },
-          { label: "STEM Learning", href: "/shop/category/stem" },
-          { label: "Pretend Play", href: "/shop/category/pretend" },
-          { label: "Travel Toys", href: "/shop/category/travel" },
+          { label: "Necklaces", href: "/shop/category/necklaces" },
+          { label: "Earrings", href: "/shop/category/earrings" },
+          { label: "Bracelets", href: "/shop/category/bracelets" },
+          { label: "Rings", href: "/shop/category/rings" },
+          { label: "Sets", href: "/shop/category/sets" },
+          { label: "Accessories", href: "/shop/category/accessories" },
         ],
       },
     ],
@@ -228,6 +228,8 @@ export const FEATURED_PRODUCTS = {
   title: "All Products",
   subtitle: "Browse all learning tools.",
   strategy: "default" as const,
+  showProductNames: true,
+  showProductPrices: false,
 }
 
 export const FEATURED_PRODUCTS_ZH = {
@@ -646,45 +648,113 @@ export const CATEGORY_HIGHLIGHTS_ZH = {
 }
 
 export const AGE_HIGHLIGHTS = {
-  eyebrow: "Age",
-  title: "Shop by age",
-  subtitle: "Pick the right age range and jump straight into the matching products.",
+  eyebrow: "Category",
+  title: "Shop by category",
+  subtitle: "Choose a jewelry category and jump straight into the matching pieces.",
   items: [
     {
-      value: "0-24",
-      unit: "Months",
-      title: "0-24 Months",
-      href: "/shop/age/0-24-months",
+      value: "Necklaces",
+      unit: "",
+      title: "Necklaces",
+      href: "/shop/category/necklaces",
+      image:
+        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=900&q=80",
     },
     {
-      value: "2-4",
-      unit: "Years",
-      title: "2-4 Years",
-      href: "/shop/age/2-4-years",
+      value: "Earrings",
+      unit: "",
+      title: "Earrings",
+      href: "/shop/category/earrings",
+      image:
+        "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=900&q=80",
     },
     {
-      value: "5-7",
-      unit: "Years",
-      title: "5-7 Years",
-      href: "/shop/age/5-7-years",
+      value: "Bracelets",
+      unit: "",
+      title: "Bracelets",
+      href: "/shop/category/bracelets",
+      image:
+        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=900&q=80",
     },
     {
-      value: "8-10",
-      unit: "Years",
-      title: "8-10 Years",
-      href: "/shop/age/8-10-years",
+      value: "Rings",
+      unit: "",
+      title: "Rings",
+      href: "/shop/category/rings",
+      image:
+        "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=900&q=80",
     },
     {
-      value: "11-13",
-      unit: "Years",
-      title: "11-13 Years",
-      href: "/shop/age/11-13-years",
+      value: "Sets",
+      unit: "",
+      title: "Sets",
+      href: "/shop/category/sets",
+      image:
+        "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=900&q=80",
     },
     {
-      value: "14+",
-      unit: "Years",
-      title: "14+ Years",
-      href: "/shop/age/14-plus-years",
+      value: "Accessories",
+      unit: "",
+      title: "Accessories",
+      href: "/shop/category/accessories",
+      image:
+        "https://images.unsplash.com/photo-1620656798579-1984d9e87df6?auto=format&fit=crop&w=900&q=80",
+    },
+  ],
+}
+
+export const CATEGORY_CIRCLE_HIGHLIGHTS_ZH = {
+  eyebrow: "分类",
+  title: "按分类选购",
+  subtitle: "选择珠宝分类，快速查看对应产品。",
+  items: [
+    {
+      value: "项链",
+      unit: "",
+      title: "项链",
+      href: "/shop/category/necklaces",
+      image:
+        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+      value: "耳环",
+      unit: "",
+      title: "耳环",
+      href: "/shop/category/earrings",
+      image:
+        "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+      value: "手链",
+      unit: "",
+      title: "手链",
+      href: "/shop/category/bracelets",
+      image:
+        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+      value: "戒指",
+      unit: "",
+      title: "戒指",
+      href: "/shop/category/rings",
+      image:
+        "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+      value: "套装",
+      unit: "",
+      title: "套装",
+      href: "/shop/category/sets",
+      image:
+        "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+      value: "配饰",
+      unit: "",
+      title: "配饰",
+      href: "/shop/category/accessories",
+      image:
+        "https://images.unsplash.com/photo-1620656798579-1984d9e87df6?auto=format&fit=crop&w=900&q=80",
     },
   ],
 }
@@ -850,7 +920,7 @@ export function getHomepageFallback(section: string, locale?: string | null) {
     case "category_highlights":
       return CATEGORY_HIGHLIGHTS_ZH
     case "age_highlights":
-      return AGE_HIGHLIGHTS_ZH
+      return CATEGORY_CIRCLE_HIGHLIGHTS_ZH
     case "category_page_content":
       return CATEGORY_PAGE_CONTENT_ZH
     case "age_page_content":
