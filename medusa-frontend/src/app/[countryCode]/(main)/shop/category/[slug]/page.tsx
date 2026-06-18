@@ -25,14 +25,6 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     "category_page_content",
     CATEGORY_PAGE_CONTENT
   )
-  const page = content.pages.find((item) => item.slug === params.slug)
-
-  if (!page) {
-    return {
-      title: "Category not found",
-    }
-  }
-
   const category = await getCategoryByHandle([params.slug])
 
   if (!category) {
@@ -41,9 +33,14 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     }
   }
 
+  const page = content.pages.find((item) => item.slug === params.slug)
+  const title = page?.title ?? category.name
+  const description =
+    page?.description ?? category.description ?? `${category.name} category.`
+
   return {
-    title: `${page.title} | Categories`,
-    description: page.description,
+    title: `${title} | Categories`,
+    description,
   }
 }
 
@@ -54,12 +51,6 @@ export default async function CategoryLandingPage(props: Props) {
     "category_page_content",
     CATEGORY_PAGE_CONTENT
   )
-  const page = content.pages.find((item) => item.slug === params.slug)
-
-  if (!page) {
-    notFound()
-  }
-
   const category = await getCategoryByHandle([params.slug])
 
   if (!category) {
@@ -71,7 +62,11 @@ export default async function CategoryLandingPage(props: Props) {
     notFound()
   }
 
+  const page = content.pages.find((item) => item.slug === params.slug)
   const pageNumber = Math.max(Number(searchParams.page) || 1, 1)
+  const title = page?.title ?? category.name
+  const description =
+    page?.description ?? category.description ?? `${category.name} category.`
 
   const {
     response: { products, count },
@@ -91,8 +86,8 @@ export default async function CategoryLandingPage(props: Props) {
   return (
     <ShopLandingPage
       eyebrow={content.eyebrow}
-      title={page.title}
-      description={page.description}
+      title={title}
+      description={description}
       emptyMessage={content.emptyMessage}
       products={sorted}
       region={region}

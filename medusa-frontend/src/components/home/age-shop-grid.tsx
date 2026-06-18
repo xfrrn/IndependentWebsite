@@ -1,7 +1,7 @@
-import Image from "next/image"
 import Link from "next/link"
 
 import { AGE_HIGHLIGHTS } from "@lib/data/homepage"
+import { listCategories } from "@lib/data/categories"
 import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
 
 type CategoryCircleItem = {
@@ -12,16 +12,52 @@ type CategoryCircleItem = {
   image?: string
 }
 
+type CategoryCircleSource = {
+  handle?: string | null
+  metadata?: Record<string, unknown> | null
+  name?: string | null
+}
+
+function getCategoryImage(category: CategoryCircleSource) {
+  const metadata = category.metadata ?? {}
+  const image =
+    metadata.image ??
+    metadata.image_url ??
+    metadata.thumbnail ??
+    metadata.thumbnail_url
+
+  return typeof image === "string" && image.trim() ? image : undefined
+}
+
+function getCategoryCards(categories: CategoryCircleSource[]) {
+  return categories
+    .filter((category) => category.handle && category.name)
+    .map((category) => ({
+      value: category.name as string,
+      title: category.name as string,
+      href: `/shop/category/${category.handle}`,
+      image: getCategoryImage(category),
+    }))
+}
+
 export default async function AgeShopGrid({
   currentLocale,
 }: {
   currentLocale: string | null
 }) {
-  const content = await getLocalizedHomeContentSection(
-    "age_highlights",
-    AGE_HIGHLIGHTS,
-    currentLocale
-  )
+  const [content, categories] = await Promise.all([
+    getLocalizedHomeContentSection(
+      "age_highlights",
+      AGE_HIGHLIGHTS,
+      currentLocale
+    ),
+    listCategories(),
+  ])
+  const categoryCards = getCategoryCards(categories)
+
+  if (!categoryCards.length) {
+    return null
+  }
 
   return (
     <section className="bg-[var(--bg-canvas)]">
@@ -41,7 +77,7 @@ export default async function AgeShopGrid({
         </div>
 
         <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 xl:grid-cols-6">
-          {(content.items as CategoryCircleItem[]).map((card) => (
+          {(categoryCards as CategoryCircleItem[]).map((card) => (
             <Link
               key={card.title}
               href={card.href}
@@ -50,12 +86,11 @@ export default async function AgeShopGrid({
               <div className="pointer-events-none absolute top-6 h-28 w-28 rounded-full bg-[radial-gradient(circle,rgba(212,175,55,0.38)_0%,rgba(212,175,55,0)_72%)] opacity-0 blur-2xl transition duration-300 ease-out group-hover:opacity-100" />
               <div className="relative flex aspect-square w-full max-w-[260px] items-center justify-center overflow-hidden rounded-full border border-[rgba(212,175,55,0.26)] bg-[linear-gradient(145deg,#080705_0%,#1b1510_55%,#090807_100%)] p-4 shadow-[0_22px_52px_-30px_rgba(0,0,0,0.8)] transition duration-300 ease-out group-hover:-translate-y-1 group-hover:border-[rgba(244,211,94,0.7)] group-hover:shadow-[0_30px_70px_-28px_rgba(212,175,55,0.32)]">
                 {card.image ? (
-                  <Image
+                  <img
                     src={card.image}
                     alt={card.title}
-                    fill
-                    sizes="(min-width: 1280px) 16vw, (min-width: 768px) 33vw, 50vw"
-                    className="object-cover transition duration-500 ease-out group-hover:scale-[1.06]"
+                    className="absolute inset-0 h-full w-full object-cover transition duration-500 ease-out group-hover:scale-[1.06]"
+                    loading="lazy"
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center rounded-full border border-[rgba(212,175,55,0.2)] bg-[radial-gradient(circle,#4c3920_0%,#16100b_72%)] px-4 text-lg font-semibold text-[color:var(--accent)]">

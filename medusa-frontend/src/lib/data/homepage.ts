@@ -2,6 +2,7 @@ export type MarketingNavLink = {
   label: string
   href: string
   description?: string
+  image?: string
 }
 
 export type MarketingNavGroup = {

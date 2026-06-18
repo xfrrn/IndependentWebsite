@@ -9,6 +9,7 @@ import {
   NAV_CONTENT,
   type ContactImagesContent,
 } from "@lib/data/homepage"
+import { listCategories } from "@lib/data/categories"
 import { getLocale } from "@lib/data/locale-actions"
 import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
 import { listLocales } from "@lib/data/locales"
@@ -71,6 +72,7 @@ export default async function Home(props: {
       CONTACT_IMAGES_CONTENT
     ),
   ])
+  const categories = await listCategories()
   const headerContentWithSharedImages = applySharedContactImages(
     headerContent,
     contactImages
@@ -84,7 +86,11 @@ export default async function Home(props: {
           locales={locales}
           currentLocale={currentLocale}
         />
-        <PrimaryNav content={navContent} currentLocale={currentLocale} />
+        <PrimaryNav
+          categories={categories}
+          content={navContent}
+          currentLocale={currentLocale}
+        />
       </div>
 
       <main>

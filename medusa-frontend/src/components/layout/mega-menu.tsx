@@ -49,12 +49,22 @@ export default function MegaMenu({
                         <li key={link.label}>
                           <Link
                             href={link.href}
-                            className="inline-flex rounded-full px-3 py-2 text-sm text-[color:var(--text-body)] transition duration-200 ease-out hover:bg-[var(--accent-soft)] hover:text-[color:var(--accent-strong)] ui-focus"
+                            className="group/link flex items-center gap-3 rounded-2xl p-2 text-sm text-[color:var(--text-body)] transition duration-200 ease-out hover:bg-[var(--accent-soft)] hover:text-[color:var(--accent-strong)] ui-focus"
                           >
-                            {link.label}
+                            {link.image ? (
+                              <span className="relative block h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-[color:var(--border-soft)] bg-[var(--bg-surface)]">
+                                <img
+                                  alt=""
+                                  className="h-full w-full object-cover transition duration-300 ease-out group-hover/link:scale-105"
+                                  loading="lazy"
+                                  src={link.image}
+                                />
+                              </span>
+                            ) : null}
+                            <span className="font-medium">{link.label}</span>
                           </Link>
                           {link.description ? (
-                            <p className="mt-1 px-3 text-xs text-[color:var(--text-muted)]">
+                            <p className="mt-1 px-2 text-xs text-[color:var(--text-muted)]">
                               {link.description}
                             </p>
                           ) : null}

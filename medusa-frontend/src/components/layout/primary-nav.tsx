@@ -17,49 +17,13 @@ type NavContent = {
   items: MarketingNavItem[]
 }
 
+type NavCategory = {
+  handle?: string | null
+  metadata?: Record<string, unknown> | null
+  name?: string | null
+}
+
 const CLOSE_DELAY_MS = 120
-
-const JEWELRY_CATEGORY_GROUPS = [
-  {
-    title: "Category",
-    links: [
-      { label: "Necklaces", href: "/shop/category/necklaces" },
-      { label: "Earrings", href: "/shop/category/earrings" },
-      { label: "Bracelets", href: "/shop/category/bracelets" },
-      { label: "Rings", href: "/shop/category/rings" },
-      { label: "Sets", href: "/shop/category/sets" },
-      { label: "Accessories", href: "/shop/category/accessories" },
-    ],
-  },
-]
-
-const JEWELRY_CATEGORY_GROUPS_ZH = [
-  {
-    title: "分类",
-    links: [
-      { label: "项链", href: "/shop/category/necklaces" },
-      { label: "耳环", href: "/shop/category/earrings" },
-      { label: "手链", href: "/shop/category/bracelets" },
-      { label: "戒指", href: "/shop/category/rings" },
-      { label: "套装", href: "/shop/category/sets" },
-      { label: "配饰", href: "/shop/category/accessories" },
-    ],
-  },
-]
-
-const JEWELRY_CATEGORY_GROUPS_AR = [
-  {
-    title: "الفئة",
-    links: [
-      { label: "القلائد", href: "/shop/category/necklaces" },
-      { label: "الأقراط", href: "/shop/category/earrings" },
-      { label: "الأساور", href: "/shop/category/bracelets" },
-      { label: "الخواتم", href: "/shop/category/rings" },
-      { label: "الأطقم", href: "/shop/category/sets" },
-      { label: "الإكسسوارات", href: "/shop/category/accessories" },
-    ],
-  },
-]
 
 function stripCountry(pathname: string) {
   const parts = pathname.split("/").filter(Boolean)
@@ -130,12 +94,50 @@ function getLanguageFromLocale(locale?: string | null) {
   return null
 }
 
-function getDefaultLabels(language: ReturnType<typeof getNavLanguage>) {
+function getCategoryImage(category: NavCategory) {
+  const metadata = category.metadata ?? {}
+  const image =
+    metadata.image ??
+    metadata.image_url ??
+    metadata.thumbnail ??
+    metadata.thumbnail_url
+
+  return typeof image === "string" && image.trim() ? image : undefined
+}
+
+function getCategoryGroups(
+  language: ReturnType<typeof getNavLanguage>,
+  categories?: NavCategory[] | null
+) {
+  const title =
+    language === "ar" ? "الفئة" : language === "zh" ? "分类" : "Category"
+  const categoryLinks = categories
+    ?.filter((category) => category.handle && category.name)
+    .map((category) => ({
+      image: getCategoryImage(category),
+      label: category.name as string,
+      href: `/shop/category/${category.handle}`,
+    }))
+
+  return categoryLinks?.length
+    ? [
+        {
+          title,
+          links: categoryLinks,
+        },
+      ]
+    : []
+}
+
+function getDefaultLabels(
+  language: ReturnType<typeof getNavLanguage>,
+  categories?: NavCategory[] | null
+) {
   if (language === "ar") {
     return {
       allProducts: "كل المنتجات",
       category: "الفئة",
-      groups: JEWELRY_CATEGORY_GROUPS_AR,
+      groups: getCategoryGroups(language, categories),
     }
   }
 
@@ -143,20 +145,24 @@ function getDefaultLabels(language: ReturnType<typeof getNavLanguage>) {
     return {
       allProducts: "全部产品",
       category: "分类",
-      groups: JEWELRY_CATEGORY_GROUPS_ZH,
+      groups: getCategoryGroups(language, categories),
     }
   }
 
   return {
     allProducts: "ALL PRODUCTS",
     category: "CATEGORY",
-    groups: JEWELRY_CATEGORY_GROUPS,
+    groups: getCategoryGroups(language, categories),
   }
 }
 
-function getVisibleItems(content: NavContent, locale?: string | null) {
+function getVisibleItems(
+  content: NavContent,
+  locale?: string | null,
+  categories?: NavCategory[] | null
+) {
   const language = getLanguageFromLocale(locale) ?? getNavLanguage(content)
-  const defaults = getDefaultLabels(language)
+  const defaults = getDefaultLabels(language, categories)
   const allProducts = content.items.find(isAllProductsItem) ?? {
     label: defaults.allProducts,
     href: "/products",
@@ -165,13 +171,20 @@ function getVisibleItems(content: NavContent, locale?: string | null) {
     label: defaults.category,
     groups: defaults.groups,
   }
-
-  return [
+  const visibleItems = [
     {
       ...allProducts,
       label: defaults.allProducts,
       href: "/products",
     },
+  ]
+
+  if (!defaults.groups.length) {
+    return visibleItems
+  }
+
+  return [
+    ...visibleItems,
     {
       ...category,
       label: defaults.category,
@@ -182,9 +195,11 @@ function getVisibleItems(content: NavContent, locale?: string | null) {
 }
 
 export default function PrimaryNav({
+  categories,
   content,
   currentLocale,
 }: {
+  categories?: NavCategory[] | null
   content: NavContent
   currentLocale?: string | null
 }) {
@@ -193,7 +208,7 @@ export default function PrimaryNav({
   const closeTimer = useRef<number | null>(null)
   const pathname = usePathname()
   const normalizedPath = stripCountry(pathname)
-  const visibleItems = getVisibleItems(content, currentLocale)
+  const visibleItems = getVisibleItems(content, currentLocale, categories)
 
   const clearCloseTimer = () => {
     if (closeTimer.current) {
@@ -325,9 +340,19 @@ export default function PrimaryNav({
                               <Link
                                 key={link.label}
                                 href={link.href}
-                                className="rounded-xl bg-[var(--bg-surface)] px-3 py-2 transition duration-200 ease-out hover:bg-[var(--accent-soft)] hover:text-[color:var(--accent-strong)]"
+                                className="flex items-center gap-2 rounded-xl bg-[var(--bg-surface)] p-2 transition duration-200 ease-out hover:bg-[var(--accent-soft)] hover:text-[color:var(--accent-strong)]"
                               >
-                                {link.label}
+                                {link.image ? (
+                                  <span className="block h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-[color:var(--border-soft)]">
+                                    <img
+                                      alt=""
+                                      className="h-full w-full object-cover"
+                                      loading="lazy"
+                                      src={link.image}
+                                    />
+                                  </span>
+                                ) : null}
+                                <span>{link.label}</span>
                               </Link>
                             ))}
                           </div>

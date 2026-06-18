@@ -9,6 +9,17 @@ import PaginatedProducts from "@modules/store/templates/paginated-products"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { HttpTypes } from "@medusajs/types"
 
+function getCategoryImage(category: HttpTypes.StoreProductCategory) {
+  const metadata = category.metadata ?? {}
+  const image =
+    metadata.image ??
+    metadata.image_url ??
+    metadata.thumbnail ??
+    metadata.thumbnail_url
+
+  return typeof image === "string" && image.trim() ? image : undefined
+}
+
 export default function CategoryTemplate({
   category,
   sortBy,
@@ -69,9 +80,26 @@ export default function CategoryTemplate({
             <ul className="grid grid-cols-1 gap-2">
               {category.category_children?.map((c) => (
                 <li key={c.id}>
-                  <InteractiveLink href={`/categories/${c.handle}`}>
-                    {c.name}
-                  </InteractiveLink>
+                  {getCategoryImage(c) ? (
+                    <LocalizedClientLink
+                      href={`/categories/${c.handle}`}
+                      className="flex items-center gap-3 rounded-rounded border border-ui-border-base p-2 hover:bg-ui-bg-base-hover"
+                    >
+                      <span className="block h-14 w-14 shrink-0 overflow-hidden rounded-rounded bg-ui-bg-subtle">
+                        <img
+                          alt=""
+                          className="h-full w-full object-cover"
+                          loading="lazy"
+                          src={getCategoryImage(c)}
+                        />
+                      </span>
+                      <span>{c.name}</span>
+                    </LocalizedClientLink>
+                  ) : (
+                    <InteractiveLink href={`/categories/${c.handle}`}>
+                      {c.name}
+                    </InteractiveLink>
+                  )}
                 </li>
               ))}
             </ul>
