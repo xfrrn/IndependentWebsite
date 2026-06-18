@@ -895,38 +895,336 @@ export const FOOTER_CONTENT_ZH = {
   contactLabel: "联系: +86 17820659786",
 }
 
+export const HEADER_CONTENT_AR = {
+  brandName: BRAND_NAME,
+  searchAriaLabel: "بحث",
+  searchPlaceholder: "ابحث حسب العمر أو الصف أو الفئة",
+  mobileMenuLabel: "القائمة",
+  links: [
+    {
+      label: "البريد الإلكتروني",
+      detail: emailAddress,
+      href: `mailto:${emailAddress}`,
+    },
+    {
+      label: "ويتشات",
+      detail: "تواصل الآن",
+      href: "#wechat",
+      modalImageSrc: "/contact/wechat.jpg",
+      modalImageAlt: "رمز ويتشات الخاص بـ SIRA ACC",
+    },
+    {
+      label: "واتساب",
+      detail: "تواصل الآن",
+      href: "#whatsapp",
+      modalImageSrc: "/contact/whatsapp.jpg",
+      modalImageAlt: "بطاقة تواصل واتساب الخاصة بـ SIRA ACC",
+    },
+  ],
+}
+
+export const NAV_CONTENT_AR = {
+  mobileBrowseLabel: "تصفح",
+  mobileCloseLabel: "إغلاق",
+  exploreLabel: "استكشف",
+  megaMenuIntroLabelPrefix: "تصفح",
+  megaMenuIntroDescription: "روابط مختارة تساعد العائلات على التسوق بسرعة.",
+  mobileGoToPrefix: "انتقل إلى",
+  items: [
+    { label: "كل المنتجات", href: "/products" },
+    {
+      label: "الفئة",
+      groups: [
+        {
+          title: "الفئة",
+          links: [
+            { label: "القلائد", href: "/shop/category/necklaces" },
+            { label: "الأقراط", href: "/shop/category/earrings" },
+            { label: "الأساور", href: "/shop/category/bracelets" },
+            { label: "الخواتم", href: "/shop/category/rings" },
+            { label: "الأطقم", href: "/shop/category/sets" },
+            { label: "الإكسسوارات", href: "/shop/category/accessories" },
+          ],
+        },
+      ],
+    },
+  ] as MarketingNavItem[],
+}
+
+export const HERO_CONTENT_AR = {
+  eyebrow: "مختارات",
+  title: "نلعب بحب،\nونتعلم.",
+  body: "منتجات مختارة بعناية للتعلم من خلال اللعب والاكتشاف اليومي ولحظات عائلية سعيدة.",
+  primaryCtaLabel: "اكتشف كل المنتجات",
+  primaryCtaHref: "/products",
+  secondaryCtaLabel: "عرض المنتج",
+  secondaryCtaHref: "/shop/scenario/featured",
+  badgeLabel: "SIRA ACC",
+  badgeText: "أفكار مشرقة للعقول الفضولية.",
+}
+
+export const FEATURED_PRODUCTS_AR = {
+  eyebrow: "كل المنتجات",
+  title: "كل المنتجات",
+  subtitle: "تصفح جميع المنتجات.",
+  strategy: "default" as const,
+  showProductNames: true,
+  showProductPrices: false,
+}
+
+export const PRODUCTS_PAGE_CONTENT_AR = {
+  eyebrow: "المنتجات",
+  defaultTitle: "كل المنتجات",
+  searchTitlePrefix: 'نتائج البحث عن "',
+  searchTitleSuffix: '"',
+  defaultDescription:
+    "تصفح حسب العمر أو الفئة أو الاستخدام من الصفحة الرئيسية.",
+  searchResultsLabelPrefix: "عرض ",
+  searchResultsLabelSuffix: " نتيجة.",
+  homeLabel: "الرئيسية",
+  emptyMessage: "لا توجد منتجات تطابق بحثك حاليا.",
+}
+
+export const PRODUCT_UI_CONTENT_AR = {
+  addToCartLabel: "أضف إلى السلة",
+  selectVariantLabel: "اختر النوع",
+  outOfStockLabel: "غير متوفر",
+  selectOptionsLabel: "اختر الخيارات",
+  viewDetailsLabel: "عرض التفاصيل",
+  agePrefix: "العمر ",
+  agesPrefix: "الأعمار ",
+  noImageLabel: "لا توجد صورة",
+  fallbackDescription: "منتجات مناسبة للعمر مع إرشادات واضحة للوالدين.",
+  productInformationLabel: "معلومات المنتج",
+  shippingReturnsLabel: "الشحن والإرجاع",
+  materialLabel: "المادة",
+  countryOfOriginLabel: "بلد المنشأ",
+  typeLabel: "النوع",
+  weightLabel: "الوزن",
+  dimensionsLabel: "الأبعاد",
+  fastDeliveryTitle: "توصيل سريع",
+  fastDeliveryBody:
+    "سيصل طلبك خلال 3-5 أيام عمل إلى نقطة الاستلام أو إلى منزلك.",
+  simpleExchangesTitle: "استبدال سهل",
+  simpleExchangesBody: "إذا لم يكن المنتج مناسبا، يمكننا استبداله بمنتج جديد.",
+  easyReturnsTitle: "إرجاع سهل",
+  easyReturnsBody:
+    "أعد المنتج وسنرد أموالك. سنبذل ما بوسعنا لجعل عملية الإرجاع مريحة.",
+}
+
+export const CATEGORY_HIGHLIGHTS_AR = {
+  eyebrow: "الفئة",
+  title: "تسوق حسب الفئة",
+  subtitle: "استكشف الفئات واعثر على الأسلوب المناسب.",
+  items: [
+    {
+      title: "القلائد",
+      description: "قطع أنيقة تضيف لمسة ناعمة إلى الإطلالة اليومية.",
+      ctaLabel: "اكتشف المزيد",
+      href: "/shop/category/necklaces",
+      image:
+        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+      title: "الأقراط",
+      description: "تصاميم لافتة وخفيفة تناسب المناسبات المختلفة.",
+      ctaLabel: "اكتشف المزيد",
+      href: "/shop/category/earrings",
+      image:
+        "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+      title: "الأساور",
+      description: "تفاصيل راقية تمنح المعصم حضورا أنيقا.",
+      ctaLabel: "اكتشف المزيد",
+      href: "/shop/category/bracelets",
+      image:
+        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+      title: "الخواتم",
+      description: "خواتم مختارة للتنسيق اليومي والهدايا المميزة.",
+      ctaLabel: "اكتشف المزيد",
+      href: "/shop/category/rings",
+      image:
+        "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+      title: "الأطقم",
+      description: "مجموعات متناسقة تمنح الإطلالة اكتمالا فوريا.",
+      ctaLabel: "اكتشف المزيد",
+      href: "/shop/category/sets",
+      image:
+        "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+      title: "الإكسسوارات",
+      description: "لمسات صغيرة تكمل الاختيار وتعبر عن الذوق.",
+      ctaLabel: "اكتشف المزيد",
+      href: "/shop/category/accessories",
+      image:
+        "https://images.unsplash.com/photo-1620656798579-1984d9e87df6?auto=format&fit=crop&w=900&q=80",
+    },
+  ],
+}
+
+export const CATEGORY_CIRCLE_HIGHLIGHTS_AR = {
+  eyebrow: "الفئة",
+  title: "تسوق حسب الفئة",
+  subtitle: "اختر فئة المجوهرات وانتقل مباشرة إلى القطع المناسبة.",
+  items: [
+    {
+      value: "قلائد",
+      unit: "",
+      title: "قلائد",
+      href: "/shop/category/necklaces",
+      image:
+        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+      value: "أقراط",
+      unit: "",
+      title: "أقراط",
+      href: "/shop/category/earrings",
+      image:
+        "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+      value: "أساور",
+      unit: "",
+      title: "أساور",
+      href: "/shop/category/bracelets",
+      image:
+        "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+      value: "خواتم",
+      unit: "",
+      title: "خواتم",
+      href: "/shop/category/rings",
+      image:
+        "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+      value: "أطقم",
+      unit: "",
+      title: "أطقم",
+      href: "/shop/category/sets",
+      image:
+        "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=900&q=80",
+    },
+    {
+      value: "إكسسوارات",
+      unit: "",
+      title: "إكسسوارات",
+      href: "/shop/category/accessories",
+      image:
+        "https://images.unsplash.com/photo-1620656798579-1984d9e87df6?auto=format&fit=crop&w=900&q=80",
+    },
+  ],
+}
+
+export const CATEGORY_PAGE_CONTENT_AR = {
+  eyebrow: "الفئة",
+  emptyMessage:
+    "لا توجد منتجات مرتبطة بهذه الفئة حاليا. أضف المنتجات إلى فئة Medusa المناسبة.",
+  pages: [
+    {
+      slug: "necklaces",
+      title: "القلائد",
+      description: "قلائد مختارة لتنسيقات يومية ومناسبات خاصة.",
+    },
+    {
+      slug: "earrings",
+      title: "الأقراط",
+      description: "أقراط أنيقة تضيف لمسة مشرقة إلى الإطلالة.",
+    },
+    {
+      slug: "bracelets",
+      title: "الأساور",
+      description: "أساور مصممة للتنسيق السهل والهدايا الراقية.",
+    },
+    {
+      slug: "rings",
+      title: "الخواتم",
+      description: "خواتم ناعمة ولافتة لكل أسلوب.",
+    },
+    {
+      slug: "sets",
+      title: "الأطقم",
+      description: "أطقم متكاملة جاهزة للتقديم أو الارتداء.",
+    },
+    {
+      slug: "accessories",
+      title: "الإكسسوارات",
+      description: "تفاصيل مختارة تكمل الإطلالة.",
+    },
+  ],
+}
+
+export const AGE_PAGE_CONTENT_AR = {
+  eyebrow: "تسوق حسب العمر",
+  titlePrefix: "الأعمار ",
+  emptyMessage:
+    "لا توجد منتجات موسومة لهذا العمر حاليا. أضف metadata.age_range لمطابقة هذه المجموعة.",
+  filters: [
+    { label: "الكل", value: "all" },
+    { label: "القلائد", value: "necklaces" },
+    { label: "الأقراط", value: "earrings" },
+    { label: "الأساور", value: "bracelets" },
+    { label: "الخواتم", value: "rings" },
+    { label: "الأطقم", value: "sets" },
+    { label: "الإكسسوارات", value: "accessories" },
+  ],
+  pages: AGE_PAGE_CONTENT.pages,
+}
+
+export const FOOTER_CONTENT_AR = {
+  ...FOOTER_CONTENT,
+  contactLabel: "تواصل: +86 17820659786",
+}
+
 export function isChineseLocale(locale?: string | null) {
   return locale?.toLowerCase().replace("_", "-").startsWith("zh") ?? false
 }
 
+export function isArabicLocale(locale?: string | null) {
+  return locale?.toLowerCase().replace("_", "-").startsWith("ar") ?? false
+}
+
 export function getHomepageFallback(section: string, locale?: string | null) {
-  if (!isChineseLocale(locale)) {
+  const isChinese = isChineseLocale(locale)
+  const isArabic = isArabicLocale(locale)
+
+  if (!isChinese && !isArabic) {
     return null
   }
 
   switch (section) {
     case "header_content":
-      return HEADER_CONTENT_ZH
+      return isArabic ? HEADER_CONTENT_AR : HEADER_CONTENT_ZH
     case "nav_content":
-      return NAV_CONTENT_ZH
+      return isArabic ? NAV_CONTENT_AR : NAV_CONTENT_ZH
     case "hero_content":
-      return HERO_CONTENT_ZH
+      return isArabic ? HERO_CONTENT_AR : HERO_CONTENT_ZH
     case "featured_products":
-      return FEATURED_PRODUCTS_ZH
+      return isArabic ? FEATURED_PRODUCTS_AR : FEATURED_PRODUCTS_ZH
     case "products_page_content":
-      return PRODUCTS_PAGE_CONTENT_ZH
+      return isArabic ? PRODUCTS_PAGE_CONTENT_AR : PRODUCTS_PAGE_CONTENT_ZH
     case "product_ui_content":
-      return PRODUCT_UI_CONTENT_ZH
+      return isArabic ? PRODUCT_UI_CONTENT_AR : PRODUCT_UI_CONTENT_ZH
     case "category_highlights":
-      return CATEGORY_HIGHLIGHTS_ZH
+      return isArabic ? CATEGORY_HIGHLIGHTS_AR : CATEGORY_HIGHLIGHTS_ZH
     case "age_highlights":
-      return CATEGORY_CIRCLE_HIGHLIGHTS_ZH
+      return isArabic
+        ? CATEGORY_CIRCLE_HIGHLIGHTS_AR
+        : CATEGORY_CIRCLE_HIGHLIGHTS_ZH
     case "category_page_content":
-      return CATEGORY_PAGE_CONTENT_ZH
+      return isArabic ? CATEGORY_PAGE_CONTENT_AR : CATEGORY_PAGE_CONTENT_ZH
     case "age_page_content":
-      return AGE_PAGE_CONTENT_ZH
+      return isArabic ? AGE_PAGE_CONTENT_AR : AGE_PAGE_CONTENT_ZH
     case "footer_content":
-      return FOOTER_CONTENT_ZH
+      return isArabic ? FOOTER_CONTENT_AR : FOOTER_CONTENT_ZH
     default:
       return null
   }

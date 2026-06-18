@@ -84,7 +84,7 @@ export default async function Home(props: {
           locales={locales}
           currentLocale={currentLocale}
         />
-        <PrimaryNav content={navContent} />
+        <PrimaryNav content={navContent} currentLocale={currentLocale} />
       </div>
 
       <main>

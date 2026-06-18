@@ -47,15 +47,42 @@ const JEWELRY_CATEGORY_GROUPS_ZH = [
   },
 ]
 
+const JEWELRY_CATEGORY_GROUPS_AR = [
+  {
+    title: "الفئة",
+    links: [
+      { label: "القلائد", href: "/shop/category/necklaces" },
+      { label: "الأقراط", href: "/shop/category/earrings" },
+      { label: "الأساور", href: "/shop/category/bracelets" },
+      { label: "الخواتم", href: "/shop/category/rings" },
+      { label: "الأطقم", href: "/shop/category/sets" },
+      { label: "الإكسسوارات", href: "/shop/category/accessories" },
+    ],
+  },
+]
+
 function stripCountry(pathname: string) {
   const parts = pathname.split("/").filter(Boolean)
   if (parts.length === 0) return "/"
   return `/${parts.slice(1).join("/")}`
 }
 
+function includesArabic(value: string) {
+  return /[\u0600-\u06FF]/.test(value)
+}
+
+function includesChinese(value: string) {
+  return /[\u3400-\u9FFF]/.test(value)
+}
+
 function isAllProductsItem(item: MarketingNavItem) {
   const label = item.label.toLowerCase()
-  return item.href === "/products" || label.includes("all products")
+  return (
+    item.href === "/products" ||
+    label.includes("all products") ||
+    item.label.includes("全部产品") ||
+    item.label.includes("كل المنتجات")
+  )
 }
 
 function isCategoryItem(item: MarketingNavItem) {
@@ -64,40 +91,109 @@ function isCategoryItem(item: MarketingNavItem) {
     label.includes("category") ||
     item.label.includes("类别") ||
     item.label.includes("分类") ||
+    item.label.includes("الفئة") ||
     Boolean(item.groups?.length)
   )
 }
 
-function getVisibleItems(items: MarketingNavItem[]) {
-  const allProducts = items.find(isAllProductsItem) ?? {
-    label: "ALL PRODUCTS",
-    href: "/products",
+function getNavLanguage(content: NavContent) {
+  const labels = [
+    content.mobileBrowseLabel,
+    content.mobileCloseLabel,
+    content.exploreLabel,
+    content.megaMenuIntroLabelPrefix,
+    ...content.items.map((item) => item.label),
+  ].join(" ")
+
+  if (includesArabic(labels)) {
+    return "ar"
   }
-  const category = items.find(isCategoryItem) ?? {
-    label: "CATEGORY",
+
+  if (includesChinese(labels)) {
+    return "zh"
+  }
+
+  return "en"
+}
+
+function getLanguageFromLocale(locale?: string | null) {
+  const normalizedLocale = locale?.toLowerCase().replace("_", "-")
+
+  if (normalizedLocale?.startsWith("ar")) {
+    return "ar"
+  }
+
+  if (normalizedLocale?.startsWith("zh")) {
+    return "zh"
+  }
+
+  return null
+}
+
+function getDefaultLabels(language: ReturnType<typeof getNavLanguage>) {
+  if (language === "ar") {
+    return {
+      allProducts: "كل المنتجات",
+      category: "الفئة",
+      groups: JEWELRY_CATEGORY_GROUPS_AR,
+    }
+  }
+
+  if (language === "zh") {
+    return {
+      allProducts: "全部产品",
+      category: "分类",
+      groups: JEWELRY_CATEGORY_GROUPS_ZH,
+    }
+  }
+
+  return {
+    allProducts: "ALL PRODUCTS",
+    category: "CATEGORY",
     groups: JEWELRY_CATEGORY_GROUPS,
   }
-  const allProductsLabel = allProducts.label.toLowerCase().includes("all products")
-    ? allProducts.label
-    : "全部产品"
-  const categoryLabel =
-    category.label.toLowerCase().includes("category") ? "CATEGORY" : "分类"
-  const categoryGroups =
-    categoryLabel === "分类" ? JEWELRY_CATEGORY_GROUPS_ZH : JEWELRY_CATEGORY_GROUPS
+}
+
+function getVisibleItems(content: NavContent, locale?: string | null) {
+  const language = getLanguageFromLocale(locale) ?? getNavLanguage(content)
+  const defaults = getDefaultLabels(language)
+  const allProducts = content.items.find(isAllProductsItem) ?? {
+    label: defaults.allProducts,
+    href: "/products",
+  }
+  const category = content.items.find(isCategoryItem) ?? {
+    label: defaults.category,
+    groups: defaults.groups,
+  }
 
   return [
-    { ...allProducts, label: allProductsLabel, href: "/products" },
-    { ...category, label: categoryLabel, href: undefined, groups: categoryGroups },
+    {
+      ...allProducts,
+      label: defaults.allProducts,
+      href: "/products",
+    },
+    {
+      ...category,
+      label: defaults.category,
+      href: undefined,
+      groups: defaults.groups,
+    },
   ]
 }
 
-export default function PrimaryNav({ content }: { content: NavContent }) {
+export default function PrimaryNav({
+  content,
+  currentLocale,
+}: {
+  content: NavContent
+  currentLocale?: string | null
+}) {
   const [openItem, setOpenItem] = useState<string | null>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
   const closeTimer = useRef<number | null>(null)
   const pathname = usePathname()
   const normalizedPath = stripCountry(pathname)
-  const visibleItems = getVisibleItems(content.items)
+  const visibleItems = getVisibleItems(content, currentLocale)
 
   const clearCloseTimer = () => {
     if (closeTimer.current) {
@@ -144,8 +240,7 @@ export default function PrimaryNav({ content }: { content: NavContent }) {
         <ul className="hidden items-center gap-8 text-sm text-[color:var(--text-body)] md:flex">
           {visibleItems.map((item) => {
             const href = item.href ?? item.groups?.[0]?.links[0]?.href ?? "#"
-            const isActive =
-              item.href && normalizedPath.startsWith(item.href)
+            const isActive = item.href && normalizedPath.startsWith(item.href)
 
             return (
               <li
@@ -159,18 +254,22 @@ export default function PrimaryNav({ content }: { content: NavContent }) {
               >
                 <Link
                   href={href}
-                  aria-expanded={item.groups ? openItem === item.label : undefined}
+                  aria-expanded={
+                    item.groups ? openItem === item.label : undefined
+                  }
                   aria-controls={
                     item.groups
-                      ? `mega-menu-${item.label.toLowerCase().replace(/\s+/g, "-")}`
+                      ? `mega-menu-${item.label
+                          .toLowerCase()
+                          .replace(/\s+/g, "-")}`
                       : undefined
                   }
                   className={`flex items-center gap-2 border-b-2 px-1 pb-1 font-semibold uppercase tracking-[0.18em] transition duration-200 ease-out ui-focus ${
                     isActive
                       ? "border-[color:var(--accent)] text-[color:var(--accent-strong)]"
                       : openItem === item.label
-                        ? "border-[color:var(--accent)] text-[color:var(--accent-strong)]"
-                        : "border-transparent hover:border-[color:var(--accent)]/40 hover:text-[color:var(--accent-strong)]"
+                      ? "border-[color:var(--accent)] text-[color:var(--accent-strong)]"
+                      : "border-transparent hover:border-[color:var(--accent)]/40 hover:text-[color:var(--accent-strong)]"
                   }`}
                 >
                   {item.label}
@@ -198,13 +297,19 @@ export default function PrimaryNav({ content }: { content: NavContent }) {
       )}
 
       {mobileOpen ? (
-        <div id="primary-nav-mobile" className="border-t border-[color:var(--border-soft)] bg-[var(--bg-surface)] md:hidden">
+        <div
+          id="primary-nav-mobile"
+          className="border-t border-[color:var(--border-soft)] bg-[var(--bg-surface)] md:hidden"
+        >
           <div className="content-container flex flex-col gap-3 py-4 text-sm text-[color:var(--text-body)]">
             {visibleItems.map((item) => {
               const href = item.href ?? item.groups?.[0]?.links[0]?.href ?? "#"
 
               return (
-                <details key={item.label} className="rounded-2xl border border-[color:var(--border-soft)] bg-[var(--bg-card)] px-4 py-3">
+                <details
+                  key={item.label}
+                  className="rounded-2xl border border-[color:var(--border-soft)] bg-[var(--bg-card)] px-4 py-3"
+                >
                   <summary className="cursor-pointer list-none font-semibold uppercase tracking-[0.18em]">
                     {item.label}
                   </summary>
