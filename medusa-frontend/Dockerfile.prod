@@ -1,11 +1,13 @@
 ARG NODE_IMAGE=docker.m.daocloud.io/library/node:20-bookworm
-FROM ${NODE_IMAGE}
 
+FROM ${NODE_IMAGE} AS deps
 WORKDIR /app
-
 COPY package*.json ./
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm npm ci
 
+FROM ${NODE_IMAGE} AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 ARG MEDUSA_BACKEND_URL
@@ -21,8 +23,19 @@ ENV NEXT_PUBLIC_DEFAULT_REGION=${NEXT_PUBLIC_DEFAULT_REGION}
 ENV SKIP_STATIC_GENERATION=${SKIP_STATIC_GENERATION}
 ENV NODE_ENV=production
 
-RUN npm run build
+RUN --mount=type=cache,target=/app/.next/cache npm run build
+
+FROM ${NODE_IMAGE} AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=8000
+ENV HOSTNAME=0.0.0.0
+
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
 EXPOSE 8000
 
-CMD ["npm", "run", "start"]
+CMD ["node", "server.js"]

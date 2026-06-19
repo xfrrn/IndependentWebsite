@@ -437,59 +437,43 @@ export const PRODUCTS_PAGE_CONTENT_ZH = {
 }
 
 export const PRODUCT_UI_CONTENT = {
-  addToCartLabel: "Add to cart",
-  selectVariantLabel: "Select variant",
-  outOfStockLabel: "Out of stock",
-  selectOptionsLabel: "Select Options",
+  contactLabel: "Contact us",
+  contactBody:
+    "Contact us with the product name for current availability, options, and wholesale details.",
   viewDetailsLabel: "View details",
   agePrefix: "Age ",
   agesPrefix: "Ages ",
   noImageLabel: "No Image",
   fallbackDescription: "Age-appropriate play with clear guidance for parents.",
   productInformationLabel: "Product Information",
-  shippingReturnsLabel: "Shipping & Returns",
+  availabilityLabel: "Availability",
   materialLabel: "Material",
   countryOfOriginLabel: "Country of origin",
   typeLabel: "Type",
   weightLabel: "Weight",
   dimensionsLabel: "Dimensions",
-  fastDeliveryTitle: "Fast delivery",
-  fastDeliveryBody:
-    "Your package will arrive in 3-5 business days at your pick up location or in the comfort of your home.",
-  simpleExchangesTitle: "Simple exchanges",
-  simpleExchangesBody:
-    "Is the fit not quite right? No worries - we'll exchange your product for a new one.",
-  easyReturnsTitle: "Easy returns",
-  easyReturnsBody:
-    "Just return your product and we'll refund your money. No questions asked - we'll do our best to make sure your return is hassle-free.",
+  availabilityTitle: "Current availability",
+  availabilityBody:
+    "Product availability and options are confirmed through direct inquiry before purchase.",
 }
 
 export const PRODUCT_UI_CONTENT_ZH = {
-  addToCartLabel: "加入购物车",
-  selectVariantLabel: "选择规格",
-  outOfStockLabel: "暂时缺货",
-  selectOptionsLabel: "选择选项",
+  contactLabel: "联系我们",
+  contactBody: "请带上产品名称咨询当前库存、规格选项和批发信息。",
   viewDetailsLabel: "查看详情",
   agePrefix: "年龄 ",
   agesPrefix: "年龄 ",
   noImageLabel: "暂无图片",
   fallbackDescription: "适龄玩具，给家长清晰的选择参考。",
   productInformationLabel: "产品信息",
-  shippingReturnsLabel: "配送与退换",
+  availabilityLabel: "供货信息",
   materialLabel: "材质",
   countryOfOriginLabel: "产地",
   typeLabel: "类型",
   weightLabel: "重量",
   dimensionsLabel: "尺寸",
-  fastDeliveryTitle: "快速配送",
-  fastDeliveryBody:
-    "订单将在 3-5 个工作日内送达取货点或送到家中。",
-  simpleExchangesTitle: "轻松换货",
-  simpleExchangesBody:
-    "如果产品不合适，可以联系我们更换新的商品。",
-  easyReturnsTitle: "便捷退货",
-  easyReturnsBody:
-    "按流程退回商品后，我们会为你处理退款，并尽力让退货过程更省心。",
+  availabilityTitle: "当前供货状态",
+  availabilityBody: "产品库存和规格选项会在购买前通过咨询确认。",
 }
 
 export const COLLECTION_SPOTLIGHT = {
@@ -987,30 +971,22 @@ export const PRODUCTS_PAGE_CONTENT_AR = {
 }
 
 export const PRODUCT_UI_CONTENT_AR = {
-  addToCartLabel: "أضف إلى السلة",
-  selectVariantLabel: "اختر النوع",
-  outOfStockLabel: "غير متوفر",
-  selectOptionsLabel: "اختر الخيارات",
+  contactLabel: "تواصل معنا",
+  contactBody: "تواصل معنا باسم المنتج لمعرفة التوفر والخيارات وتفاصيل الجملة.",
   viewDetailsLabel: "عرض التفاصيل",
   agePrefix: "العمر ",
   agesPrefix: "الأعمار ",
   noImageLabel: "لا توجد صورة",
   fallbackDescription: "منتجات مناسبة للعمر مع إرشادات واضحة للوالدين.",
   productInformationLabel: "معلومات المنتج",
-  shippingReturnsLabel: "الشحن والإرجاع",
+  availabilityLabel: "التوفر",
   materialLabel: "المادة",
   countryOfOriginLabel: "بلد المنشأ",
   typeLabel: "النوع",
   weightLabel: "الوزن",
   dimensionsLabel: "الأبعاد",
-  fastDeliveryTitle: "توصيل سريع",
-  fastDeliveryBody:
-    "سيصل طلبك خلال 3-5 أيام عمل إلى نقطة الاستلام أو إلى منزلك.",
-  simpleExchangesTitle: "استبدال سهل",
-  simpleExchangesBody: "إذا لم يكن المنتج مناسبا، يمكننا استبداله بمنتج جديد.",
-  easyReturnsTitle: "إرجاع سهل",
-  easyReturnsBody:
-    "أعد المنتج وسنرد أموالك. سنبذل ما بوسعنا لجعل عملية الإرجاع مريحة.",
+  availabilityTitle: "التوفر الحالي",
+  availabilityBody: "يتم تأكيد توفر المنتج وخياراته عبر الاستفسار المباشر قبل الشراء.",
 }
 
 export const CATEGORY_HIGHLIGHTS_AR = {
@@ -1244,13 +1220,5 @@ export const FOOTER_LINKS = {
   ],
   missionText:
     "We provide toys that help parents connect to their children and tools that help teachers connect to their students. Let FritzS Learning products decorate your home and classroom, making learning more interesting and exciting!",
-  shipping: [
-    { label: "Shipping & Returns", href: "/shop/scenario/shipping" },
-    { label: "Order Tracking", href: "/account/orders" },
-    { label: "Gift Services", href: "/collections/gift-ready" },
-  ],
-  shippingText:
-    "Free shipping for Hong Kong purchase upon $100. SF Express free shipping (min $100). Ships in about two working days. Free shipping for purchase over NTD380 in Taiwan.",
   countries: ["China (CNY 楼)", "Hong Kong SAR (HKD $)", "Macao SAR (MOP P)", "Taiwan (TWD $)"],
-  payment: ["Apple Pay", "Google Pay", "Mastercard", "PayPal", "Shop Pay", "Union Pay", "Visa"],
 }

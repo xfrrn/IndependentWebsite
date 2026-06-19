@@ -5,3 +5,13 @@ jest-coverage
 .env
 .env.*
 npm-debug.log*
+.git
+.gitignore
+dist
+integration-tests
+*.md
+Dockerfile*
+docker-start.js
+scripts
+.vscode
+.idea

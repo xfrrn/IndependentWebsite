@@ -626,29 +626,23 @@ export default async function ContentManagerPage(props: {
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              <Field label="Add to cart" name="addToCartLabel" defaultValue={productUiContent.addToCartLabel} />
-              <Field label="Select variant" name="selectVariantLabel" defaultValue={productUiContent.selectVariantLabel} />
-              <Field label="Out of stock" name="outOfStockLabel" defaultValue={productUiContent.outOfStockLabel} />
-              <Field label="Select options" name="selectOptionsLabel" defaultValue={productUiContent.selectOptionsLabel} />
+              <Field label="Contact button" name="contactLabel" defaultValue={productUiContent.contactLabel} />
               <Field label="View details" name="viewDetailsLabel" defaultValue={productUiContent.viewDetailsLabel} />
               <Field label="Age prefix" name="agePrefix" defaultValue={productUiContent.agePrefix} />
               <Field label="Ages prefix" name="agesPrefix" defaultValue={productUiContent.agesPrefix} />
               <Field label="No image label" name="noImageLabel" defaultValue={productUiContent.noImageLabel} />
               <Field label="Product information tab" name="productInformationLabel" defaultValue={productUiContent.productInformationLabel} />
-              <Field label="Shipping tab" name="shippingReturnsLabel" defaultValue={productUiContent.shippingReturnsLabel} />
+              <Field label="Availability tab" name="availabilityLabel" defaultValue={productUiContent.availabilityLabel} />
               <Field label="Material label" name="materialLabel" defaultValue={productUiContent.materialLabel} />
               <Field label="Country of origin label" name="countryOfOriginLabel" defaultValue={productUiContent.countryOfOriginLabel} />
               <Field label="Type label" name="typeLabel" defaultValue={productUiContent.typeLabel} />
               <Field label="Weight label" name="weightLabel" defaultValue={productUiContent.weightLabel} />
               <Field label="Dimensions label" name="dimensionsLabel" defaultValue={productUiContent.dimensionsLabel} />
-              <Field label="Fast delivery title" name="fastDeliveryTitle" defaultValue={productUiContent.fastDeliveryTitle} />
-              <Field label="Simple exchanges title" name="simpleExchangesTitle" defaultValue={productUiContent.simpleExchangesTitle} />
-              <Field label="Easy returns title" name="easyReturnsTitle" defaultValue={productUiContent.easyReturnsTitle} />
+              <Field label="Availability title" name="availabilityTitle" defaultValue={productUiContent.availabilityTitle} />
             </div>
+            <TextareaField label="Contact message" name="contactBody" defaultValue={productUiContent.contactBody} rows={3} />
             <TextareaField label="Fallback description" name="fallbackDescription" defaultValue={productUiContent.fallbackDescription} rows={2} />
-            <TextareaField label="Fast delivery body" name="fastDeliveryBody" defaultValue={productUiContent.fastDeliveryBody} rows={3} />
-            <TextareaField label="Simple exchanges body" name="simpleExchangesBody" defaultValue={productUiContent.simpleExchangesBody} rows={3} />
-            <TextareaField label="Easy returns body" name="easyReturnsBody" defaultValue={productUiContent.easyReturnsBody} rows={3} />
+            <TextareaField label="Availability body" name="availabilityBody" defaultValue={productUiContent.availabilityBody} rows={3} />
 
             <SaveButton label="Save product UI" />
           </form>

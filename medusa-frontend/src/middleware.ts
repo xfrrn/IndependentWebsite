@@ -4,6 +4,12 @@ import { NextRequest, NextResponse } from "next/server"
 const BACKEND_URL = process.env.MEDUSA_BACKEND_URL
 const PUBLISHABLE_API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
 const DEFAULT_REGION = process.env.NEXT_PUBLIC_DEFAULT_REGION || "dk"
+const REMOVED_COMMERCE_SEGMENTS = new Set([
+  "account",
+  "cart",
+  "checkout",
+  "order",
+])
 
 const regionMapCache = {
   regionMap: new Map<string, HttpTypes.StoreRegion>(),
@@ -115,9 +121,34 @@ export async function middleware(request: NextRequest) {
   const regionMap = await getRegionMap(cacheId)
 
   const countryCode = regionMap && (await getCountryCode(request, regionMap))
+  const pathSegments = request.nextUrl.pathname
+    .split("/")
+    .filter(Boolean)
+    .map((segment) => segment.toLowerCase())
 
   const urlHasCountryCode =
     countryCode && request.nextUrl.pathname.split("/")[1] === countryCode
+
+  const firstContentSegment = urlHasCountryCode ? pathSegments[1] : pathSegments[0]
+
+  if (
+    countryCode &&
+    firstContentSegment &&
+    REMOVED_COMMERCE_SEGMENTS.has(firstContentSegment)
+  ) {
+    const response = NextResponse.redirect(
+      `${request.nextUrl.origin}/${countryCode}/products`,
+      307
+    )
+
+    if (!cacheIdCookie) {
+      response.cookies.set("_medusa_cache_id", cacheId, {
+        maxAge: 60 * 60 * 24,
+      })
+    }
+
+    return response
+  }
 
   // if one of the country codes is in the url and the cache id is set, return next
   if (urlHasCountryCode && cacheIdCookie) {

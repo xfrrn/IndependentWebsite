@@ -88,9 +88,8 @@ There is currently no frontend test script in `medusa-frontend/package.json`.
 - Custom Medusa API routes live under `medusa-backend/src/api/**/route.ts`.
   - `src/api/store/site-content/route.ts` exposes GET/POST site-content endpoints.
   - `src/api/publishable-key/route.ts` exposes a development-only publishable key endpoint when `ENABLE_DEV_PUBLISHABLE_KEY_ENDPOINT=true`.
-  - `src/api/admin/custom/route.ts` and `src/api/store/custom/route.ts` are simple health/custom route examples.
 - `src/lib/site-content.ts` stores editable content blocks directly in Postgres using a `site_content_blocks` table created lazily by `CREATE TABLE IF NOT EXISTS`. Writes are protected by the `x-content-admin-secret` header when `CONTENT_ADMIN_SECRET` is set.
-- `src/scripts/seed.ts` creates the initial Europe region, supported countries, tax regions, stock location, shipping options, publishable API key, product categories, demo products, and inventory levels.
+- `src/scripts/seed.ts` creates the minimum catalog data: store currencies, Europe region, tax regions, a default shipping profile required by products, publishable API key, product categories, and demo products.
 - `scripts/docker-start.js` waits for Postgres/Redis, runs migrations unless `AUTO_MIGRATE=false`, seeds only when no regions exist unless `AUTO_SEED=false`, creates the configured admin user unless `AUTO_ADMIN_USER=false`, then starts `npm run dev`.
 
 ### Frontend
@@ -98,8 +97,8 @@ There is currently no frontend test script in `medusa-frontend/package.json`.
 - The storefront uses the Next.js App Router under `medusa-frontend/src/app/[countryCode]`. The country code is part of most storefront routes.
 - `src/middleware.ts` fetches Medusa regions from `${MEDUSA_BACKEND_URL}/store/regions`, maps country codes, sets `_medusa_cache_id`, and redirects bare paths to a country-prefixed path. `NEXT_PUBLIC_DEFAULT_REGION` defaults to `dk`.
 - `src/lib/config.ts` creates the Medusa JS SDK client using `MEDUSA_BACKEND_URL` and `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY`, then wraps SDK fetches to include the `x-medusa-locale` header when available.
-- `src/lib/data/*` contains server-side data access and server actions for cart, checkout, customer, products, regions, orders, payments, and content.
-- `src/modules/*` contains the Medusa starter’s domain UI modules and templates for account, cart, checkout, collections, products, store listing, order confirmation, etc.
+- `src/lib/data/*` contains server-side data access and server actions for products, regions, collections, categories, localization, and content.
+- `src/modules/*` contains the remaining storefront UI modules and templates for catalog browsing, layout, products, collections, and shared components.
 - `src/components/*` contains custom storefront/layout/home/PLP/shop components used by the customized homepage and product listing experience.
 - Homepage fallback content and navigation data are in `src/lib/data/homepage.ts`; persisted overrides are read/written through `src/lib/data/site-content.ts` and the backend `/store/site-content` route.
 - TypeScript path aliases are configured from `medusa-frontend/src`: `@components/*`, `@lib/*`, `@modules/*`, and `@pages/*`.

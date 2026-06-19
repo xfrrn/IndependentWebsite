@@ -16,7 +16,7 @@ type Props = {
 }
 
 export async function generateStaticParams() {
-  if (process.env.SKIP_STATIC_GENERATION === "true") {
+  if (process.env.SKIP_STATIC_GENERATION !== "false") {
     return []
   }
 

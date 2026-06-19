@@ -12,12 +12,12 @@ const FAQ_ITEMS = [
     answer: "We prioritize child-safe materials and clear safety notes.",
   },
   {
-    question: "How fast is shipping?",
-    answer: "Most orders ship within 48 hours.",
+    question: "How do I confirm availability?",
+    answer: "Send us the product name and we will confirm options directly.",
   },
   {
-    question: "Can I return gifts?",
-    answer: "Yes, unopened gifts are eligible for return within 7 days.",
+    question: "Can I ask about bulk orders?",
+    answer: "Yes, contact us for wholesale details and current product options.",
   },
 ]
 
@@ -36,7 +36,7 @@ export default function FaqMini() {
               Quick answers for parents
             </h2>
             <p className="mt-3 max-w-2xl text-sm text-black/60">
-              Clear guidance before checkout.
+              Clear guidance before inquiry.
             </p>
           </div>
         </div>

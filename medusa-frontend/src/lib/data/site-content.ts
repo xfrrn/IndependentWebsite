@@ -1,5 +1,7 @@
 import "server-only"
 
+import { CACHE_TAGS, getCatalogCacheOptions } from "./cache"
+
 const MEDUSA_BACKEND_URL =
   process.env.MEDUSA_BACKEND_URL || process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"
 
@@ -33,7 +35,8 @@ export async function getSiteContentSection<T>(
       {
         method: "GET",
         headers: getStoreHeaders(),
-        cache: "no-store",
+        next: getCatalogCacheOptions(CACHE_TAGS.siteContent),
+        cache: "force-cache",
       }
     )
 

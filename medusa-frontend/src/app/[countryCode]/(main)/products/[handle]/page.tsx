@@ -145,7 +145,7 @@ export default async function ProductPage(props: Props) {
             </div>
 
             <div className="rounded-2xl border border-black/10 bg-white/80 p-4">
-              <ProductActionsWrapper id={product.id} region={region} />
+              <ProductActionsWrapper product={product} region={region} />
             </div>
 
             {tags.length > 0 ? (

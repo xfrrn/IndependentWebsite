@@ -5,3 +5,9 @@ coverage
 .env
 .env.*
 npm-debug.log*
+.git
+.gitignore
+*.md
+Dockerfile*
+.vscode
+.idea

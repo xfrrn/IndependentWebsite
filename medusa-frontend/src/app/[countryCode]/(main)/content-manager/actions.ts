@@ -1,12 +1,13 @@
 "use server"
 
 import { mkdir, writeFile } from "fs/promises"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import path from "path"
 
 import { saveSiteContentSection } from "@lib/data/site-content"
+import { CACHE_TAGS } from "@lib/data/cache"
 import {
   AGE_HIGHLIGHTS,
   AGE_PAGE_CONTENT,
@@ -340,25 +341,15 @@ function buildProductsPageContent(formData: FormData) {
 
 function buildProductUiContent(formData: FormData) {
   return {
-    addToCartLabel: readString(
+    contactLabel: readString(
       formData,
-      "addToCartLabel",
-      PRODUCT_UI_CONTENT.addToCartLabel
+      "contactLabel",
+      PRODUCT_UI_CONTENT.contactLabel
     ),
-    selectVariantLabel: readString(
+    contactBody: readString(
       formData,
-      "selectVariantLabel",
-      PRODUCT_UI_CONTENT.selectVariantLabel
-    ),
-    outOfStockLabel: readString(
-      formData,
-      "outOfStockLabel",
-      PRODUCT_UI_CONTENT.outOfStockLabel
-    ),
-    selectOptionsLabel: readString(
-      formData,
-      "selectOptionsLabel",
-      PRODUCT_UI_CONTENT.selectOptionsLabel
+      "contactBody",
+      PRODUCT_UI_CONTENT.contactBody
     ),
     viewDetailsLabel: readString(
       formData,
@@ -390,10 +381,10 @@ function buildProductUiContent(formData: FormData) {
       "productInformationLabel",
       PRODUCT_UI_CONTENT.productInformationLabel
     ),
-    shippingReturnsLabel: readString(
+    availabilityLabel: readString(
       formData,
-      "shippingReturnsLabel",
-      PRODUCT_UI_CONTENT.shippingReturnsLabel
+      "availabilityLabel",
+      PRODUCT_UI_CONTENT.availabilityLabel
     ),
     materialLabel: readString(
       formData,
@@ -420,35 +411,15 @@ function buildProductUiContent(formData: FormData) {
       "dimensionsLabel",
       PRODUCT_UI_CONTENT.dimensionsLabel
     ),
-    fastDeliveryTitle: readString(
+    availabilityTitle: readString(
       formData,
-      "fastDeliveryTitle",
-      PRODUCT_UI_CONTENT.fastDeliveryTitle
+      "availabilityTitle",
+      PRODUCT_UI_CONTENT.availabilityTitle
     ),
-    fastDeliveryBody: readString(
+    availabilityBody: readString(
       formData,
-      "fastDeliveryBody",
-      PRODUCT_UI_CONTENT.fastDeliveryBody
-    ),
-    simpleExchangesTitle: readString(
-      formData,
-      "simpleExchangesTitle",
-      PRODUCT_UI_CONTENT.simpleExchangesTitle
-    ),
-    simpleExchangesBody: readString(
-      formData,
-      "simpleExchangesBody",
-      PRODUCT_UI_CONTENT.simpleExchangesBody
-    ),
-    easyReturnsTitle: readString(
-      formData,
-      "easyReturnsTitle",
-      PRODUCT_UI_CONTENT.easyReturnsTitle
-    ),
-    easyReturnsBody: readString(
-      formData,
-      "easyReturnsBody",
-      PRODUCT_UI_CONTENT.easyReturnsBody
+      "availabilityBody",
+      PRODUCT_UI_CONTENT.availabilityBody
     ),
   }
 }
@@ -623,7 +594,11 @@ async function saveSection(
   if (sharedContactImages) {
     await saveSiteContentSection("contact_images", sharedContactImages)
   }
+  revalidateTag(CACHE_TAGS.siteContent)
+  revalidateTag(CACHE_TAGS.products)
+  revalidateTag(CACHE_TAGS.categories)
   revalidatePath(`/${countryCode}`)
+  revalidatePath(`/${countryCode}/products`)
   revalidatePath(`/${countryCode}/content-manager`)
   redirect(`/${countryCode}/content-manager?locale=${locale}&saved=${section}`)
 }

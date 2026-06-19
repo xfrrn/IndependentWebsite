@@ -18,7 +18,7 @@ type Props = {
 export const PRODUCT_LIMIT = 12
 
 export async function generateStaticParams() {
-  if (process.env.SKIP_STATIC_GENERATION === "true") {
+  if (process.env.SKIP_STATIC_GENERATION !== "false") {
     return []
   }
 
