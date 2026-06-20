@@ -1,0 +1,47 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: medusa-lite-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-medusa}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-medusa_password}
+      POSTGRES_DB: ${POSTGRES_DB:-medusa_lite}
+    volumes:
+      - medusa-lite-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-medusa} -d ${POSTGRES_DB:-medusa_lite}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    expose:
+      - "5432"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: medusa-lite-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER:-medusa}:${POSTGRES_PASSWORD:-medusa_password}@db:5432/${POSTGRES_DB:-medusa_lite}?sslmode=disable
+      NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:-http://localhost:8000}
+      NEXT_PUBLIC_DEFAULT_REGION: ${NEXT_PUBLIC_DEFAULT_REGION:-dk}
+      CONTENT_ADMIN_SECRET: ${CONTENT_ADMIN_SECRET}
+      CONTENT_MANAGER_KEY: ${CONTENT_MANAGER_KEY}
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET}
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:8000').then(r=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))\""]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  medusa-lite-db-data:

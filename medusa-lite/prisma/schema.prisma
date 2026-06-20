@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  handle      String   @unique
+  title       String
+  subtitle    String?
+  description String?
+  thumbnail   String?
+  images      Json     @default("[]")
+  metadata    Json     @default("{}")
+  tags        Json     @default("[]")
+  status      String   @default("published")
+  weight      Int?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  variants    ProductVariant[]
+  categories  ProductCategoryOnProduct[]
+  collections ProductCollectionOnProduct[]
+
+  @@map("products")
+}
+
+model ProductVariant {
+  id                String  @id @default(cuid())
+  productId         String  @map("product_id")
+  title             String
+  sku               String? @unique
+  inventoryQuantity Int     @default(0) @map("inventory_quantity")
+  metadata          Json    @default("{}")
+  calculatedPrice   Json?   @map("calculated_price")
+  images            Json    @default("[]")
+  options           Json    @default("{}")
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_variants")
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  handle      String   @unique
+  description String?
+  metadata    Json     @default("{}")
+  isActive    Boolean  @default(true) @map("is_active")
+  parentId    String?  @map("parent_id")
+  rank        Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  parent   Category?               @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children Category[]              @relation("CategoryHierarchy")
+  products ProductCategoryOnProduct[]
+
+  @@map("categories")
+}
+
+model ProductCategoryOnProduct {
+  productId  String @map("product_id")
+  categoryId String @map("category_id")
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([productId, categoryId])
+  @@map("product_categories")
+}
+
+model Collection {
+  id        String   @id @default(cuid())
+  title     String
+  handle    String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  products ProductCollectionOnProduct[]
+
+  @@map("collections")
+}
+
+model ProductCollectionOnProduct {
+  productId    String @map("product_id")
+  collectionId String @map("collection_id")
+
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@id([productId, collectionId])
+  @@map("product_collections")
+}
+
+model Region {
+  id             String  @id @default(cuid())
+  name           String
+  currencyCode   String  @map("currency_code")
+  countries      Json    @default("[]")
+  automaticTaxes Boolean @default(true) @map("automatic_taxes")
+
+  @@map("regions")
+}
+
+model SiteContent {
+  section   String   @id
+  data      Json
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  translations SiteContentTranslation[]
+
+  @@map("site_content")
+}
+
+model SiteContentTranslation {
+  section   String   @map("section")
+  locale    String   @map("locale")
+  data      Json
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  content SiteContent @relation(fields: [section], references: [section], onDelete: Cascade)
+
+  @@id([section, locale])
+  @@map("site_content_translations")
+}

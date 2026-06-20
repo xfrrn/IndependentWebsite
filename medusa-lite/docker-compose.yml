@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: medusa-lite-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: medusa
+      POSTGRES_PASSWORD: medusa_password
+      POSTGRES_DB: medusa_lite
+    volumes:
+      - medusa-lite-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U medusa -d medusa_lite"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    ports:
+      - "5433:5432"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: medusa-lite-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgres://medusa:medusa_password@db:5432/medusa_lite?sslmode=disable
+      NEXT_PUBLIC_BASE_URL: http://localhost:8000
+      NEXT_PUBLIC_DEFAULT_REGION: dk
+      CONTENT_ADMIN_SECRET: local-content-secret
+      CONTENT_MANAGER_KEY: local-content-manager-key
+      REVALIDATE_SECRET: supersecret
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - medusa-lite-node-modules:/app/node_modules
+      - medusa-lite-next:/app/.next
+    command: npm run docker:dev
+
+volumes:
+  medusa-lite-db-data:
+  medusa-lite-node-modules:
+  medusa-lite-next:

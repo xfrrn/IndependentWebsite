@@ -1,0 +1,43 @@
+{
+  "name": "medusa-lite",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 8000",
+    "build": "next build",
+    "start": "next start --port 8000",
+    "lint": "eslint",
+    "docker:dev": "node scripts/docker-start.js && next dev --port 8000",
+    "postinstall": "prisma generate",
+    "db:migrate": "prisma db push",
+    "db:seed": "npx tsx prisma/seed.ts",
+    "db:studio": "prisma studio"
+  },
+  "prisma": {
+    "seed": "npx tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@headlessui/react": "^2.2.10",
+    "@prisma/client": "^6.19.3",
+    "@radix-ui/react-accordion": "^1.2.14",
+    "next": "16.2.9",
+    "prisma": "^6.19.3",
+    "react": "19.2.4",
+    "react-country-flag": "^3.1.0",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.5.0",
+    "clsx": "^2.1.1",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.9",
+    "postcss": "^8.5.15",
+    "tailwindcss": "^3.4.19",
+    "tailwindcss-radix": "^4.0.2",
+    "tsx": "^4.22.4",
+    "typescript": "^5"
+  }
+}
