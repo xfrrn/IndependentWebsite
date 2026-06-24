@@ -11,14 +11,14 @@ export default async function AdminDashboard() {
   ])
 
   const cards = [
-    { label: "Products", value: productCount, href: "/admin/products" },
-    { label: "Categories", value: categoryCount, href: "/admin/categories" },
-    { label: "Regions", value: regionCount, href: "#" },
+    { label: "商品", value: productCount, href: "/admin/products" },
+    { label: "分类", value: categoryCount, href: "/admin/categories" },
+    { label: "地区", value: regionCount, href: "#" },
   ]
 
   return (
     <div>
-      <h1 className="mb-8 text-2xl font-semibold text-neutral-800">Dashboard</h1>
+      <h1 className="mb-8 text-2xl font-semibold text-neutral-800">后台概览</h1>
       <div className="grid grid-cols-3 gap-6">
         {cards.map((card) => (
           <Link

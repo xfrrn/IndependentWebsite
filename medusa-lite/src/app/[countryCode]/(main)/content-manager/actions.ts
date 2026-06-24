@@ -2,7 +2,6 @@
 
 import { mkdir, writeFile } from "fs/promises"
 import { revalidatePath, revalidateTag } from "next/cache"
-import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import path from "path"
 
@@ -23,11 +22,7 @@ import {
   PRODUCT_UI_CONTENT,
   type ContactImagesContent,
 } from "@lib/data/homepage"
-import {
-  CONTENT_MANAGER_COOKIE,
-  getContentManagerKey,
-  isContentManagerAuthorized,
-} from "@lib/util/content-manager-auth"
+import { isContentManagerAuthorized } from "@lib/util/content-manager-auth"
 
 function readString(
   formData: FormData,
@@ -61,7 +56,9 @@ async function saveUploadedImage(
   formData: FormData,
   key: string,
   fallback: string,
-  index: number
+  index: number,
+  folder = "contact",
+  prefix = "header-contact"
 ) {
   const value = formData.get(key)
 
@@ -79,8 +76,8 @@ async function saveUploadedImage(
     "image/webp": "webp",
   }
   const extension = extensionByType[value.type] || "jpg"
-  const uploadDir = path.resolve(process.cwd(), "public", "contact")
-  const filename = `header-contact-${index + 1}-${Date.now()}.${extension}`
+  const uploadDir = path.resolve(process.cwd(), "public", "uploads", folder)
+  const filename = `${prefix}-${index + 1}-${Date.now()}.${extension}`
   const destination = path.resolve(uploadDir, filename)
 
   if (!destination.startsWith(uploadDir)) {
@@ -90,7 +87,7 @@ async function saveUploadedImage(
   await mkdir(uploadDir, { recursive: true })
   await writeFile(destination, Buffer.from(await value.arrayBuffer()))
 
-  return `/contact/${filename}`
+  return `/uploads/${folder}/${filename}`
 }
 
 async function requireContentManagerAccess(countryCode: string) {
@@ -443,18 +440,35 @@ function buildCategoryHighlights(formData: FormData) {
   }
 }
 
-function buildAgeHighlights(formData: FormData) {
+async function buildAgeHighlights(formData: FormData) {
   return {
     eyebrow: readString(formData, "eyebrow", AGE_HIGHLIGHTS.eyebrow),
     title: readString(formData, "title", AGE_HIGHLIGHTS.title),
     subtitle: readString(formData, "subtitle", AGE_HIGHLIGHTS.subtitle),
-    items: AGE_HIGHLIGHTS.items.map((item, index) => ({
-      value: readString(formData, `items.${index}.value`, item.value),
-      unit: readString(formData, `items.${index}.unit`, item.unit),
-      title: readString(formData, `items.${index}.title`, item.title),
-      href: readString(formData, `items.${index}.href`, item.href),
-      image: readString(formData, `items.${index}.image`, item.image || ""),
-    })),
+    items: await Promise.all(
+      AGE_HIGHLIGHTS.items.map(async (item, index) => {
+        const typedImage = readString(
+          formData,
+          `items.${index}.image`,
+          item.image || ""
+        )
+
+        return {
+          value: readString(formData, `items.${index}.value`, item.value),
+          unit: readString(formData, `items.${index}.unit`, item.unit),
+          title: readString(formData, `items.${index}.title`, item.title),
+          href: readString(formData, `items.${index}.href`, item.href),
+          image: await saveUploadedImage(
+            formData,
+            `items.${index}.imageFile`,
+            typedImage,
+            index,
+            "content",
+            "category-circle"
+          ),
+        }
+      })
+    ),
   }
 }
 
@@ -575,7 +589,7 @@ async function saveSection(
       payload = buildCategoryHighlights(formData)
       break
     case "age_highlights":
-      payload = buildAgeHighlights(formData)
+      payload = await buildAgeHighlights(formData)
       break
     case "footer_content":
       payload = buildFooterContent(formData)
@@ -601,41 +615,6 @@ async function saveSection(
   revalidatePath(`/${countryCode}/products`)
   revalidatePath(`/${countryCode}/content-manager`)
   redirect(`/${countryCode}/content-manager?locale=${locale}&saved=${section}`)
-}
-
-export async function loginContentManager(
-  countryCode: string,
-  locale: string,
-  formData: FormData
-) {
-  const key = getContentManagerKey()
-  const submitted = readString(formData, "accessKey")
-
-  if (!key) {
-    redirect(`/${countryCode}/content-manager?locale=${locale}&error=missing-key`)
-  }
-
-  if (submitted !== key) {
-    redirect(`/${countryCode}/content-manager?locale=${locale}&error=invalid-key`)
-  }
-
-  const cookieStore = await cookies()
-
-  cookieStore.set(CONTENT_MANAGER_COOKIE, key, {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 60 * 60 * 8,
-  })
-
-  redirect(`/${countryCode}/content-manager?locale=${locale}`)
-}
-
-export async function logoutContentManager(countryCode: string, locale: string) {
-  const cookieStore = await cookies()
-  cookieStore.delete(CONTENT_MANAGER_COOKIE)
-  redirect(`/${countryCode}/content-manager?locale=${locale}`)
 }
 
 export async function saveHeroContent(

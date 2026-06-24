@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { redirect } from "next/navigation"
 
 import {
   AGE_HIGHLIGHTS,
@@ -17,14 +18,9 @@ import {
 import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
 import { getSiteContentSection } from "@lib/data/site-content"
 import { normalizeLocale, SUPPORTED_LOCALES } from "@lib/data/supported-locales"
-import {
-  getContentManagerKey,
-  isContentManagerAuthorized,
-} from "@lib/util/content-manager-auth"
+import { isContentManagerAuthorized } from "@lib/util/content-manager-auth"
 
 import {
-  loginContentManager,
-  logoutContentManager,
   saveAgePageContent,
   saveAgeHighlights,
   saveCategoryPageContent,
@@ -50,14 +46,14 @@ function Field({
 }) {
   return (
     <label className="flex flex-col gap-2">
-      <span className="text-sm font-medium text-[color:var(--text-body)]">
+      <span className="text-sm font-medium text-[#3f3422]">
         {label}
       </span>
       <input
         type={type}
         name={name}
         defaultValue={defaultValue}
-        className="h-12 rounded-2xl border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.9)] px-4 text-sm text-[color:var(--text-strong)] outline-none transition duration-300 ease-out hover:border-[color:var(--accent)]/35 focus:border-[color:var(--accent)]"
+        className="h-12 rounded-2xl border border-[#d8c8a7] bg-[#fffaf2] px-4 text-sm text-[#1f1a12] outline-none transition duration-300 ease-out placeholder:text-[#7b6b53] hover:border-[color:var(--accent)]/55 focus:border-[color:var(--accent)]"
       />
     </label>
   )
@@ -76,14 +72,14 @@ function TextareaField({
 }) {
   return (
     <label className="flex flex-col gap-2">
-      <span className="text-sm font-medium text-[color:var(--text-body)]">
+      <span className="text-sm font-medium text-[#3f3422]">
         {label}
       </span>
       <textarea
         name={name}
         defaultValue={defaultValue}
         rows={rows}
-        className="rounded-2xl border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.9)] px-4 py-3 text-sm text-[color:var(--text-strong)] outline-none transition duration-300 ease-out hover:border-[color:var(--accent)]/35 focus:border-[color:var(--accent)]"
+        className="rounded-2xl border border-[#d8c8a7] bg-[#fffaf2] px-4 py-3 text-sm text-[#1f1a12] outline-none transition duration-300 ease-out placeholder:text-[#7b6b53] hover:border-[color:var(--accent)]/55 focus:border-[color:var(--accent)]"
       />
     </label>
   )
@@ -99,7 +95,7 @@ function CheckboxField({
   defaultChecked: boolean
 }) {
   return (
-    <label className="flex items-center gap-3 rounded-2xl border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.9)] px-4 py-3 text-sm font-medium text-[color:var(--text-body)]">
+    <label className="flex items-center gap-3 rounded-2xl border border-[#d8c8a7] bg-[#fffaf2] px-4 py-3 text-sm font-medium text-[#3f3422]">
       <input
         type="checkbox"
         name={name}
@@ -122,18 +118,18 @@ function FileField({
 }) {
   return (
     <label className="flex flex-col gap-2">
-      <span className="text-sm font-medium text-[color:var(--text-body)]">
+      <span className="text-sm font-medium text-[#3f3422]">
         {label}
       </span>
       <input
         type="file"
         name={name}
         accept="image/jpeg,image/png,image/webp"
-        className="rounded-2xl border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.9)] px-4 py-3 text-sm text-[color:var(--text-strong)] outline-none transition duration-300 ease-out file:mr-4 file:rounded-full file:border-0 file:bg-[var(--accent-soft)] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[color:var(--accent-strong)] hover:border-[color:var(--accent)]/35 focus:border-[color:var(--accent)]"
+        className="rounded-2xl border border-[#d8c8a7] bg-[#fffaf2] px-4 py-3 text-sm text-[#1f1a12] outline-none transition duration-300 ease-out file:mr-4 file:rounded-full file:border-0 file:bg-[#f5e7b8] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#5c4612] hover:border-[color:var(--accent)]/55 focus:border-[color:var(--accent)]"
       />
       {currentValue ? (
-        <span className="break-all text-xs text-[color:var(--text-muted)]">
-          Current: {currentValue}
+        <span className="break-all text-xs text-[#5f5138]">
+          当前：{currentValue}
         </span>
       ) : null}
     </label>
@@ -188,12 +184,8 @@ function StatusBanner({
 
   const isError = Boolean(error)
   const message = isError
-    ? error === "invalid-key"
-      ? "Access key is incorrect."
-      : error === "missing-key"
-        ? "Content manager key is not configured."
-        : "Unable to continue. Please sign in again."
-    : `Saved: ${saved}`
+    ? "无法继续，请重新登录后台。"
+    : `已保存：${saved}`
 
   return (
     <div
@@ -254,42 +246,12 @@ export default async function ContentManagerPage(props: {
     props.searchParams,
   ])
 
-  const accessKeyConfigured = Boolean(getContentManagerKey())
   const authorized = await isContentManagerAuthorized()
   const currentLocale = normalizeEditorLocale(searchParams.locale)
 
   if (!authorized) {
-    return (
-      <main className="bg-[var(--bg-canvas)] px-4 py-12 md:px-8">
-        <div className="mx-auto max-w-xl rounded-[2rem] border border-[color:var(--border-soft)] bg-[var(--bg-card)] p-8 shadow-[0_22px_55px_-38px_rgba(92,72,45,0.2)]">
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--text-muted)]">
-            Content Manager
-          </p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-[color:var(--text-strong)]">
-            Sign in to edit storefront content
-          </h1>
-          <p className="mt-3 text-sm leading-6 text-[color:var(--text-body)]">
-            This page controls homepage copy, category cards, age blocks, and footer contact details.
-          </p>
-
-          <div className="mt-6">
-            <StatusBanner error={searchParams.error} />
-          </div>
-
-          <form
-            action={loginContentManager.bind(null, countryCode, currentLocale)}
-            className="mt-6 flex flex-col gap-4"
-          >
-            <Field label="Access key" name="accessKey" defaultValue="" type="password" />
-            <button
-              type="submit"
-              className="inline-flex h-12 items-center justify-center rounded-full bg-[color:var(--accent)] px-5 text-sm font-semibold text-[color:var(--accent-strong)] transition duration-300 ease-out hover:-translate-y-0.5 hover:bg-[#dfead8]"
-            >
-              Enter Content Manager
-            </button>
-          </form>
-        </div>
-      </main>
+    redirect(
+      `/admin/login?next=${encodeURIComponent(`/${countryCode}/content-manager?locale=${currentLocale}`)}`
     )
   }
 
@@ -334,13 +296,13 @@ export default async function ContentManagerPage(props: {
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--text-muted)]">
-                Content Manager
+                内容管理
               </p>
               <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-[color:var(--text-strong)]">
-                Storefront copy editor
+                前台内容编辑
               </h1>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-[color:var(--text-body)]">
-                Edit the homepage and footer without touching code. Each block saves directly to the database and overrides the default frontend config.
+                在这里编辑首页、分类卡片、年龄区块和页脚内容。保存后会直接写入数据库并覆盖默认前台配置。
               </p>
             </div>
 
@@ -349,18 +311,14 @@ export default async function ContentManagerPage(props: {
                 href={`/${countryCode}`}
                 className="inline-flex items-center justify-center rounded-full border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.9)] px-5 py-3 text-sm font-semibold text-[color:var(--text-strong)] transition duration-300 ease-out hover:border-[color:var(--accent)]/35 hover:bg-[var(--accent-soft)]"
               >
-                View homepage
+                查看首页
               </Link>
-              {accessKeyConfigured ? (
-                <form action={logoutContentManager.bind(null, countryCode, currentLocale)}>
-                  <button
-                    type="submit"
-                    className="inline-flex items-center justify-center rounded-full border border-[color:var(--border-soft)] bg-transparent px-5 py-3 text-sm font-semibold text-[color:var(--text-body)] transition duration-300 ease-out hover:border-[color:var(--accent)]/35 hover:bg-[rgba(255,250,242,0.72)]"
-                  >
-                    Sign out
-                  </button>
-                </form>
-              ) : null}
+              <Link
+                href="/admin"
+                className="inline-flex items-center justify-center rounded-full border border-[color:var(--border-soft)] bg-transparent px-5 py-3 text-sm font-semibold text-[color:var(--text-body)] transition duration-300 ease-out hover:border-[color:var(--accent)]/35 hover:bg-[rgba(255,250,242,0.72)]"
+              >
+                返回后台
+              </Link>
             </div>
           </div>
 
@@ -370,8 +328,8 @@ export default async function ContentManagerPage(props: {
         </div>
 
         <SectionCard
-          title="Language"
-          description="Choose which storefront language you are editing. English, Arabic, and Chinese are saved separately."
+          title="语言"
+          description="选择要编辑的前台语言，不同语言会分别保存。"
         >
           <div className="flex flex-wrap gap-3">
             {SUPPORTED_LOCALES.map((locale) => (
@@ -391,18 +349,18 @@ export default async function ContentManagerPage(props: {
         </SectionCard>
 
         <SectionCard
-          title="Header"
-          description="Controls the top brand name, search bar copy, and the contact links shown on the homepage header."
+          title="页头"
+          description="控制顶部品牌名、搜索框文案和首页页头中的联系方式。"
         >
           <form
             action={saveHeaderContent.bind(null, countryCode, currentLocale)}
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Brand name" name="brandName" defaultValue={headerContentWithSharedImages.brandName} />
-              <Field label="Search button aria label" name="searchAriaLabel" defaultValue={headerContentWithSharedImages.searchAriaLabel} />
-              <Field label="Search placeholder" name="searchPlaceholder" defaultValue={headerContentWithSharedImages.searchPlaceholder} />
-              <Field label="Mobile menu button label" name="mobileMenuLabel" defaultValue={headerContentWithSharedImages.mobileMenuLabel} />
+              <Field label="品牌名称" name="brandName" defaultValue={headerContentWithSharedImages.brandName} />
+              <Field label="搜索按钮无障碍标签" name="searchAriaLabel" defaultValue={headerContentWithSharedImages.searchAriaLabel} />
+              <Field label="搜索框占位文案" name="searchPlaceholder" defaultValue={headerContentWithSharedImages.searchPlaceholder} />
+              <Field label="移动端菜单按钮文案" name="mobileMenuLabel" defaultValue={headerContentWithSharedImages.mobileMenuLabel} />
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
@@ -411,37 +369,37 @@ export default async function ContentManagerPage(props: {
                   key={`${item.label}-${index}`}
                   className="rounded-[1.5rem] border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.7)] p-5"
                 >
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
-                    Contact link {index + 1}
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#5f5138]">
+                    联系方式 {index + 1}
                   </p>
                   <div className="mt-4 grid gap-4">
                     <Field
-                      label="Label"
+                      label="标题"
                       name={`links.${index}.label`}
                       defaultValue={item.label}
                     />
                     <Field
-                      label="Detail"
+                      label="详情"
                       name={`links.${index}.detail`}
                       defaultValue={item.detail}
                     />
                     <Field
-                      label="Link"
+                      label="链接"
                       name={`links.${index}.href`}
                       defaultValue={item.href}
                     />
                     <Field
-                      label="QR image URL"
+                      label="二维码图片 URL"
                       name={`links.${index}.modalImageSrc`}
                       defaultValue={item.modalImageSrc || ""}
                     />
                     <FileField
-                      label="Upload QR image"
+                      label="上传二维码图片"
                       name={`links.${index}.modalImageFile`}
                       currentValue={item.modalImageSrc || ""}
                     />
                     <Field
-                      label="QR image alt text"
+                      label="二维码图片替代文本"
                       name={`links.${index}.modalImageAlt`}
                       defaultValue={item.modalImageAlt || ""}
                     />
@@ -450,25 +408,25 @@ export default async function ContentManagerPage(props: {
               ))}
             </div>
 
-            <SaveButton label="Save header section" />
+            <SaveButton label="保存页头" />
           </form>
         </SectionCard>
 
         <SectionCard
-          title="Navigation"
-          description="Controls the main homepage navigation labels, dropdown groups, and helper copy used inside the mega menu."
+          title="导航"
+          description="控制首页主导航文案、下拉分组和大菜单中的辅助说明。"
         >
           <form
             action={saveNavContent.bind(null, countryCode, currentLocale)}
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              <Field label="Mobile browse label" name="mobileBrowseLabel" defaultValue={navContent.mobileBrowseLabel} />
-              <Field label="Mobile close label" name="mobileCloseLabel" defaultValue={navContent.mobileCloseLabel} />
-              <Field label="Explore label" name="exploreLabel" defaultValue={navContent.exploreLabel} />
-              <Field label="Mega menu intro prefix" name="megaMenuIntroLabelPrefix" defaultValue={navContent.megaMenuIntroLabelPrefix} />
-              <Field label="Mobile go-to prefix" name="mobileGoToPrefix" defaultValue={navContent.mobileGoToPrefix} />
-              <TextareaField label="Mega menu description" name="megaMenuIntroDescription" defaultValue={navContent.megaMenuIntroDescription} rows={2} />
+              <Field label="移动端浏览文案" name="mobileBrowseLabel" defaultValue={navContent.mobileBrowseLabel} />
+              <Field label="移动端关闭文案" name="mobileCloseLabel" defaultValue={navContent.mobileCloseLabel} />
+              <Field label="探索文案" name="exploreLabel" defaultValue={navContent.exploreLabel} />
+              <Field label="大菜单介绍前缀" name="megaMenuIntroLabelPrefix" defaultValue={navContent.megaMenuIntroLabelPrefix} />
+              <Field label="移动端跳转前缀" name="mobileGoToPrefix" defaultValue={navContent.mobileGoToPrefix} />
+              <TextareaField label="大菜单说明" name="megaMenuIntroDescription" defaultValue={navContent.megaMenuIntroDescription} rows={2} />
             </div>
 
             <div className="grid gap-4">
@@ -477,17 +435,17 @@ export default async function ContentManagerPage(props: {
                   key={`${item.label}-${index}`}
                   className="rounded-[1.5rem] border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.7)] p-5"
                 >
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
-                    Nav item {index + 1}
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#5f5138]">
+                    导航项 {index + 1}
                   </p>
                   <div className="mt-4 grid gap-4 md:grid-cols-2">
                     <Field
-                      label="Label"
+                      label="标题"
                       name={`items.${index}.label`}
                       defaultValue={item.label}
                     />
                     <Field
-                      label="Direct link"
+                      label="直接链接"
                       name={`items.${index}.href`}
                       defaultValue={item.href ?? ""}
                     />
@@ -498,7 +456,7 @@ export default async function ContentManagerPage(props: {
                       className="mt-4 rounded-[1.25rem] border border-[color:var(--border-soft)] bg-[var(--bg-card)] p-4"
                     >
                       <Field
-                        label="Group title"
+                        label="分组标题"
                         name={`items.${index}.groups.${groupIndex}.title`}
                         defaultValue={group.title}
                       />
@@ -507,17 +465,17 @@ export default async function ContentManagerPage(props: {
                           <div key={`${link.label}-${linkIndex}`} className="rounded-[1rem] border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.72)] p-4">
                             <div className="grid gap-4">
                               <Field
-                                label="Link label"
+                                label="链接标题"
                                 name={`items.${index}.groups.${groupIndex}.links.${linkIndex}.label`}
                                 defaultValue={link.label}
                               />
                               <Field
-                                label="Link href"
+                                label="链接地址"
                                 name={`items.${index}.groups.${groupIndex}.links.${linkIndex}.href`}
                                 defaultValue={link.href}
                               />
                               <TextareaField
-                                label="Description"
+                                label="说明"
                                 name={`items.${index}.groups.${groupIndex}.links.${linkIndex}.description`}
                                 defaultValue={link.description || ""}
                                 rows={2}
@@ -532,134 +490,134 @@ export default async function ContentManagerPage(props: {
               ))}
             </div>
 
-            <SaveButton label="Save navigation section" />
+            <SaveButton label="保存导航" />
           </form>
         </SectionCard>
 
         <SectionCard
-          title="Hero"
-          description="Controls the first screen banner copy and the two main action buttons."
+          title="首屏"
+          description="控制首页首屏横幅文案和两个主要按钮。"
         >
           <form
             action={saveHeroContent.bind(null, countryCode, currentLocale)}
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Eyebrow" name="eyebrow" defaultValue={heroContent.eyebrow} />
-              <Field label="Badge label" name="badgeLabel" defaultValue={heroContent.badgeLabel} />
-              <Field label="Primary button label" name="primaryCtaLabel" defaultValue={heroContent.primaryCtaLabel} />
-              <Field label="Primary button link" name="primaryCtaHref" defaultValue={heroContent.primaryCtaHref} />
-              <Field label="Secondary button label" name="secondaryCtaLabel" defaultValue={heroContent.secondaryCtaLabel} />
-              <Field label="Secondary button link" name="secondaryCtaHref" defaultValue={heroContent.secondaryCtaHref} />
+              <Field label="眉题" name="eyebrow" defaultValue={heroContent.eyebrow} />
+              <Field label="徽章标题" name="badgeLabel" defaultValue={heroContent.badgeLabel} />
+              <Field label="主按钮文案" name="primaryCtaLabel" defaultValue={heroContent.primaryCtaLabel} />
+              <Field label="主按钮链接" name="primaryCtaHref" defaultValue={heroContent.primaryCtaHref} />
+              <Field label="次按钮文案" name="secondaryCtaLabel" defaultValue={heroContent.secondaryCtaLabel} />
+              <Field label="次按钮链接" name="secondaryCtaHref" defaultValue={heroContent.secondaryCtaHref} />
             </div>
 
-            <TextareaField label="Main title" name="title" defaultValue={heroContent.title} rows={3} />
-            <TextareaField label="Body" name="body" defaultValue={heroContent.body} rows={4} />
-            <TextareaField label="Badge text" name="badgeText" defaultValue={heroContent.badgeText} rows={3} />
+            <TextareaField label="主标题" name="title" defaultValue={heroContent.title} rows={3} />
+            <TextareaField label="正文" name="body" defaultValue={heroContent.body} rows={4} />
+            <TextareaField label="徽章文案" name="badgeText" defaultValue={heroContent.badgeText} rows={3} />
 
-            <SaveButton label="Save hero section" />
+            <SaveButton label="保存首屏" />
           </form>
         </SectionCard>
 
         <SectionCard
-          title="All products section"
-          description="Controls the section label and title above the homepage product grid."
+          title="全部商品区块"
+          description="控制首页商品网格上方的区块标签和标题。"
         >
           <form
             action={saveFeaturedProducts.bind(null, countryCode, currentLocale)}
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Eyebrow" name="eyebrow" defaultValue={featuredProducts.eyebrow} />
-              <Field label="Title" name="title" defaultValue={featuredProducts.title} />
-              <TextareaField label="Subtitle" name="subtitle" defaultValue={featuredProducts.subtitle} rows={2} />
-              <Field label="Strategy" name="strategy" defaultValue={featuredProducts.strategy} />
+              <Field label="眉题" name="eyebrow" defaultValue={featuredProducts.eyebrow} />
+              <Field label="标题" name="title" defaultValue={featuredProducts.title} />
+              <TextareaField label="副标题" name="subtitle" defaultValue={featuredProducts.subtitle} rows={2} />
+              <Field label="展示策略" name="strategy" defaultValue={featuredProducts.strategy} />
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
               <CheckboxField
-                label="Show product names"
+                label="显示商品名称"
                 name="showProductNames"
                 defaultChecked={featuredProducts.showProductNames ?? FEATURED_PRODUCTS.showProductNames}
               />
               <CheckboxField
-                label="Show product prices"
+                label="显示商品价格"
                 name="showProductPrices"
                 defaultChecked={featuredProducts.showProductPrices ?? FEATURED_PRODUCTS.showProductPrices}
               />
             </div>
 
-            <SaveButton label="Save all products section" />
+            <SaveButton label="保存全部商品区块" />
           </form>
         </SectionCard>
 
         <SectionCard
-          title="Products page"
-          description="Controls the standalone /products page header, search result copy, home link label, and empty state."
+          title="商品列表页"
+          description="控制 /products 页面页头、搜索结果文案、首页链接文案和空状态。"
         >
           <form
             action={saveProductsPageContent.bind(null, countryCode, currentLocale)}
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              <Field label="Eyebrow" name="eyebrow" defaultValue={productsPageContent.eyebrow} />
-              <Field label="Default title" name="defaultTitle" defaultValue={productsPageContent.defaultTitle} />
-              <Field label="Home label" name="homeLabel" defaultValue={productsPageContent.homeLabel} />
-              <Field label="Search title prefix" name="searchTitlePrefix" defaultValue={productsPageContent.searchTitlePrefix} />
-              <Field label="Search title suffix" name="searchTitleSuffix" defaultValue={productsPageContent.searchTitleSuffix} />
-              <Field label="Results prefix" name="searchResultsLabelPrefix" defaultValue={productsPageContent.searchResultsLabelPrefix} />
-              <Field label="Results suffix" name="searchResultsLabelSuffix" defaultValue={productsPageContent.searchResultsLabelSuffix} />
+              <Field label="眉题" name="eyebrow" defaultValue={productsPageContent.eyebrow} />
+              <Field label="默认标题" name="defaultTitle" defaultValue={productsPageContent.defaultTitle} />
+              <Field label="首页文案" name="homeLabel" defaultValue={productsPageContent.homeLabel} />
+              <Field label="搜索标题前缀" name="searchTitlePrefix" defaultValue={productsPageContent.searchTitlePrefix} />
+              <Field label="搜索标题后缀" name="searchTitleSuffix" defaultValue={productsPageContent.searchTitleSuffix} />
+              <Field label="结果数量前缀" name="searchResultsLabelPrefix" defaultValue={productsPageContent.searchResultsLabelPrefix} />
+              <Field label="结果数量后缀" name="searchResultsLabelSuffix" defaultValue={productsPageContent.searchResultsLabelSuffix} />
             </div>
-            <TextareaField label="Default description" name="defaultDescription" defaultValue={productsPageContent.defaultDescription} rows={2} />
-            <TextareaField label="Empty state message" name="emptyMessage" defaultValue={productsPageContent.emptyMessage} rows={2} />
+            <TextareaField label="默认说明" name="defaultDescription" defaultValue={productsPageContent.defaultDescription} rows={2} />
+            <TextareaField label="空状态文案" name="emptyMessage" defaultValue={productsPageContent.emptyMessage} rows={2} />
 
-            <SaveButton label="Save products page" />
+            <SaveButton label="保存商品列表页" />
           </form>
         </SectionCard>
 
         <SectionCard
-          title="Product UI"
-          description="Controls button labels, age badges, fallback copy, and the fixed text inside the product detail tabs."
+          title="商品 UI"
+          description="控制按钮、年龄徽章、兜底文案和商品详情标签页中的固定文本。"
         >
           <form
             action={saveProductUiContent.bind(null, countryCode, currentLocale)}
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              <Field label="Contact button" name="contactLabel" defaultValue={productUiContent.contactLabel} />
-              <Field label="View details" name="viewDetailsLabel" defaultValue={productUiContent.viewDetailsLabel} />
-              <Field label="Age prefix" name="agePrefix" defaultValue={productUiContent.agePrefix} />
-              <Field label="Ages prefix" name="agesPrefix" defaultValue={productUiContent.agesPrefix} />
-              <Field label="No image label" name="noImageLabel" defaultValue={productUiContent.noImageLabel} />
-              <Field label="Product information tab" name="productInformationLabel" defaultValue={productUiContent.productInformationLabel} />
-              <Field label="Availability tab" name="availabilityLabel" defaultValue={productUiContent.availabilityLabel} />
-              <Field label="Material label" name="materialLabel" defaultValue={productUiContent.materialLabel} />
-              <Field label="Country of origin label" name="countryOfOriginLabel" defaultValue={productUiContent.countryOfOriginLabel} />
-              <Field label="Type label" name="typeLabel" defaultValue={productUiContent.typeLabel} />
-              <Field label="Weight label" name="weightLabel" defaultValue={productUiContent.weightLabel} />
-              <Field label="Dimensions label" name="dimensionsLabel" defaultValue={productUiContent.dimensionsLabel} />
-              <Field label="Availability title" name="availabilityTitle" defaultValue={productUiContent.availabilityTitle} />
+              <Field label="联系按钮" name="contactLabel" defaultValue={productUiContent.contactLabel} />
+              <Field label="查看详情" name="viewDetailsLabel" defaultValue={productUiContent.viewDetailsLabel} />
+              <Field label="年龄前缀" name="agePrefix" defaultValue={productUiContent.agePrefix} />
+              <Field label="年龄段前缀" name="agesPrefix" defaultValue={productUiContent.agesPrefix} />
+              <Field label="无图片文案" name="noImageLabel" defaultValue={productUiContent.noImageLabel} />
+              <Field label="商品信息标签" name="productInformationLabel" defaultValue={productUiContent.productInformationLabel} />
+              <Field label="库存标签" name="availabilityLabel" defaultValue={productUiContent.availabilityLabel} />
+              <Field label="材质标签" name="materialLabel" defaultValue={productUiContent.materialLabel} />
+              <Field label="产地标签" name="countryOfOriginLabel" defaultValue={productUiContent.countryOfOriginLabel} />
+              <Field label="类型标签" name="typeLabel" defaultValue={productUiContent.typeLabel} />
+              <Field label="重量标签" name="weightLabel" defaultValue={productUiContent.weightLabel} />
+              <Field label="尺寸标签" name="dimensionsLabel" defaultValue={productUiContent.dimensionsLabel} />
+              <Field label="库存标题" name="availabilityTitle" defaultValue={productUiContent.availabilityTitle} />
             </div>
-            <TextareaField label="Contact message" name="contactBody" defaultValue={productUiContent.contactBody} rows={3} />
-            <TextareaField label="Fallback description" name="fallbackDescription" defaultValue={productUiContent.fallbackDescription} rows={2} />
-            <TextareaField label="Availability body" name="availabilityBody" defaultValue={productUiContent.availabilityBody} rows={3} />
+            <TextareaField label="联系说明" name="contactBody" defaultValue={productUiContent.contactBody} rows={3} />
+            <TextareaField label="兜底描述" name="fallbackDescription" defaultValue={productUiContent.fallbackDescription} rows={2} />
+            <TextareaField label="库存说明" name="availabilityBody" defaultValue={productUiContent.availabilityBody} rows={3} />
 
-            <SaveButton label="Save product UI" />
+            <SaveButton label="保存商品 UI" />
           </form>
         </SectionCard>
 
         <SectionCard
-          title="Shop by category circles"
-          description="Controls the category section title and the six circular category entry points."
+          title="分类圆形入口"
+          description="控制分类区块标题和 6 个圆形分类入口。"
         >
           <form
             action={saveAgeHighlights.bind(null, countryCode, currentLocale)}
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-3">
-              <Field label="Eyebrow" name="eyebrow" defaultValue={ageHighlights.eyebrow} />
-              <Field label="Title" name="title" defaultValue={ageHighlights.title} />
-              <TextareaField label="Subtitle" name="subtitle" defaultValue={ageHighlights.subtitle} rows={2} />
+              <Field label="眉题" name="eyebrow" defaultValue={ageHighlights.eyebrow} />
+              <Field label="标题" name="title" defaultValue={ageHighlights.title} />
+              <TextareaField label="副标题" name="subtitle" defaultValue={ageHighlights.subtitle} rows={2} />
             </div>
 
             <div className="grid gap-4">
@@ -668,58 +626,63 @@ export default async function ContentManagerPage(props: {
                   key={`${item.title}-${index}`}
                   className="rounded-[1.5rem] border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.7)] p-5"
                 >
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
-                    Category circle {index + 1}
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#5f5138]">
+                    分类入口 {index + 1}
                   </p>
                   <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
                     <Field
-                      label="Circle text"
+                      label="圆圈文字"
                       name={`items.${index}.value`}
                       defaultValue={item.value}
                     />
                     <Field
-                      label="Small text"
+                      label="小字"
                       name={`items.${index}.unit`}
                       defaultValue={item.unit}
                     />
                     <Field
-                      label="Title"
+                      label="标题"
                       name={`items.${index}.title`}
                       defaultValue={item.title}
                     />
                     <Field
-                      label="Link"
+                      label="链接"
                       name={`items.${index}.href`}
                       defaultValue={item.href}
                     />
                     <Field
-                      label="Image URL"
+                      label="图片 URL"
                       name={`items.${index}.image`}
                       defaultValue={item.image || ""}
+                    />
+                    <FileField
+                      label="上传图片"
+                      name={`items.${index}.imageFile`}
+                      currentValue={item.image || ""}
                     />
                   </div>
                 </div>
               ))}
             </div>
 
-            <SaveButton label="Save category circles" />
+            <SaveButton label="保存分类入口" />
           </form>
         </SectionCard>
 
         <SectionCard
-          title="Footer"
-          description="Controls the brand, website, contact line, and the social icon links shown at the bottom of every page."
+          title="页脚"
+          description="控制每个页面底部显示的品牌、网站、联系方式和社交图标链接。"
         >
           <form
             action={saveFooterContent.bind(null, countryCode, currentLocale)}
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Brand name" name="brandName" defaultValue={footerContent.brandName} />
-              <Field label="Website label" name="websiteLabel" defaultValue={footerContent.websiteLabel} />
-              <Field label="Website link" name="websiteHref" defaultValue={footerContent.websiteHref} />
-              <Field label="Contact label" name="contactLabel" defaultValue={footerContent.contactLabel} />
-              <Field label="Contact link" name="contactHref" defaultValue={footerContent.contactHref} />
+              <Field label="品牌名称" name="brandName" defaultValue={footerContent.brandName} />
+              <Field label="网站文案" name="websiteLabel" defaultValue={footerContent.websiteLabel} />
+              <Field label="网站链接" name="websiteHref" defaultValue={footerContent.websiteHref} />
+              <Field label="联系方式文案" name="contactLabel" defaultValue={footerContent.contactLabel} />
+              <Field label="联系方式链接" name="contactHref" defaultValue={footerContent.contactHref} />
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
@@ -728,17 +691,17 @@ export default async function ContentManagerPage(props: {
                   key={`${item.label}-${index}`}
                   className="rounded-[1.5rem] border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.7)] p-5"
                 >
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
-                    Social link {index + 1}
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#5f5138]">
+                    社交链接 {index + 1}
                   </p>
                   <div className="mt-4 grid gap-4">
                     <Field
-                      label="Label"
+                      label="标题"
                       name={`socialLinks.${index}.label`}
                       defaultValue={item.label}
                     />
                     <Field
-                      label="Link"
+                      label="链接"
                       name={`socialLinks.${index}.href`}
                       defaultValue={item.href}
                     />
@@ -747,21 +710,21 @@ export default async function ContentManagerPage(props: {
               ))}
             </div>
 
-            <SaveButton label="Save footer section" />
+            <SaveButton label="保存页脚" />
           </form>
         </SectionCard>
 
         <SectionCard
-          title="Category landing pages"
-          description="Controls the eyebrow and descriptions used on each /shop/category/... landing page."
+          title="分类落地页"
+          description="控制每个 /shop/category/... 落地页使用的眉题和说明。"
         >
           <form
             action={saveCategoryPageContent.bind(null, countryCode, currentLocale)}
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Eyebrow" name="eyebrow" defaultValue={categoryPageContent.eyebrow} />
-              <TextareaField label="Empty state message" name="emptyMessage" defaultValue={categoryPageContent.emptyMessage} rows={3} />
+              <Field label="眉题" name="eyebrow" defaultValue={categoryPageContent.eyebrow} />
+              <TextareaField label="空状态文案" name="emptyMessage" defaultValue={categoryPageContent.emptyMessage} rows={3} />
             </div>
 
             <div className="grid gap-4">
@@ -770,8 +733,8 @@ export default async function ContentManagerPage(props: {
                   key={`${item.slug}-${index}`}
                   className="rounded-[1.5rem] border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.7)] p-5"
                 >
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
-                    Category page {index + 1}
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#5f5138]">
+                    分类页面 {index + 1}
                   </p>
                   <div className="mt-4 grid gap-4 md:grid-cols-2">
                     <Field
@@ -780,14 +743,14 @@ export default async function ContentManagerPage(props: {
                       defaultValue={item.slug}
                     />
                     <Field
-                      label="Title"
+                      label="标题"
                       name={`pages.${index}.title`}
                       defaultValue={item.title}
                     />
                   </div>
                   <div className="mt-4">
                     <TextareaField
-                      label="Description"
+                      label="说明"
                       name={`pages.${index}.description`}
                       defaultValue={item.description}
                       rows={3}
@@ -797,39 +760,39 @@ export default async function ContentManagerPage(props: {
               ))}
             </div>
 
-            <SaveButton label="Save category landing pages" />
+            <SaveButton label="保存分类落地页" />
           </form>
         </SectionCard>
 
         <SectionCard
-          title="Age landing pages"
-          description="Controls the title prefix, empty state, filter pills, and descriptions used on each /shop/age/... landing page."
+          title="年龄落地页"
+          description="控制每个 /shop/age/... 落地页使用的标题前缀、空状态、筛选标签和说明。"
         >
           <form
             action={saveAgePageContent.bind(null, countryCode, currentLocale)}
             className="space-y-6"
           >
             <div className="grid gap-4 md:grid-cols-3">
-              <Field label="Eyebrow" name="eyebrow" defaultValue={agePageContent.eyebrow} />
-              <Field label="Title prefix" name="titlePrefix" defaultValue={agePageContent.titlePrefix} />
-              <TextareaField label="Empty state message" name="emptyMessage" defaultValue={agePageContent.emptyMessage} rows={2} />
+              <Field label="眉题" name="eyebrow" defaultValue={agePageContent.eyebrow} />
+              <Field label="标题前缀" name="titlePrefix" defaultValue={agePageContent.titlePrefix} />
+              <TextareaField label="空状态文案" name="emptyMessage" defaultValue={agePageContent.emptyMessage} rows={2} />
             </div>
 
             <div className="rounded-[1.5rem] border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.7)] p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
-                Filter pills
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#5f5138]">
+                筛选标签
               </p>
               <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {agePageContent.filters.map((item, index) => (
                   <div key={`${item.value}-${index}`} className="rounded-[1rem] border border-[color:var(--border-soft)] bg-[var(--bg-card)] p-4">
                     <div className="grid gap-4">
                       <Field
-                        label="Label"
+                        label="标题"
                         name={`filters.${index}.label`}
                         defaultValue={item.label}
                       />
                       <Field
-                        label="Value"
+                        label="值"
                         name={`filters.${index}.value`}
                         defaultValue={item.value}
                       />
@@ -845,8 +808,8 @@ export default async function ContentManagerPage(props: {
                   key={`${item.slug}-${index}`}
                   className="rounded-[1.5rem] border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.7)] p-5"
                 >
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text-muted)]">
-                    Age page {index + 1}
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#5f5138]">
+                    年龄页面 {index + 1}
                   </p>
                   <div className="mt-4 grid gap-4 md:grid-cols-2">
                     <Field
@@ -855,14 +818,14 @@ export default async function ContentManagerPage(props: {
                       defaultValue={item.slug}
                     />
                     <Field
-                      label="Title"
+                      label="标题"
                       name={`pages.${index}.title`}
                       defaultValue={item.title}
                     />
                   </div>
                   <div className="mt-4">
                     <TextareaField
-                      label="Description"
+                      label="说明"
                       name={`pages.${index}.description`}
                       defaultValue={item.description}
                       rows={3}
@@ -872,7 +835,7 @@ export default async function ContentManagerPage(props: {
               ))}
             </div>
 
-            <SaveButton label="Save age landing pages" />
+            <SaveButton label="保存年龄落地页" />
           </form>
         </SectionCard>
       </div>

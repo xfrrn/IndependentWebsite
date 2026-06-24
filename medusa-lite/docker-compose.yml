@@ -33,16 +33,17 @@ services:
       NEXT_PUBLIC_DEFAULT_REGION: dk
       CONTENT_ADMIN_SECRET: local-content-secret
       CONTENT_MANAGER_KEY: local-content-manager-key
+      LITE_ADMIN_EMAIL: admin@example.com
+      LITE_ADMIN_PASSWORD: supersecret
+      LITE_ADMIN_SESSION_SECRET: local-lite-admin-session
       REVALIDATE_SECRET: supersecret
     ports:
       - "8000:8000"
     volumes:
       - .:/app
       - medusa-lite-node-modules:/app/node_modules
-      - medusa-lite-next:/app/.next
     command: npm run docker:dev
 
 volumes:
   medusa-lite-db-data:
   medusa-lite-node-modules:
-  medusa-lite-next:

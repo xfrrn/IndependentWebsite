@@ -19,7 +19,12 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   const locale = normalizeLocale(await getLocale())
 
   return (
-    <html lang={locale} dir={getLocaleDirection(locale)} data-mode="light">
+    <html
+      lang={locale}
+      dir={getLocaleDirection(locale)}
+      data-mode="light"
+      suppressHydrationWarning
+    >
       <body className={nunitoSans.variable}>
         <main className="relative">{props.children}</main>
       </body>

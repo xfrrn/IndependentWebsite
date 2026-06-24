@@ -58,15 +58,41 @@ function formatProduct(p: any) {
     description: p.description,
     thumbnail: p.thumbnail,
     images: p.images,
+    options: formatProductOptions(p.variants),
     metadata: p.metadata,
     tags: p.tags,
     status: p.status,
     created_at: p.createdAt.toISOString(),
     updated_at: p.updatedAt.toISOString(),
     variants: p.variants.map(formatVariant),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     categories: p.categories?.map((pc: any) => formatCategory(pc.category)) ?? [],
     collection: p.collections?.[0]?.collection ? formatCollection(p.collections[0].collection) : undefined,
   }
+}
+
+// ponytail: lite stores variant options as plain JSON; derive selectors here unless a real option table is added.
+function formatProductOptions(variants: Array<{ options: unknown }>) {
+  const valuesByOption = new Map<string, Set<string>>()
+
+  variants.forEach((variant) => {
+    if (!variant.options || Array.isArray(variant.options) || typeof variant.options !== "object") {
+      return
+    }
+
+    Object.entries(variant.options).forEach(([key, value]) => {
+      if (!valuesByOption.has(key)) {
+        valuesByOption.set(key, new Set())
+      }
+      valuesByOption.get(key)!.add(String(value))
+    })
+  })
+
+  return Array.from(valuesByOption.entries()).map(([id, values]) => ({
+    id,
+    title: id,
+    values: Array.from(values).map((value) => ({ value })),
+  }))
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
