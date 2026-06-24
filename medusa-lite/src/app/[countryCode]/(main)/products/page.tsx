@@ -77,7 +77,7 @@ export default async function ProductsPage(props: Props) {
             </p>
           </div>
           <Link
-            href={`/${params.countryCode}`}
+            href="/"
             className="rounded-full border border-[color:var(--border-soft)] px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-[color:var(--text-body)] hover:border-[color:var(--accent)]"
           >
             {content.homeLabel}

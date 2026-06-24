@@ -21,7 +21,6 @@ function buildQuery(searchParams: SearchParams, value?: string) {
 }
 
 export default function AgeQuickLinks({
-  countryCode,
   searchParams,
 }: {
   countryCode: string
@@ -33,7 +32,7 @@ export default function AgeQuickLinks({
         <Link
           key={age}
           href={{
-            pathname: `/${countryCode}/products`,
+            pathname: "/products",
             query: buildQuery(searchParams, age),
           }}
           className={`rounded-2xl border px-4 py-3 text-center text-sm transition ${

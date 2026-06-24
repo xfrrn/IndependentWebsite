@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { ADMIN_AUTH_COOKIE, isAdminSessionToken } from "@/lib/admin-auth"
 
-const DEFAULT_REGION = process.env.NEXT_PUBLIC_DEFAULT_REGION || "dk"
 const APP_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:8000"
 
 const REMOVED_COMMERCE_SEGMENTS = new Set([
@@ -10,6 +9,8 @@ const REMOVED_COMMERCE_SEGMENTS = new Set([
   "checkout",
   "order",
 ])
+
+const CLEAN_URL_SEGMENTS = new Set(["shop"])
 
 type Region = {
   countries?: Array<{ iso_2?: string | null }>
@@ -67,8 +68,6 @@ async function getCountryCode(
       countryCode = urlCountryCode
     } else if (vercelCountryCode && regionMap.has(vercelCountryCode)) {
       countryCode = vercelCountryCode
-    } else if (regionMap.has(DEFAULT_REGION)) {
-      countryCode = DEFAULT_REGION
     } else if (regionMap.keys().next().value) {
       countryCode = regionMap.keys().next().value
     }
@@ -115,8 +114,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  let redirectUrl = request.nextUrl.href
-  let response = NextResponse.redirect(redirectUrl, 307)
+  let response = NextResponse.next()
 
   const cacheIdCookie = request.cookies.get("_medusa_cache_id")
   const cacheId = cacheIdCookie?.value || crypto.randomUUID()
@@ -133,6 +131,26 @@ export async function middleware(request: NextRequest) {
     countryCode && request.nextUrl.pathname.split("/")[1] === countryCode
 
   const firstContentSegment = urlHasCountryCode ? pathSegments[1] : pathSegments[0]
+  const contentSegments = urlHasCountryCode ? pathSegments.slice(1) : pathSegments
+
+  if (contentSegments[0] === "store") {
+    const response = NextResponse.redirect(new URL("/products", request.url), 307)
+    response.cookies.set("_medusa_cache_id", cacheId, {
+      maxAge: 60 * 60 * 24,
+    })
+    return response
+  }
+
+  if (contentSegments[0] === "categories" && contentSegments[1]) {
+    const response = NextResponse.redirect(
+      new URL(`/shop/category/${contentSegments.slice(1).join("/")}`, request.url),
+      307
+    )
+    response.cookies.set("_medusa_cache_id", cacheId, {
+      maxAge: 60 * 60 * 24,
+    })
+    return response
+  }
 
   if (
     countryCode &&
@@ -140,7 +158,7 @@ export async function middleware(request: NextRequest) {
     REMOVED_COMMERCE_SEGMENTS.has(firstContentSegment)
   ) {
     const response = NextResponse.redirect(
-      `${request.nextUrl.origin}/${countryCode}/products`,
+      new URL("/products", request.url),
       307
     )
     if (!cacheIdCookie) {
@@ -151,12 +169,14 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
-  if (urlHasCountryCode && cacheIdCookie) {
-    return NextResponse.next()
-  }
-
-  if (urlHasCountryCode && !cacheIdCookie) {
-    response = NextResponse.next()
+  if (urlHasCountryCode) {
+    const strippedPath = `/${pathSegments.slice(1).join("/")}`
+    const cleanUrl = new URL(
+      strippedPath === "/" ? "/" : strippedPath,
+      request.url
+    )
+    cleanUrl.search = request.nextUrl.search
+    response = NextResponse.redirect(cleanUrl, 307)
     response.cookies.set("_medusa_cache_id", cacheId, {
       maxAge: 60 * 60 * 24,
     })
@@ -167,14 +187,21 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  const redirectPath =
-    request.nextUrl.pathname === "/" ? "" : request.nextUrl.pathname
-  const queryString = request.nextUrl.search ? request.nextUrl.search : ""
+  if (firstContentSegment && CLEAN_URL_SEGMENTS.has(firstContentSegment)) {
+    response.cookies.set("_medusa_cache_id", cacheId, {
+      maxAge: 60 * 60 * 24,
+    })
+    return response
+  }
 
-  if (!urlHasCountryCode && countryCode) {
-    redirectUrl = `${request.nextUrl.origin}/${countryCode}${redirectPath}${queryString}`
-    response = NextResponse.redirect(`${redirectUrl}`, 307)
-  } else if (!urlHasCountryCode && !countryCode) {
+  if (countryCode) {
+    const rewriteUrl = request.nextUrl.clone()
+    rewriteUrl.pathname = `/${countryCode}${request.nextUrl.pathname}`
+    response = NextResponse.rewrite(rewriteUrl)
+    response.cookies.set("_medusa_cache_id", cacheId, {
+      maxAge: 60 * 60 * 24,
+    })
+  } else {
     return new NextResponse(
       "No valid regions configured. Please run the seed script first.",
       { status: 500 }

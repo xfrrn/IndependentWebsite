@@ -21,7 +21,6 @@ function buildQuery(searchParams: SearchParams, value?: string) {
 }
 
 export default function SortBar({
-  countryCode,
   searchParams,
   total,
 }: {
@@ -40,7 +39,7 @@ export default function SortBar({
             <Link
               key={option.value}
               href={{
-                pathname: `/${countryCode}/products`,
+                pathname: "/products",
                 query: buildQuery(searchParams, option.value),
               }}
               className={`rounded-full border px-3 py-1 text-xs transition ${

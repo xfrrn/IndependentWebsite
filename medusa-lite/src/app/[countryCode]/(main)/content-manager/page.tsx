@@ -251,7 +251,7 @@ export default async function ContentManagerPage(props: {
 
   if (!authorized) {
     redirect(
-      `/admin/login?next=${encodeURIComponent(`/${countryCode}/content-manager?locale=${currentLocale}`)}`
+      `/admin/login?next=${encodeURIComponent(`/content-manager?locale=${currentLocale}`)}`
     )
   }
 
@@ -308,7 +308,7 @@ export default async function ContentManagerPage(props: {
 
             <div className="flex flex-wrap gap-3">
               <Link
-                href={`/${countryCode}`}
+                href="/"
                 className="inline-flex items-center justify-center rounded-full border border-[color:var(--border-soft)] bg-[rgba(255,250,242,0.9)] px-5 py-3 text-sm font-semibold text-[color:var(--text-strong)] transition duration-300 ease-out hover:border-[color:var(--accent)]/35 hover:bg-[var(--accent-soft)]"
               >
                 查看首页
@@ -335,7 +335,7 @@ export default async function ContentManagerPage(props: {
             {SUPPORTED_LOCALES.map((locale) => (
               <Link
                 key={locale.code}
-                href={`/${countryCode}/content-manager?locale=${locale.code}`}
+                href={`/content-manager?locale=${locale.code}`}
                 className={`inline-flex items-center justify-center rounded-full border px-5 py-3 text-sm font-semibold transition duration-300 ease-out ${
                   currentLocale === locale.code
                     ? "border-[color:var(--accent)] bg-[var(--accent-soft)] text-[color:var(--accent-strong)]"

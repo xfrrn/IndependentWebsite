@@ -43,6 +43,9 @@ export async function saveSiteContentSection(
     cache: "no-store",
   })
 
-  if (!response.ok) throw new Error("Failed to save content")
+  if (!response.ok) {
+    const text = await response.text()
+    throw new Error(text || `Failed to save content (${response.status})`)
+  }
   return response.json()
 }

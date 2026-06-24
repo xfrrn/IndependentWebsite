@@ -25,7 +25,6 @@ function buildQuery(
 }
 
 export default function FilterPanel({
-  countryCode,
   searchParams,
 }: {
   countryCode: string
@@ -40,7 +39,7 @@ export default function FilterPanel({
             <Link
               key={age}
               href={{
-                pathname: `/${countryCode}/products`,
+                pathname: "/products",
                 query: buildQuery(searchParams, "age", age),
               }}
               className={`rounded-full border px-3 py-1 text-xs transition ${
@@ -62,7 +61,7 @@ export default function FilterPanel({
             <Link
               key={type}
               href={{
-                pathname: `/${countryCode}/products`,
+                pathname: "/products",
                 query: buildQuery(searchParams, "type", type),
               }}
               className={`rounded-full border px-3 py-1 text-xs transition ${
@@ -84,7 +83,7 @@ export default function FilterPanel({
             <Link
               key={skill}
               href={{
-                pathname: `/${countryCode}/products`,
+                pathname: "/products",
                 query: buildQuery(searchParams, "skill", skill),
               }}
               className={`rounded-full border px-3 py-1 text-xs transition ${
@@ -106,7 +105,7 @@ export default function FilterPanel({
             <Link
               key={range.label}
               href={{
-                pathname: `/${countryCode}/products`,
+                pathname: "/products",
                 query: buildQuery(searchParams, "price", range.label),
               }}
               className={`rounded-full border px-3 py-1 text-xs transition ${

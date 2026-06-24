@@ -4,7 +4,6 @@ import { Metadata } from "next"
 
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
-import { HttpTypes } from "@medusajs/types"
 import ProductActionsWrapper from "@modules/products/templates/product-actions-wrapper"
 import {
   getMetadataString,
@@ -64,7 +63,7 @@ export default async function ProductPage(props: Props) {
           </div>
           <div className="mt-6 text-center">
             <Link
-              href={`/${params.countryCode}/products`}
+              href="/products"
               className="rounded-full border border-black/10 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-black/60 hover:border-black/20"
             >
               Back to products
@@ -92,13 +91,13 @@ export default async function ProductPage(props: Props) {
       <div className="content-container py-12">
         <div className="mb-6 flex items-center justify-between">
           <Link
-            href={`/${params.countryCode}/products`}
+            href="/products"
             className="rounded-full border border-black/10 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-black/60 hover:border-black/20"
           >
             Back to products
           </Link>
           <Link
-            href={`/${params.countryCode}`}
+            href="/"
             className="rounded-full border border-black/10 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-black/60 hover:border-black/20"
           >
             Home

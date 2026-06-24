@@ -13,7 +13,6 @@ import {
 
 export default async function ProductCard({
   product,
-  countryCode,
   priceLabel,
 }: {
   product: HttpTypes.StoreProduct
@@ -31,7 +30,7 @@ export default async function ProductCard({
 
   return (
     <Link
-      href={`/${countryCode}/products/${product.handle}`}
+      href={`/products/${product.handle}`}
       className="group ui-card ui-card-hover flex h-full flex-col overflow-hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--accent)]"
     >
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-[var(--bg-panel)]">

@@ -8,7 +8,6 @@ const SORT_OPTIONS = [
 ]
 
 export default function ShopSortBar({
-  countryCode,
   pathname,
   searchParams,
   total,
@@ -45,7 +44,7 @@ export default function ShopSortBar({
             <Link
               key={option.value}
               href={{
-                pathname: `/${countryCode}${pathname}`,
+                pathname,
                 query: buildQuery(option.value),
               }}
               className={`rounded-full border px-3 py-1 text-xs transition ${

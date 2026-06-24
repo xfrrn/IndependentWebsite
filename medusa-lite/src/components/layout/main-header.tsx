@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 
 import type { Locale } from "@lib/data/locales"
 import HomeLink from "./home-link"
@@ -30,11 +30,6 @@ type ContactModal = {
   imageAlt: string
 }
 
-function getCountryCode(pathname: string) {
-  const parts = pathname.split("/").filter(Boolean)
-  return parts[0] || "us"
-}
-
 export default function MainHeader({
   content,
   locales,
@@ -44,11 +39,9 @@ export default function MainHeader({
   locales: Locale[] | null
   currentLocale: string | null
 }) {
-  const pathname = usePathname()
   const router = useRouter()
   const [query, setQuery] = useState("")
   const [contactModal, setContactModal] = useState<ContactModal | null>(null)
-  const countryCode = getCountryCode(pathname)
 
   useEffect(() => {
     if (!contactModal) return
@@ -72,7 +65,7 @@ export default function MainHeader({
     event.preventDefault()
     const trimmed = query.trim()
     if (!trimmed) return
-    router.push(`/${countryCode}/products?q=${encodeURIComponent(trimmed)}`)
+    router.push(`/products?q=${encodeURIComponent(trimmed)}`)
   }
 
   return (

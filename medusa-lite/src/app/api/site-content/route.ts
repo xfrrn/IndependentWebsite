@@ -64,11 +64,18 @@ export async function POST(request: NextRequest) {
   }
 
   if (locale) {
-    const item = await prisma.siteContentTranslation.upsert({
-      where: { section_locale: { section, locale } },
-      update: { data },
-      create: { section, locale, data },
-    })
+    const [, item] = await prisma.$transaction([
+      prisma.siteContent.upsert({
+        where: { section },
+        update: {},
+        create: { section, data },
+      }),
+      prisma.siteContentTranslation.upsert({
+        where: { section_locale: { section, locale } },
+        update: { data },
+        create: { section, locale, data },
+      }),
+    ])
     return NextResponse.json({
       item: {
         section: item.section,

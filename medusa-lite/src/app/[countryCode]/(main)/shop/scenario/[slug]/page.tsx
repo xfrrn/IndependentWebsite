@@ -95,7 +95,7 @@ export default async function ScenarioLandingPage(props: Props) {
       emptyMessage="No products tagged for this scenario yet. Add metadata.scenario_key or metadata.scenario_keys to match this scenario."
       products={sorted}
       region={region}
-      homeHref={`/${params.countryCode}`}
+      homeHref="/"
       actions={
         <ShopSortBar
           countryCode={params.countryCode}

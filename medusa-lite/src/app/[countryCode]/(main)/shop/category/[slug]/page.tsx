@@ -91,7 +91,7 @@ export default async function CategoryLandingPage(props: Props) {
       emptyMessage={content.emptyMessage}
       products={sorted}
       region={region}
-      homeHref={`/${params.countryCode}`}
+      homeHref="/"
       actions={
         <ShopSortBar
           countryCode={params.countryCode}

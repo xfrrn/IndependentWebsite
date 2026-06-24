@@ -90,11 +90,11 @@ async function saveUploadedImage(
   return `/uploads/${folder}/${filename}`
 }
 
-async function requireContentManagerAccess(countryCode: string) {
+async function requireContentManagerAccess() {
   const authorized = await isContentManagerAuthorized()
 
   if (!authorized) {
-    redirect(`/${countryCode}/content-manager?error=unauthorized`)
+    redirect(`/content-manager?error=unauthorized`)
   }
 }
 
@@ -557,7 +557,7 @@ async function saveSection(
   section: string,
   formData: FormData
 ) {
-  await requireContentManagerAccess(countryCode)
+  await requireContentManagerAccess()
 
   let payload: unknown
   let sharedContactImages: ContactImagesContent | null = null
@@ -601,7 +601,7 @@ async function saveSection(
       payload = buildAgePageContent(formData)
       break
     default:
-      redirect(`/${countryCode}/content-manager?error=unknown-section`)
+      redirect(`/content-manager?error=unknown-section`)
   }
 
   await saveSiteContentSection(section, payload, locale)
@@ -611,10 +611,10 @@ async function saveSection(
   revalidateTag(CACHE_TAGS.siteContent)
   revalidateTag(CACHE_TAGS.products)
   revalidateTag(CACHE_TAGS.categories)
-  revalidatePath(`/${countryCode}`)
-  revalidatePath(`/${countryCode}/products`)
-  revalidatePath(`/${countryCode}/content-manager`)
-  redirect(`/${countryCode}/content-manager?locale=${locale}&saved=${section}`)
+  revalidatePath(`/`)
+  revalidatePath(`/products`)
+  revalidatePath(`/content-manager`)
+  redirect(`/content-manager?locale=${locale}&saved=${section}`)
 }
 
 export async function saveHeroContent(

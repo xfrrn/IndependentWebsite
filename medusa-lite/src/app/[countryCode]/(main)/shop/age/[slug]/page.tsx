@@ -74,7 +74,7 @@ export default async function AgeLandingPage(props: Props) {
       emptyMessage={content.emptyMessage}
       products={sorted}
       region={region}
-      homeHref={`/${params.countryCode}`}
+      homeHref="/"
       actions={
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2">
@@ -82,7 +82,7 @@ export default async function AgeLandingPage(props: Props) {
               <Link
                 key={filter.value}
                 href={{
-                  pathname: `/${params.countryCode}/shop/age/${params.slug}`,
+                  pathname: `/shop/age/${params.slug}`,
                   query: {
                     ...searchParams,
                     cat: filter.value === "all" ? undefined : filter.value,
