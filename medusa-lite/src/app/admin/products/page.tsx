@@ -1,10 +1,16 @@
 import { prisma } from "@/lib/db"
 import Link from "next/link"
-import { createProduct } from "../edit-actions"
+import { createProduct, deleteProduct } from "../edit-actions"
+import { DeleteButton } from "../delete-button"
 
 export const dynamic = "force-dynamic"
 
-export default async function AdminProducts() {
+type AdminProductsProps = {
+  searchParams?: Promise<{ error?: string }>
+}
+
+export default async function AdminProducts({ searchParams }: AdminProductsProps) {
+  const error = (await searchParams)?.error
   const products = await prisma.product.findMany({
     include: { variants: true, categories: { include: { category: true } } },
     orderBy: { createdAt: "desc" },
@@ -21,13 +27,18 @@ export default async function AdminProducts() {
         action={createProduct}
         className="mb-6 grid gap-3 rounded-2xl border border-neutral-200 bg-white p-4 md:grid-cols-[1fr_1fr_auto]"
       >
+        {error === "required" ? (
+          <p className="text-sm text-red-600 md:col-span-3">请填写商品名称和标识。</p>
+        ) : null}
         <input
           name="title"
+          required
           placeholder="新商品名称"
           className="h-10 rounded-md border border-neutral-300 px-3 text-sm text-neutral-900"
         />
         <input
           name="handle"
+          required
           placeholder="标识，例如 new-product"
           className="h-10 rounded-md border border-neutral-300 px-3 text-sm text-neutral-900"
         />
@@ -66,10 +77,19 @@ export default async function AdminProducts() {
                     {p.status === "published" ? "已发布" : "草稿"}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-right">
+                <td className="px-4 py-3">
+                  <div className="flex items-center justify-end gap-3">
+                    <form action={deleteProduct}>
+                      <input type="hidden" name="id" value={p.id} />
+                      <DeleteButton
+                        label="删除"
+                        message={`确定删除商品“${p.title}”？`}
+                      />
+                    </form>
                   <Link href={`/admin/products/${p.id}`} className="text-sm font-medium text-emerald-700 hover:text-emerald-800">
                     编辑
                   </Link>
+                  </div>
                 </td>
               </tr>
             ))}

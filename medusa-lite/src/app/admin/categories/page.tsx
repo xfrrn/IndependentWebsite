@@ -1,10 +1,16 @@
 import { prisma } from "@/lib/db"
 import Link from "next/link"
-import { createCategory } from "../edit-actions"
+import { createCategory, deleteCategory } from "../edit-actions"
+import { DeleteButton } from "../delete-button"
 
 export const dynamic = "force-dynamic"
 
-export default async function AdminCategories() {
+type AdminCategoriesProps = {
+  searchParams?: Promise<{ error?: string }>
+}
+
+export default async function AdminCategories({ searchParams }: AdminCategoriesProps) {
+  const error = (await searchParams)?.error
   const categories = await prisma.category.findMany({
     include: { parent: true, children: true, products: true },
     orderBy: { rank: "asc" },
@@ -21,13 +27,18 @@ export default async function AdminCategories() {
         action={createCategory}
         className="mb-6 grid gap-3 rounded-2xl border border-neutral-200 bg-white p-4 md:grid-cols-[1fr_1fr_auto]"
       >
+        {error === "required" ? (
+          <p className="text-sm text-red-600 md:col-span-3">请填写分类名称和标识。</p>
+        ) : null}
         <input
           name="name"
+          required
           placeholder="新分类名称"
           className="h-10 rounded-md border border-neutral-300 px-3 text-sm text-neutral-900"
         />
         <input
           name="handle"
+          required
           placeholder="标识，例如 new-category"
           className="h-10 rounded-md border border-neutral-300 px-3 text-sm text-neutral-900"
         />
@@ -66,10 +77,19 @@ export default async function AdminCategories() {
                     {c.isActive ? "是" : "否"}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-right">
+                <td className="px-4 py-3">
+                  <div className="flex items-center justify-end gap-3">
+                    <form action={deleteCategory}>
+                      <input type="hidden" name="id" value={c.id} />
+                      <DeleteButton
+                        label="删除"
+                        message={`确定删除分类“${c.name}”？`}
+                      />
+                    </form>
                   <Link href={`/admin/categories/${c.id}`} className="text-sm font-medium text-emerald-700 hover:text-emerald-800">
                     编辑
                   </Link>
+                  </div>
                 </td>
               </tr>
             ))}
