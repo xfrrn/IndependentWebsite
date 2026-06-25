@@ -21,6 +21,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.prod
+      args:
+        NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:-http://localhost:8000}
     container_name: medusa-lite-app
     restart: unless-stopped
     depends_on:
@@ -36,6 +38,8 @@ services:
       LITE_ADMIN_PASSWORD: ${LITE_ADMIN_PASSWORD}
       LITE_ADMIN_SESSION_SECRET: ${LITE_ADMIN_SESSION_SECRET}
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
+    ports:
+      - "8000:8000"
     expose:
       - "8000"
     healthcheck:

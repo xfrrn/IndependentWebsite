@@ -129,3 +129,17 @@ model SiteContentTranslation {
   @@id([section, locale])
   @@map("site_content_translations")
 }
+
+model TrafficEvent {
+  id        String   @id
+  path      String
+  title     String?
+  referrer  String?
+  userAgent String?  @map("user_agent")
+  ip        String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@index([path])
+  @@map("traffic_events")
+}

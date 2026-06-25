@@ -4,13 +4,13 @@ services:
     container_name: medusa-lite-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: medusa
-      POSTGRES_PASSWORD: medusa_password
-      POSTGRES_DB: medusa_lite
+      POSTGRES_USER: ${POSTGRES_USER:-medusa}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-medusa_password}
+      POSTGRES_DB: ${POSTGRES_DB:-medusa_lite}
     volumes:
       - medusa-lite-db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U medusa -d medusa_lite"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-medusa} -d ${POSTGRES_DB:-medusa_lite}"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -28,14 +28,14 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: development
-      DATABASE_URL: postgres://medusa:medusa_password@db:5432/medusa_lite?sslmode=disable
-      NEXT_PUBLIC_BASE_URL: http://localhost:8000
-      CONTENT_ADMIN_SECRET: local-content-secret
-      CONTENT_MANAGER_KEY: local-content-manager-key
-      LITE_ADMIN_EMAIL: admin@example.com
-      LITE_ADMIN_PASSWORD: supersecret
-      LITE_ADMIN_SESSION_SECRET: local-lite-admin-session
-      REVALIDATE_SECRET: supersecret
+      DATABASE_URL: postgres://${POSTGRES_USER:-medusa}:${POSTGRES_PASSWORD:-medusa_password}@db:5432/${POSTGRES_DB:-medusa_lite}?sslmode=disable
+      NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:-http://localhost:8000}
+      CONTENT_ADMIN_SECRET: ${CONTENT_ADMIN_SECRET}
+      CONTENT_MANAGER_KEY: ${CONTENT_MANAGER_KEY}
+      LITE_ADMIN_EMAIL: ${LITE_ADMIN_EMAIL:-admin@example.com}
+      LITE_ADMIN_PASSWORD: ${LITE_ADMIN_PASSWORD}
+      LITE_ADMIN_SESSION_SECRET: ${LITE_ADMIN_SESSION_SECRET}
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET}
     ports:
       - "8000:8000"
     volumes:
