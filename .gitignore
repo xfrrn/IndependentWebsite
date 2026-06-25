@@ -54,3 +54,4 @@ medusa-db.sql
 
 image/
 .claude/
+medusa-lite/public/uploads/
