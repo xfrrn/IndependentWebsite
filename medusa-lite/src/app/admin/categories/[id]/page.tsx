@@ -2,7 +2,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { prisma } from "@/lib/db"
-import { updateCategory } from "../../edit-actions"
+import { deleteCategory, updateCategory } from "../../edit-actions"
 
 export const dynamic = "force-dynamic"
 
@@ -175,6 +175,13 @@ export default async function AdminCategoryDetail({
           </Section>
         </div>
       </div>
+
+      <form action={deleteCategory} className="mt-8 border-t border-rose-100 pt-6">
+        <input type="hidden" name="id" value={category.id} />
+        <button className="rounded-md border border-rose-200 px-5 py-2.5 text-sm font-medium text-rose-700 hover:bg-rose-50">
+          删除分类
+        </button>
+      </form>
     </div>
   )
 }

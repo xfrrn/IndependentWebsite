@@ -7,7 +7,8 @@ import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
 import ShopLandingPage from "@components/shop/shop-landing-page"
 import { AGE_PAGE_CONTENT } from "@lib/data/homepage"
-import { getSiteContentSection } from "@lib/data/site-content"
+import { getLocale } from "@lib/data/locale-actions"
+import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
 import { matchesAgeRange, matchesCategoryKey } from "@lib/util/product-meta"
 import { sortProducts } from "@lib/util/shop-sort"
 import ShopSortBar from "@components/shop/shop-sort-bar"
@@ -19,7 +20,12 @@ type Props = {
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
-  const content = await getSiteContentSection("age_page_content", AGE_PAGE_CONTENT)
+  const locale = await getLocale()
+  const content = await getLocalizedHomeContentSection(
+    "age_page_content",
+    AGE_PAGE_CONTENT,
+    locale
+  )
   const page = content.pages.find((item) => item.slug === params.slug)
   if (!page) return { title: "Age Collection" }
 
@@ -32,7 +38,12 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 export default async function AgeLandingPage(props: Props) {
   const params = await props.params
   const searchParams = await props.searchParams
-  const content = await getSiteContentSection("age_page_content", AGE_PAGE_CONTENT)
+  const locale = await getLocale()
+  const content = await getLocalizedHomeContentSection(
+    "age_page_content",
+    AGE_PAGE_CONTENT,
+    locale
+  )
   const page = content.pages.find((item) => item.slug === params.slug)
 
   if (!page) {
@@ -75,6 +86,7 @@ export default async function AgeLandingPage(props: Props) {
       products={sorted}
       region={region}
       homeHref="/"
+      homeLabel={locale?.startsWith("zh") ? "首页" : locale?.startsWith("ar") ? "الرئيسية" : "Home"}
       actions={
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2">

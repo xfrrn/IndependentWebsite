@@ -49,6 +49,10 @@ export const listProducts = async ({
   })
   if (queryParams?.fields) params.set("fields", queryParams.fields)
   if (queryParams?.handle) params.set("handle", queryParams.handle)
+  if (queryParams?.id) {
+    const ids = Array.isArray(queryParams.id) ? queryParams.id : [queryParams.id]
+    ids.forEach((id: string) => params.append("id", id))
+  }
   if (queryParams?.category_id) {
     const ids = Array.isArray(queryParams.category_id) ? queryParams.category_id : [queryParams.category_id]
     ids.forEach((id: string) => params.append("category_id", id))

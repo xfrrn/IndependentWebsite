@@ -14,6 +14,7 @@ export default function ShopLandingPage({
   actions,
   footer,
   homeHref,
+  homeLabel = "Home",
 }: {
   eyebrow: string
   title: string
@@ -24,6 +25,7 @@ export default function ShopLandingPage({
   actions?: ReactNode
   footer?: ReactNode
   homeHref: string
+  homeLabel?: string
 }) {
   return (
     <div className="min-h-screen bg-[var(--bg-canvas)]">
@@ -33,7 +35,7 @@ export default function ShopLandingPage({
             href={homeHref}
             className="inline-flex items-center gap-2 rounded-full border border-[color:var(--border-soft)] bg-[var(--bg-surface)] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[color:var(--text-body)] transition duration-300 ease-out hover:-translate-y-0.5 hover:border-[color:var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[color:var(--accent-strong)]"
           >
-            Home
+            {homeLabel}
           </Link>
         </div>
 

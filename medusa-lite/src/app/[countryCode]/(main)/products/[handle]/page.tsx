@@ -2,15 +2,42 @@
 import Link from "next/link"
 import { Metadata } from "next"
 
+import { PRODUCT_UI_CONTENT } from "@lib/data/homepage"
+import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
 import { listProducts } from "@lib/data/products"
+import { getLocale } from "@lib/data/locale-actions"
 import { getRegion } from "@lib/data/regions"
-import ProductActionsWrapper from "@modules/products/templates/product-actions-wrapper"
 import {
-  getMetadataString,
-} from "@lib/util/product-meta"
+  getLocalizedProductDescription,
+  getLocalizedProductTitle,
+} from "@lib/util/localized-product-title"
 
 type Props = {
   params: Promise<{ countryCode: string; handle: string }>
+}
+
+function getPageLabels(locale?: string | null) {
+  if (locale?.startsWith("zh")) {
+    return {
+      back: "返回产品",
+      home: "首页",
+      missing: "未找到产品。",
+    }
+  }
+
+  if (locale?.startsWith("ar")) {
+    return {
+      back: "العودة إلى المنتجات",
+      home: "الرئيسية",
+      missing: "لم يتم العثور على المنتج.",
+    }
+  }
+
+  return {
+    back: "Back to products",
+    home: "Home",
+    missing: "Product not found.",
+  }
 }
 
 async function fetchProduct(handle: string, countryCode: string) {
@@ -33,12 +60,16 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     return { title: "Product not found" }
   }
 
+  const locale = await getLocale()
+  const productTitle = getLocalizedProductTitle(product, locale)
+  const productDescription = getLocalizedProductDescription(product, locale)
+
   return {
-    title: `${product.title} | Kids Toys`,
-    description: product.subtitle || product.title,
+    title: `${productTitle} | Kids Toys`,
+    description: product.subtitle || productDescription || productTitle,
     openGraph: {
-      title: `${product.title} | Kids Toys`,
-      description: product.subtitle || product.title,
+      title: `${productTitle} | Kids Toys`,
+      description: product.subtitle || productDescription || productTitle,
       images: product.thumbnail ? [product.thumbnail] : [],
     },
   }
@@ -46,7 +77,16 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
 export default async function ProductPage(props: Props) {
   const params = await props.params
-  const region = await getRegion(params.countryCode)
+  const locale = await getLocale()
+  const [region, productUiContent] = await Promise.all([
+    getRegion(params.countryCode),
+    getLocalizedHomeContentSection(
+      "product_ui_content",
+      PRODUCT_UI_CONTENT,
+      locale
+    ),
+  ])
+  const labels = getPageLabels(locale)
 
   if (!region) {
     return null
@@ -59,14 +99,14 @@ export default async function ProductPage(props: Props) {
       <div className="min-h-screen bg-[linear-gradient(180deg,#f8f4ed_0%,#f3efe6_55%,#efe9df_100%)]">
         <div className="content-container py-12">
           <div className="rounded-3xl border border-dashed border-black/20 bg-white/70 p-12 text-center text-sm text-black/60">
-            Product not found.
+            {labels.missing}
           </div>
           <div className="mt-6 text-center">
             <Link
               href="/products"
               className="rounded-full border border-black/10 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-black/60 hover:border-black/20"
             >
-              Back to products
+              {labels.back}
             </Link>
           </div>
         </div>
@@ -74,17 +114,8 @@ export default async function ProductPage(props: Props) {
     )
   }
 
-  const ageRange = getMetadataString(product, "age_range")
-  const categoryKey = getMetadataString(product, "category_key")
-  const scenarioKey = getMetadataString(product, "scenario_key")
-  const scenarioKeys = getMetadataString(product, "scenario_keys")
-
-  const tags = [
-    ageRange ? `Age ${ageRange}` : null,
-    categoryKey ? `Category: ${categoryKey}` : null,
-    scenarioKey ? `Scenario: ${scenarioKey}` : null,
-    scenarioKeys ? `Scenarios: ${scenarioKeys}` : null,
-  ].filter(Boolean) as string[]
+  const productTitle = getLocalizedProductTitle(product, locale)
+  const productDescription = getLocalizedProductDescription(product, locale)
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#f8f4ed_0%,#f3efe6_55%,#efe9df_100%)]">
@@ -94,13 +125,13 @@ export default async function ProductPage(props: Props) {
             href="/products"
             className="rounded-full border border-black/10 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-black/60 hover:border-black/20"
           >
-            Back to products
+            {labels.back}
           </Link>
           <Link
             href="/"
             className="rounded-full border border-black/10 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-black/60 hover:border-black/20"
           >
-            Home
+            {labels.home}
           </Link>
         </div>
 
@@ -110,20 +141,20 @@ export default async function ProductPage(props: Props) {
               {product.thumbnail ? (
                 <Image
                   src={product.thumbnail}
-                  alt={product.title}
+                  alt={productTitle}
                   fill
                   sizes="(min-width: 768px) 60vw, 100vw"
                   className="object-cover"
                 />
               ) : (
                 <div className="flex h-full items-center justify-center text-xs uppercase tracking-[0.2em] text-black/40">
-                  No Image
+                  {productUiContent.noImageLabel}
                 </div>
               )}
             </div>
-            {product.description ? (
+            {productDescription ? (
               <p className="mt-6 text-sm leading-6 text-black/70">
-                {product.description}
+                {productDescription}
               </p>
             ) : null}
           </div>
@@ -131,10 +162,10 @@ export default async function ProductPage(props: Props) {
           <div className="space-y-6">
             <div>
               <p className="text-xs uppercase tracking-[0.25em] text-black/40">
-                Product details
+                {productUiContent.productInformationLabel}
               </p>
               <h1 className="mt-3 text-3xl font-semibold text-black">
-                {product.title}
+                {productTitle}
               </h1>
               {product.subtitle ? (
                 <p className="mt-2 text-sm text-black/60">
@@ -143,22 +174,6 @@ export default async function ProductPage(props: Props) {
               ) : null}
             </div>
 
-            <div className="rounded-2xl border border-black/10 bg-white/80 p-4">
-              <ProductActionsWrapper product={product} region={region} />
-            </div>
-
-            {tags.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full bg-neutral-100 px-3 py-1 text-xs text-neutral-700"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            ) : null}
           </div>
         </div>
       </div>

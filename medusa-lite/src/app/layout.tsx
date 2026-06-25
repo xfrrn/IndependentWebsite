@@ -1,15 +1,10 @@
 import { getBaseURL } from "@lib/util/env"
+import { PageViewTracker } from "@components/analytics/page-view-tracker"
 import { getLocale } from "@lib/data/locale-actions"
 import { getLocaleDirection, normalizeLocale } from "@lib/data/supported-locales"
+import { Suspense } from "react"
 import { Metadata } from "next"
-import { Nunito_Sans } from "next/font/google"
 import "../styles/globals.css"
-
-const nunitoSans = Nunito_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-sans",
-})
 
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
@@ -25,7 +20,10 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
       data-mode="light"
       suppressHydrationWarning
     >
-      <body className={nunitoSans.variable}>
+      <body>
+        <Suspense fallback={null}>
+          <PageViewTracker />
+        </Suspense>
         <main className="relative">{props.children}</main>
       </body>
     </html>

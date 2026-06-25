@@ -1,5 +1,7 @@
 import { Text } from "@medusajs/ui"
 import { getProductPrice } from "@lib/util/get-product-price"
+import { getLocale } from "@lib/data/locale-actions"
+import { getLocalizedProductTitle } from "@lib/util/localized-product-title"
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Thumbnail from "../thumbnail"
@@ -32,6 +34,7 @@ export default async function ProductPreview({
         product,
       })
     : { cheapestPrice: null }
+  const productTitle = getLocalizedProductTitle(product, await getLocale())
 
   return (
     <LocalizedClientLink
@@ -53,7 +56,7 @@ export default async function ProductPreview({
                 className="text-[15px] font-semibold leading-6 text-[color:var(--text-strong)] transition duration-300 ease-out group-hover:-translate-y-0.5 group-hover:text-[color:var(--accent)]"
                 data-testid="product-title"
               >
-                {product.title}
+                {productTitle}
               </Text>
             ) : null}
             {showPrice ? (

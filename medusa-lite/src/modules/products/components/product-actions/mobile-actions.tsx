@@ -27,6 +27,7 @@ type MobileActionsProps = {
     outOfStockLabel: string
     selectOptionsLabel: string
   }
+  productTitle?: string
 }
 
 const MobileActions: React.FC<MobileActionsProps> = ({
@@ -40,6 +41,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
   show,
   optionsDisabled,
   content,
+  productTitle,
 }) => {
   const { state, open, close } = useToggleState()
 
@@ -82,7 +84,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
             data-testid="mobile-actions"
           >
             <div className="flex items-center gap-x-2">
-              <span data-testid="mobile-title">{product.title}</span>
+              <span data-testid="mobile-title">{productTitle || product.title}</span>
               <span aria-hidden>&bull;</span>
               {selectedPrice ? (
                 <div className="flex items-end gap-x-2 text-ui-fg-base">

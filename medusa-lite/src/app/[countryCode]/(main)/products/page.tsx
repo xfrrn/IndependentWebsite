@@ -4,10 +4,15 @@ import { notFound } from "next/navigation"
 
 import { HttpTypes } from "@medusajs/types"
 import { PRODUCTS_PAGE_CONTENT } from "@lib/data/homepage"
+import { getLocale } from "@lib/data/locale-actions"
+import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
 import { PRODUCT_LIST_FIELDS } from "@lib/data/product-fields"
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
-import { getSiteContentSection } from "@lib/data/site-content"
+import {
+  getLocalizedProductDescription,
+  getLocalizedProductTitle,
+} from "@lib/util/localized-product-title"
 import ProductPreview from "@modules/products/components/product-preview"
 
 type Props = {
@@ -20,11 +25,15 @@ export const metadata: Metadata = {
   description: "Browse age-clear, parent-trusted toys.",
 }
 
-function matchesQuery(product: HttpTypes.StoreProduct, q: string) {
+function matchesQuery(product: HttpTypes.StoreProduct, q: string, locale?: string | null) {
   const needle = q.toLowerCase()
+  const title = getLocalizedProductTitle(product, locale)
+  const description = getLocalizedProductDescription(product, locale)
   return (
+    title.toLowerCase().includes(needle) ||
     product.title?.toLowerCase().includes(needle) ||
     product.handle?.toLowerCase().includes(needle) ||
+    description.toLowerCase().includes(needle) ||
     product.description?.toLowerCase().includes(needle)
   )
 }
@@ -32,9 +41,11 @@ function matchesQuery(product: HttpTypes.StoreProduct, q: string) {
 export default async function ProductsPage(props: Props) {
   const params = await props.params
   const searchParams = await props.searchParams
-  const content = await getSiteContentSection(
+  const locale = await getLocale()
+  const content = await getLocalizedHomeContentSection(
     "products_page_content",
-    PRODUCTS_PAGE_CONTENT
+    PRODUCTS_PAGE_CONTENT,
+    locale
   )
 
   const region = await getRegion(params.countryCode)
@@ -54,7 +65,7 @@ export default async function ProductsPage(props: Props) {
 
   const query = searchParams.q?.trim() || ""
   const filtered = query
-    ? products.filter((product) => matchesQuery(product, query))
+    ? products.filter((product) => matchesQuery(product, query, locale))
     : products
 
   return (

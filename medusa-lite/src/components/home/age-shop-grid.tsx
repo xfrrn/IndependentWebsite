@@ -32,6 +32,7 @@ function getCategoryImage(category: CategoryCircleSource) {
 function getCategoryCards(categories: CategoryCircleSource[]) {
   return categories
     .filter((category) => category.handle && category.name)
+    .slice(0, 6)
     .map((category) => ({
       value: category.name as string,
       title: category.name as string,

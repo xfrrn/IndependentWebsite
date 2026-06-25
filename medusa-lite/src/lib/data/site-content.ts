@@ -28,6 +28,32 @@ export async function getSiteContentSection<T>(
   }
 }
 
+export async function getTranslatedSiteContentSection<T>(
+  section: string,
+  locale: string
+): Promise<T | null> {
+  try {
+    const params = new URLSearchParams({ section, content_locale: locale })
+
+    const response = await fetch(`${API_BASE}/api/site-content?${params}`, {
+      method: "GET",
+      next: getCatalogCacheOptions(CACHE_TAGS.siteContent),
+      cache: "force-cache",
+    })
+
+    if (!response.ok) return null
+
+    const payload = (await response.json()) as {
+      data?: T | null
+      locale?: string | null
+    }
+
+    return payload.locale === locale ? payload.data ?? null : null
+  } catch {
+    return null
+  }
+}
+
 export async function saveSiteContentSection(
   section: string,
   data: unknown,

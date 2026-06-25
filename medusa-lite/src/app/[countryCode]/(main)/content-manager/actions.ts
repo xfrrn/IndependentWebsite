@@ -16,6 +16,7 @@ import {
   FOOTER_CONTENT,
   HEADER_CONTENT,
   HERO_CONTENT,
+  HERO_IMAGES,
   NAV_CONTENT,
   FEATURED_PRODUCTS,
   PRODUCTS_PAGE_CONTENT,
@@ -23,6 +24,8 @@ import {
   type ContactImagesContent,
 } from "@lib/data/homepage"
 import { isContentManagerAuthorized } from "@lib/util/content-manager-auth"
+
+const MAX_HERO_IMAGES = 5
 
 function readString(
   formData: FormData,
@@ -112,7 +115,7 @@ function getContactImageKey(link: { href?: string; label?: string }) {
   return null
 }
 
-function buildHeroContent(formData: FormData) {
+async function buildHeroContent(formData: FormData) {
   return {
     eyebrow: readString(formData, "eyebrow", HERO_CONTENT.eyebrow),
     title: readString(formData, "title", HERO_CONTENT.title),
@@ -139,6 +142,30 @@ function buildHeroContent(formData: FormData) {
     ),
     badgeLabel: readString(formData, "badgeLabel", HERO_CONTENT.badgeLabel),
     badgeText: readString(formData, "badgeText", HERO_CONTENT.badgeText),
+    images: (
+      await Promise.all(
+        Array.from({ length: MAX_HERO_IMAGES }, async (_, index) => {
+          const image = HERO_IMAGES[index] ?? { src: "", alt: "" }
+          const typedSrc = readString(
+            formData,
+            `images.${index}.src`,
+            image.src
+          )
+
+          return {
+            src: await saveUploadedImage(
+              formData,
+              `images.${index}.file`,
+              typedSrc,
+              index,
+              "content",
+              "hero"
+            ),
+            alt: readString(formData, `images.${index}.alt`, image.alt),
+          }
+        })
+      )
+    ).filter((image) => image.src),
   }
 }
 
@@ -564,7 +591,7 @@ async function saveSection(
 
   switch (section) {
     case "hero_content":
-      payload = buildHeroContent(formData)
+      payload = await buildHeroContent(formData)
       break
     case "header_content":
       {

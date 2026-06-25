@@ -1,4 +1,9 @@
 import { HttpTypes } from "@medusajs/types"
+import { getLocale } from "@lib/data/locale-actions"
+import {
+  getLocalizedProductDescription,
+  getLocalizedProductTitle,
+} from "@lib/util/localized-product-title"
 import { Heading, Text } from "@medusajs/ui"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
@@ -6,7 +11,11 @@ type ProductInfoProps = {
   product: HttpTypes.StoreProduct
 }
 
-const ProductInfo = ({ product }: ProductInfoProps) => {
+const ProductInfo = async ({ product }: ProductInfoProps) => {
+  const locale = await getLocale()
+  const productTitle = getLocalizedProductTitle(product, locale)
+  const productDescription = getLocalizedProductDescription(product, locale)
+
   return (
     <div
       id="product-info"
@@ -26,14 +35,14 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
           className="text-3xl leading-10 text-[color:var(--text-strong)]"
           data-testid="product-title"
         >
-          {product.title}
+          {productTitle}
         </Heading>
 
         <Text
           className="text-medium whitespace-pre-line text-[color:var(--text-body)]"
           data-testid="product-description"
         >
-          {product.description}
+          {productDescription}
         </Text>
       </div>
     </div>

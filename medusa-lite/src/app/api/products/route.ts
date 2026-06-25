@@ -7,12 +7,14 @@ export async function GET(request: NextRequest) {
   const limit = parseInt(searchParams.get("limit") || "12")
   const offset = parseInt(searchParams.get("offset") || "0")
   const handle = searchParams.get("handle")
+  const ids = searchParams.getAll("id")
   const categoryId = searchParams.get("category_id")
   const q = searchParams.get("q")
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const where: any = { status: "published" }
   if (handle) where.handle = handle
+  if (ids.length) where.id = { in: ids }
   if (categoryId) where.categories = { some: { categoryId } }
   if (q) {
     where.OR = [

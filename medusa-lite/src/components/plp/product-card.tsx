@@ -3,13 +3,18 @@ import Link from "next/link"
 
 import { HttpTypes } from "@medusajs/types"
 import { PRODUCT_UI_CONTENT } from "@lib/data/homepage"
-import { getSiteContentSection } from "@lib/data/site-content"
+import { getLocale } from "@lib/data/locale-actions"
+import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
 import {
   getAgeRange,
   getHighlight,
   getSkills,
   getToyType,
 } from "@lib/util/product-meta"
+import {
+  getLocalizedProductDescription,
+  getLocalizedProductTitle,
+} from "@lib/util/localized-product-title"
 
 export default async function ProductCard({
   product,
@@ -19,10 +24,14 @@ export default async function ProductCard({
   countryCode: string
   priceLabel: string
 }) {
-  const content = await getSiteContentSection(
+  const locale = await getLocale()
+  const content = await getLocalizedHomeContentSection(
     "product_ui_content",
-    PRODUCT_UI_CONTENT
+    PRODUCT_UI_CONTENT,
+    locale
   )
+  const productTitle = getLocalizedProductTitle(product, locale)
+  const productDescription = getLocalizedProductDescription(product, locale)
   const ageRange = getAgeRange(product)
   const toyType = getToyType(product)
   const highlight = getHighlight(product)
@@ -37,7 +46,7 @@ export default async function ProductCard({
         {product.thumbnail ? (
           <Image
             src={product.thumbnail}
-            alt={product.title}
+            alt={productTitle}
             fill
             sizes="(min-width: 768px) 50vw, 100vw"
             className="object-cover transition duration-500 ease-out group-hover:scale-[1.06]"
@@ -51,7 +60,7 @@ export default async function ProductCard({
       <div className="flex flex-1 flex-col gap-3 p-6">
         <div>
           <h3 className="text-xl font-semibold text-[color:var(--text-strong)] transition duration-300 ease-out group-hover:text-[color:var(--accent-strong)]">
-            {product.title}
+            {productTitle}
           </h3>
           {product.subtitle ? (
             <p className="mt-2 text-sm text-[color:var(--text-body)]">
@@ -86,7 +95,7 @@ export default async function ProductCard({
           ))}
         </div>
         <p className="line-clamp-2 text-sm text-[color:var(--text-body)]">
-          {product.description || content.fallbackDescription}
+          {productDescription || content.fallbackDescription}
         </p>
         <div className="mt-auto flex items-center justify-between text-sm">
           <span className="font-semibold text-[color:var(--text-strong)] transition duration-300 ease-out group-hover:text-[color:var(--accent-strong)]">

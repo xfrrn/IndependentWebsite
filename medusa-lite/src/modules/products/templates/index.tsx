@@ -1,7 +1,9 @@
 import React, { Suspense } from "react"
 
 import { PRODUCT_UI_CONTENT } from "@lib/data/homepage"
-import { getSiteContentSection } from "@lib/data/site-content"
+import { getLocale } from "@lib/data/locale-actions"
+import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
+import { getLocalizedProductTitle } from "@lib/util/localized-product-title"
 import ImageGallery from "@modules/products/components/image-gallery"
 import ProductActions from "@modules/products/components/product-actions"
 import ProductOnboardingCta from "@modules/products/components/product-onboarding-cta"
@@ -31,10 +33,13 @@ const ProductTemplate: React.FC<ProductTemplateProps> = async ({
     return notFound()
   }
 
-  const productUiContent = await getSiteContentSection(
+  const locale = await getLocale()
+  const productUiContent = await getLocalizedHomeContentSection(
     "product_ui_content",
-    PRODUCT_UI_CONTENT
+    PRODUCT_UI_CONTENT,
+    locale
   )
+  const productTitle = getLocalizedProductTitle(product, locale)
 
   return (
     <>
@@ -58,6 +63,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = async ({
                 product={product}
                 region={region}
                 content={productUiContent}
+                productTitle={productTitle}
               />
             }
           >

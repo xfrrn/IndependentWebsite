@@ -24,6 +24,7 @@ type ProductActionsProps = {
     outOfStockLabel: string
     selectOptionsLabel: string
   }
+  productTitle?: string
 }
 
 const optionsAsKeymap = (
@@ -52,6 +53,7 @@ export default function ProductActions({
   product,
   disabled,
   content,
+  productTitle,
 }: ProductActionsProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -214,6 +216,7 @@ export default function ProductActions({
           show={!inView}
           optionsDisabled={!!disabled || isAdding}
           content={content}
+          productTitle={productTitle || product.title}
         />
       </div>
     </>

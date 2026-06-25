@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db"
 import Link from "next/link"
+import { createProduct } from "../edit-actions"
 
 export const dynamic = "force-dynamic"
 
@@ -15,6 +16,25 @@ export default async function AdminProducts() {
         <h1 className="text-2xl font-semibold text-neutral-800">商品</h1>
         <span className="text-sm text-neutral-500">共 {products.length} 个商品</span>
       </div>
+
+      <form
+        action={createProduct}
+        className="mb-6 grid gap-3 rounded-2xl border border-neutral-200 bg-white p-4 md:grid-cols-[1fr_1fr_auto]"
+      >
+        <input
+          name="title"
+          placeholder="新商品名称"
+          className="h-10 rounded-md border border-neutral-300 px-3 text-sm text-neutral-900"
+        />
+        <input
+          name="handle"
+          placeholder="标识，例如 new-product"
+          className="h-10 rounded-md border border-neutral-300 px-3 text-sm text-neutral-900"
+        />
+        <button className="rounded-md bg-neutral-900 px-4 text-sm font-medium text-white hover:bg-neutral-800">
+          新增商品
+        </button>
+      </form>
 
       <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
         <table className="w-full text-left text-sm">

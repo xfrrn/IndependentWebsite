@@ -28,15 +28,15 @@ export default function HeroCarousel({
   }, [images.length])
 
   return (
-    <div className="absolute inset-0 overflow-hidden rounded-t-[2.5rem] lg:left-[4%] lg:top-[4%] lg:bottom-[4%] lg:right-[4%] lg:rounded-[2.5rem]">
+    <div className="absolute inset-0 overflow-hidden rounded-[2.25rem]">
       {images.map((image, index) => (
         <Image
-          key={image.src}
+          key={`${image.src}-${index}`}
           src={image.src}
           alt={image.alt}
           fill
           priority={index === 0}
-          sizes="(min-width: 1024px) 560px, 100vw"
+          sizes="(min-width: 1024px) 1120px, 100vw"
           className={`object-cover transition-opacity duration-700 ease-out ${
             index === activeIndex ? "opacity-100" : "opacity-0"
           }`}

@@ -5,10 +5,11 @@ import ShopLandingPage from "@components/shop/shop-landing-page"
 import ShopSortBar from "@components/shop/shop-sort-bar"
 import { getCategoryByHandle } from "@lib/data/categories"
 import { CATEGORY_PAGE_CONTENT } from "@lib/data/homepage"
+import { getLocale } from "@lib/data/locale-actions"
+import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
 import { PRODUCT_LIST_FIELDS } from "@lib/data/product-fields"
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
-import { getSiteContentSection } from "@lib/data/site-content"
 import { sortProducts } from "@lib/util/shop-sort"
 import { Pagination } from "@modules/store/components/pagination"
 
@@ -21,9 +22,11 @@ const PRODUCT_LIMIT = 24
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
-  const content = await getSiteContentSection(
+  const locale = await getLocale()
+  const content = await getLocalizedHomeContentSection(
     "category_page_content",
-    CATEGORY_PAGE_CONTENT
+    CATEGORY_PAGE_CONTENT,
+    locale
   )
   const category = await getCategoryByHandle([params.slug])
 
@@ -47,9 +50,11 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 export default async function CategoryLandingPage(props: Props) {
   const params = await props.params
   const searchParams = await props.searchParams
-  const content = await getSiteContentSection(
+  const locale = await getLocale()
+  const content = await getLocalizedHomeContentSection(
     "category_page_content",
-    CATEGORY_PAGE_CONTENT
+    CATEGORY_PAGE_CONTENT,
+    locale
   )
   const category = await getCategoryByHandle([params.slug])
 
@@ -92,6 +97,7 @@ export default async function CategoryLandingPage(props: Props) {
       products={sorted}
       region={region}
       homeHref="/"
+      homeLabel={locale?.startsWith("zh") ? "首页" : locale?.startsWith("ar") ? "الرئيسية" : "Home"}
       actions={
         <ShopSortBar
           countryCode={params.countryCode}

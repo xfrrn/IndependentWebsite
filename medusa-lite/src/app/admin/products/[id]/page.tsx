@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db"
 import { notFound } from "next/navigation"
-import { updateProduct } from "../../edit-actions"
+import { deleteProduct, updateProduct } from "../../edit-actions"
 
 export const dynamic = "force-dynamic"
 
@@ -77,6 +77,17 @@ export default async function AdminProductDetail({
     product.categories.map((pc) => pc.categoryId)
   )
   const metadata = jsonRecord(product.metadata)
+  const titleZh = typeof metadata.title_zh === "string" ? metadata.title_zh : ""
+  const titleAr = typeof metadata.title_ar === "string" ? metadata.title_ar : ""
+  const descriptionZh =
+    typeof metadata.description_zh === "string" ? metadata.description_zh : ""
+  const descriptionAr =
+    typeof metadata.description_ar === "string" ? metadata.description_ar : ""
+  const metadataWithoutLocalizedTitles = { ...metadata }
+  delete metadataWithoutLocalizedTitles.title_zh
+  delete metadataWithoutLocalizedTitles.title_ar
+  delete metadataWithoutLocalizedTitles.description_zh
+  delete metadataWithoutLocalizedTitles.description_ar
   const message =
     query.error === "metadata"
       ? "元数据必须是 JSON 对象。"
@@ -106,6 +117,17 @@ export default async function AdminProductDetail({
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="商品名称" name="title" defaultValue={product.title} />
               <Field
+                label="中文名称"
+                name="title_zh"
+                defaultValue={titleZh}
+              />
+              <Field
+                label="阿拉伯语名称"
+                name="title_ar"
+                defaultValue={titleAr}
+                dir="rtl"
+              />
+              <Field
                 label="标识"
                 name="handle"
                 defaultValue={product.handle}
@@ -134,6 +156,17 @@ export default async function AdminProductDetail({
               name="description"
               defaultValue={product.description || ""}
             />
+            <Textarea
+              label="中文描述"
+              name="description_zh"
+              defaultValue={descriptionZh}
+            />
+            <Textarea
+              label="阿拉伯语描述"
+              name="description_ar"
+              defaultValue={descriptionAr}
+              dir="rtl"
+            />
           </Section>
 
           <Section title="媒体和数据">
@@ -158,7 +191,7 @@ export default async function AdminProductDetail({
               label="元数据 JSON"
               name="metadata"
               rows={8}
-              defaultValue={JSON.stringify(metadata, null, 2)}
+              defaultValue={JSON.stringify(metadataWithoutLocalizedTitles, null, 2)}
             />
           </Section>
 
@@ -208,6 +241,13 @@ export default async function AdminProductDetail({
           </Section>
         </div>
       </div>
+
+      <form action={deleteProduct} className="mt-8 border-t border-rose-100 pt-6">
+        <input type="hidden" name="id" value={product.id} />
+        <button className="rounded-md border border-rose-200 px-5 py-2.5 text-sm font-medium text-rose-700 hover:bg-rose-50">
+          删除商品
+        </button>
+      </form>
     </div>
   )
 }
@@ -233,10 +273,12 @@ function Field({
   label,
   name,
   defaultValue,
+  dir,
 }: {
   label: string
   name: string
   defaultValue: string
+  dir?: "ltr" | "rtl"
 }) {
   return (
     <label className="block">
@@ -246,6 +288,7 @@ function Field({
       <input
         name={name}
         defaultValue={defaultValue}
+        dir={dir}
         className="h-11 w-full rounded-md border border-neutral-300 px-3 text-sm text-neutral-900"
       />
     </label>
@@ -257,11 +300,13 @@ function Textarea({
   name,
   defaultValue,
   rows = 4,
+  dir,
 }: {
   label: string
   name: string
   defaultValue: string
   rows?: number
+  dir?: "ltr" | "rtl"
 }) {
   return (
     <label className="block">
@@ -272,6 +317,7 @@ function Textarea({
         name={name}
         rows={rows}
         defaultValue={defaultValue}
+        dir={dir}
         className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm text-neutral-900"
       />
     </label>

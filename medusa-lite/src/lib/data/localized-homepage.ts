@@ -1,7 +1,10 @@
 import "server-only"
 
 import { getHomepageFallback } from "./homepage"
-import { getSiteContentSection } from "./site-content"
+import {
+  getSiteContentSection,
+  getTranslatedSiteContentSection,
+} from "./site-content"
 
 export async function getLocalizedHomeContentSection<T>(
   section: string,
@@ -9,9 +12,8 @@ export async function getLocalizedHomeContentSection<T>(
   locale?: string | null
 ): Promise<T> {
   if (locale) {
-    const localizedContent = await getSiteContentSection<T>(
+    const localizedContent = await getTranslatedSiteContentSection<T>(
       section,
-      null as T,
       locale
     )
     if (localizedContent) return localizedContent
@@ -20,5 +22,5 @@ export async function getLocalizedHomeContentSection<T>(
   const localizedFallback = getHomepageFallback(section, locale)
   if (localizedFallback) return localizedFallback as T
 
-  return getSiteContentSection(section, fallback)
+  return getSiteContentSection(section, fallback, locale)
 }

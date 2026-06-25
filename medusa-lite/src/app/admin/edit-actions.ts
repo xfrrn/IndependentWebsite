@@ -3,11 +3,12 @@
 import { mkdir, writeFile } from "fs/promises"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 import path from "path"
 
 import { prisma } from "@/lib/db"
 import { ADMIN_AUTH_COOKIE, isAdminSessionToken } from "@/lib/admin-auth"
+import { CACHE_TAGS } from "@/lib/data/cache"
 
 async function requireAdmin() {
   const cookieStore = await cookies()
@@ -108,12 +109,44 @@ export async function updateProduct(formData: FormData) {
     redirect(`/admin/products/${id || ""}?error=required`)
   }
 
-  let metadata: object
+  let metadata: Record<string, unknown>
 
   try {
-    metadata = readJsonObject(readString(formData, "metadata"))
+    metadata = readJsonObject(readString(formData, "metadata")) as Record<
+      string,
+      unknown
+    >
   } catch {
     redirect(`/admin/products/${id}?error=metadata`)
+  }
+
+  const titleZh = readString(formData, "title_zh")
+  const titleAr = readString(formData, "title_ar")
+  const descriptionZh = readString(formData, "description_zh")
+  const descriptionAr = readString(formData, "description_ar")
+
+  if (titleZh) {
+    metadata.title_zh = titleZh
+  } else {
+    delete metadata.title_zh
+  }
+
+  if (titleAr) {
+    metadata.title_ar = titleAr
+  } else {
+    delete metadata.title_ar
+  }
+
+  if (descriptionZh) {
+    metadata.description_zh = descriptionZh
+  } else {
+    delete metadata.description_zh
+  }
+
+  if (descriptionAr) {
+    metadata.description_ar = descriptionAr
+  } else {
+    delete metadata.description_ar
   }
 
   const categoryIds = formData
@@ -153,6 +186,47 @@ export async function updateProduct(formData: FormData) {
   revalidatePath("/admin/products")
   revalidatePath(`/admin/products/${id}`)
   redirect(`/admin/products/${id}?saved=1`)
+}
+
+export async function createProduct(formData: FormData) {
+  await requireAdmin()
+
+  const title = readString(formData, "title")
+  const handle = readString(formData, "handle")
+
+  if (!title || !handle) {
+    redirect("/admin/products?error=required")
+  }
+
+  const product = await prisma.product.create({
+    data: {
+      title,
+      handle,
+      status: "published",
+      images: [],
+      tags: [],
+      metadata: {},
+    },
+  })
+
+  revalidatePath("/admin/products")
+  revalidatePath("/products")
+  redirect(`/admin/products/${product.id}?saved=1`)
+}
+
+export async function deleteProduct(formData: FormData) {
+  await requireAdmin()
+
+  const id = readString(formData, "id")
+  if (!id) {
+    redirect("/admin/products?error=required")
+  }
+
+  await prisma.product.delete({ where: { id } })
+
+  revalidatePath("/admin/products")
+  revalidatePath("/products")
+  redirect("/admin/products?deleted=1")
 }
 
 export async function updateCategory(formData: FormData) {
@@ -207,5 +281,59 @@ export async function updateCategory(formData: FormData) {
 
   revalidatePath("/admin/categories")
   revalidatePath(`/admin/categories/${id}`)
+  revalidatePath("/")
+  revalidateTag(CACHE_TAGS.categories)
   redirect(`/admin/categories/${id}?saved=1`)
+}
+
+export async function createCategory(formData: FormData) {
+  await requireAdmin()
+
+  const name = readString(formData, "name")
+  const handle = readString(formData, "handle")
+
+  if (!name || !handle) {
+    redirect("/admin/categories?error=required")
+  }
+
+  const lastCategory = await prisma.category.findFirst({
+    orderBy: { rank: "desc" },
+    select: { rank: true },
+  })
+
+  const category = await prisma.category.create({
+    data: {
+      name,
+      handle,
+      description: null,
+      metadata: {},
+      isActive: true,
+      rank: (lastCategory?.rank ?? 0) + 1,
+    },
+  })
+
+  revalidatePath("/admin/categories")
+  revalidatePath("/")
+  revalidateTag(CACHE_TAGS.categories)
+  redirect(`/admin/categories/${category.id}?saved=1`)
+}
+
+export async function deleteCategory(formData: FormData) {
+  await requireAdmin()
+
+  const id = readString(formData, "id")
+  if (!id) {
+    redirect("/admin/categories?error=required")
+  }
+
+  await prisma.category.updateMany({
+    where: { parentId: id },
+    data: { parentId: null },
+  })
+  await prisma.category.delete({ where: { id } })
+
+  revalidatePath("/admin/categories")
+  revalidatePath("/")
+  revalidateTag(CACHE_TAGS.categories)
+  redirect("/admin/categories?deleted=1")
 }
