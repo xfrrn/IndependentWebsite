@@ -2,7 +2,7 @@ import "server-only"
 
 import { CACHE_TAGS, getCatalogCacheOptions } from "./cache"
 
-const API_BASE = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:8000"
+const API_BASE = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:7890"
 
 export async function getSiteContentSection<T>(
   section: string,

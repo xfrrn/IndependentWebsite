@@ -6,7 +6,7 @@ import { sortProducts } from "@lib/util/sort-products"
 import { StoreProduct, StoreProductVariant } from "@/lib/types"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 
-const API_BASE = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:8000"
+const API_BASE = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:7890"
 
 export const listProducts = async ({
   pageParam = 1,

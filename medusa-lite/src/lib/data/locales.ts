@@ -3,7 +3,7 @@
 import { getCacheOptions } from "./cookies"
 import { SUPPORTED_LOCALES } from "./supported-locales"
 
-const API_BASE = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:8000"
+const API_BASE = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:7890"
 
 export type Locale = { code: string; name: string }
 

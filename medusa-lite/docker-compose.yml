@@ -29,7 +29,7 @@ services:
     environment:
       NODE_ENV: development
       DATABASE_URL: postgres://${POSTGRES_USER:-medusa}:${POSTGRES_PASSWORD:-medusa_password}@db:5432/${POSTGRES_DB:-medusa_lite}?sslmode=disable
-      NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:-http://localhost:8000}
+      NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:-http://localhost:7890}
       CONTENT_ADMIN_SECRET: ${CONTENT_ADMIN_SECRET}
       CONTENT_MANAGER_KEY: ${CONTENT_MANAGER_KEY}
       LITE_ADMIN_EMAIL: ${LITE_ADMIN_EMAIL:-admin@example.com}
@@ -37,7 +37,7 @@ services:
       LITE_ADMIN_SESSION_SECRET: ${LITE_ADMIN_SESSION_SECRET}
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
     ports:
-      - "8000:8000"
+      - "7890:7890"
     volumes:
       - .:/app
       - medusa-lite-node-modules:/app/node_modules

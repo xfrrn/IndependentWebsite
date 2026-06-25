@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { ADMIN_AUTH_COOKIE, isAdminSessionToken } from "@/lib/admin-auth"
 
-const APP_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:8000"
+const APP_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:7890"
 
 const REMOVED_COMMERCE_SEGMENTS = new Set([
   "account",

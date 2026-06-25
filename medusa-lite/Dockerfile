@@ -11,6 +11,6 @@ RUN --mount=type=cache,target=/root/.npm npm ci
 
 COPY . .
 
-EXPOSE 8000
+EXPOSE 7890
 
 CMD ["npm", "run", "docker:dev"]
