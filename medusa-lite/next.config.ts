@@ -12,11 +12,15 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    qualities: [50, 75],
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "http",
         hostname: "localhost",
+      },
+      {
+        protocol: "https",
+        hostname: "imagedelivery.net",
       },
       {
         protocol: "https",
