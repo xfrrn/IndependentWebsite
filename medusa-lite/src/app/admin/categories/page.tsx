@@ -30,6 +30,12 @@ export default async function AdminCategories({ searchParams }: AdminCategoriesP
         {error === "required" ? (
           <p className="text-sm text-red-600 md:col-span-3">请填写分类名称和标识。</p>
         ) : null}
+        {error === "duplicate" ? (
+          <p className="text-sm text-red-600 md:col-span-3">标识已存在，请换一个。</p>
+        ) : null}
+        {error === "save" ? (
+          <p className="text-sm text-red-600 md:col-span-3">保存失败，请检查内容后重试。</p>
+        ) : null}
         <input
           name="name"
           required

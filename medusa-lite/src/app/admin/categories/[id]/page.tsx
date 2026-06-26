@@ -50,9 +50,13 @@ export default async function AdminCategoryDetail({
       ? "元数据必须是 JSON 对象。"
       : query.error === "required"
         ? "分类名称和标识不能为空。"
-        : query.saved
-          ? "已保存。"
-          : ""
+        : query.error === "duplicate"
+          ? "标识已存在，请换一个。"
+          : query.error === "save"
+            ? "保存失败，请检查内容后重试。"
+            : query.saved
+              ? "已保存。"
+              : ""
 
   return (
     <div>
@@ -121,7 +125,6 @@ export default async function AdminCategoryDetail({
 
           <Section title="媒体和数据">
             <Field label="图片 URL" name="image" defaultValue={image} />
-            <FileField label="上传分类图片" name="imageFile" />
             <Textarea
               label="元数据 JSON"
               name="metadata"
@@ -250,22 +253,6 @@ function Textarea({
         rows={rows}
         defaultValue={defaultValue}
         className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm text-neutral-900"
-      />
-    </label>
-  )
-}
-
-function FileField({ label, name }: { label: string; name: string }) {
-  return (
-    <label className="block">
-      <span className="mb-1 block text-sm font-medium text-neutral-700">
-        {label}
-      </span>
-      <input
-        type="file"
-        name={name}
-        accept="image/jpeg,image/png,image/webp"
-        className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm text-neutral-900 file:mr-4 file:rounded-md file:border-0 file:bg-neutral-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-neutral-800"
       />
     </label>
   )

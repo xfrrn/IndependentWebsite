@@ -1,10 +1,8 @@
 "use server"
 
-import { mkdir, writeFile } from "fs/promises"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { revalidatePath, revalidateTag } from "next/cache"
-import path from "path"
 
 import { prisma } from "@/lib/db"
 import { ADMIN_AUTH_COOKIE, isAdminSessionToken } from "@/lib/admin-auth"
@@ -44,58 +42,8 @@ function readLines(value: string) {
     .filter(Boolean)
 }
 
-async function saveUploadedImage(formData: FormData, key: string, fallback: string) {
-  const value = formData.get(key)
-
-  if (!(value instanceof File) || value.size === 0) {
-    return fallback
-  }
-
-  if (!value.type.startsWith("image/")) {
-    return fallback
-  }
-
-  const extensionByType: Record<string, string> = {
-    "image/jpeg": "jpg",
-    "image/png": "png",
-    "image/webp": "webp",
-  }
-  const extension = extensionByType[value.type] || "jpg"
-  const uploadDir = path.resolve(process.cwd(), "public", "uploads", "admin")
-  const filename = `${key}-${Date.now()}.${extension}`
-  const destination = path.resolve(uploadDir, filename)
-
-  if (!destination.startsWith(uploadDir)) {
-    return fallback
-  }
-
-  await mkdir(uploadDir, { recursive: true })
-  await writeFile(destination, Buffer.from(await value.arrayBuffer()))
-
-  return `/uploads/admin/${filename}`
-}
-
-async function saveUploadedImages(formData: FormData, key: string) {
-  const files = formData.getAll(key)
-  const urls: string[] = []
-
-  for (let index = 0; index < files.length; index++) {
-    const value = files[index]
-
-    if (!(value instanceof File) || value.size === 0) {
-      continue
-    }
-
-    if (!value.type.startsWith("image/")) {
-      continue
-    }
-
-    const singleForm = new FormData()
-    singleForm.set(`${key}-${index}`, value)
-    urls.push(await saveUploadedImage(singleForm, `${key}-${index}`, ""))
-  }
-
-  return urls.filter(Boolean)
+function saveErrorCode(error: unknown) {
+  return (error as { code?: string }).code === "P2002" ? "duplicate" : "save"
 }
 
 export async function updateProduct(formData: FormData) {
@@ -154,34 +102,31 @@ export async function updateProduct(formData: FormData) {
     .map(String)
     .filter(Boolean)
 
-  const thumbnail = await saveUploadedImage(
-    formData,
-    "thumbnailFile",
-    readString(formData, "thumbnail")
-  )
-  const imageUrls = [
-    ...readLines(readString(formData, "images")),
-    ...(await saveUploadedImages(formData, "imageFiles")),
-  ]
+  const thumbnail = readString(formData, "thumbnail")
+  const imageUrls = readLines(readString(formData, "images"))
 
-  await prisma.product.update({
-    where: { id },
-    data: {
-      title,
-      handle,
-      subtitle: readString(formData, "subtitle") || null,
-      description: readString(formData, "description") || null,
-      thumbnail: thumbnail || null,
-      status: readString(formData, "status") || "published",
-      tags: readLines(readString(formData, "tags")),
-      images: imageUrls.map((url) => ({ url })),
-      metadata,
-      categories: {
-        deleteMany: {},
-        create: categoryIds.map((categoryId) => ({ categoryId })),
+  try {
+    await prisma.product.update({
+      where: { id },
+      data: {
+        title,
+        handle,
+        subtitle: readString(formData, "subtitle") || null,
+        description: readString(formData, "description") || null,
+        thumbnail: thumbnail || null,
+        status: readString(formData, "status") || "published",
+        tags: readLines(readString(formData, "tags")),
+        images: imageUrls.map((url) => ({ url })),
+        metadata,
+        categories: {
+          deleteMany: {},
+          create: categoryIds.map((categoryId) => ({ categoryId })),
+        },
       },
-    },
-  })
+    })
+  } catch (error) {
+    redirect(`/admin/products/${id}?error=${saveErrorCode(error)}`)
+  }
 
   revalidatePath("/admin/products")
   revalidatePath(`/admin/products/${id}`)
@@ -198,16 +143,22 @@ export async function createProduct(formData: FormData) {
     redirect("/admin/products?error=required")
   }
 
-  const product = await prisma.product.create({
-    data: {
-      title,
-      handle,
-      status: "published",
-      images: [],
-      tags: [],
-      metadata: {},
-    },
-  })
+  let product: { id: string }
+
+  try {
+    product = await prisma.product.create({
+      data: {
+        title,
+        handle,
+        status: "published",
+        images: [],
+        tags: [],
+        metadata: {},
+      },
+    })
+  } catch (error) {
+    redirect(`/admin/products?error=${saveErrorCode(error)}`)
+  }
 
   revalidatePath("/admin/products")
   revalidatePath("/products")
@@ -251,11 +202,7 @@ export async function updateCategory(formData: FormData) {
     redirect(`/admin/categories/${id}?error=metadata`)
   }
 
-  const image = await saveUploadedImage(
-    formData,
-    "imageFile",
-    readString(formData, "image")
-  )
+  const image = readString(formData, "image")
 
   if (image) {
     metadata.image = image
@@ -266,18 +213,22 @@ export async function updateCategory(formData: FormData) {
   const parentId = readString(formData, "parentId")
   const rank = Number.parseInt(readString(formData, "rank"), 10)
 
-  await prisma.category.update({
-    where: { id },
-    data: {
-      name,
-      handle,
-      description: readString(formData, "description") || null,
-      metadata,
-      isActive: formData.get("isActive") === "on",
-      parentId: parentId && parentId !== id ? parentId : null,
-      rank: Number.isFinite(rank) ? rank : 0,
-    },
-  })
+  try {
+    await prisma.category.update({
+      where: { id },
+      data: {
+        name,
+        handle,
+        description: readString(formData, "description") || null,
+        metadata,
+        isActive: formData.get("isActive") === "on",
+        parentId: parentId && parentId !== id ? parentId : null,
+        rank: Number.isFinite(rank) ? rank : 0,
+      },
+    })
+  } catch (error) {
+    redirect(`/admin/categories/${id}?error=${saveErrorCode(error)}`)
+  }
 
   revalidatePath("/admin/categories")
   revalidatePath(`/admin/categories/${id}`)
@@ -301,16 +252,22 @@ export async function createCategory(formData: FormData) {
     select: { rank: true },
   })
 
-  const category = await prisma.category.create({
-    data: {
-      name,
-      handle,
-      description: null,
-      metadata: {},
-      isActive: true,
-      rank: (lastCategory?.rank ?? 0) + 1,
-    },
-  })
+  let category: { id: string }
+
+  try {
+    category = await prisma.category.create({
+      data: {
+        name,
+        handle,
+        description: null,
+        metadata: {},
+        isActive: true,
+        rank: (lastCategory?.rank ?? 0) + 1,
+      },
+    })
+  } catch (error) {
+    redirect(`/admin/categories?error=${saveErrorCode(error)}`)
+  }
 
   revalidatePath("/admin/categories")
   revalidatePath("/")
