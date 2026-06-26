@@ -10,10 +10,12 @@ import {
   type ContactImagesContent,
 } from "@lib/data/homepage"
 import { listCategories } from "@lib/data/categories"
-import { getLocale } from "@lib/data/locale-actions"
 import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
 import { listLocales } from "@lib/data/locales"
 import { getSiteContentSection } from "@lib/data/site-content"
+import { normalizeLocale } from "@lib/data/supported-locales"
+
+export const revalidate = 300
 
 function getContactImageKey(link: { href?: string; label?: string }) {
   const value = `${link.href || ""} ${link.label || ""}`.toLowerCase()
@@ -55,11 +57,12 @@ function applySharedContactImages<T extends typeof HEADER_CONTENT>(
 export default async function Home(props: {
   params: Promise<{ countryCode: string }>
 }) {
-  const [params, locales, currentLocale] = await Promise.all([
+  const [params, locales] = await Promise.all([
     props.params,
     listLocales(),
-    getLocale(),
   ])
+  // ponytail: keep the homepage cacheable; use URL-based locale later if SSR language matters.
+  const currentLocale = normalizeLocale()
   const [headerContent, navContent, contactImages] = await Promise.all([
     getLocalizedHomeContentSection(
       "header_content",

@@ -29,6 +29,7 @@ export default async function FeaturedProductsSection({
       strategy={content.strategy}
       showProductNames={content.showProductNames ?? FEATURED_PRODUCTS.showProductNames}
       showProductPrices={content.showProductPrices ?? FEATURED_PRODUCTS.showProductPrices}
+      currentLocale={currentLocale}
     />
   )
 }

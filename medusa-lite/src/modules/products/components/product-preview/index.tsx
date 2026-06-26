@@ -13,12 +13,14 @@ export default async function ProductPreview({
   region,
   showTitle = true,
   showPrice = true,
+  currentLocale,
 }: {
   product: HttpTypes.StoreProduct
   isFeatured?: boolean
   region: HttpTypes.StoreRegion
   showTitle?: boolean
   showPrice?: boolean
+  currentLocale?: string | null
 }) {
   // const pricedProduct = await listProducts({
   //   regionId: region.id,
@@ -34,7 +36,10 @@ export default async function ProductPreview({
         product,
       })
     : { cheapestPrice: null }
-  const productTitle = getLocalizedProductTitle(product, await getLocale())
+  const productTitle = getLocalizedProductTitle(
+    product,
+    currentLocale ?? (await getLocale())
+  )
 
   return (
     <LocalizedClientLink

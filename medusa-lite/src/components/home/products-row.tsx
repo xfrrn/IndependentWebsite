@@ -13,6 +13,7 @@ export default async function ProductsRow({
   strategy = "default",
   showProductNames = true,
   showProductPrices = true,
+  currentLocale,
 }: {
   countryCode: string
   title: string
@@ -21,6 +22,7 @@ export default async function ProductsRow({
   strategy?: QueryStrategy
   showProductNames?: boolean
   showProductPrices?: boolean
+  currentLocale?: string | null
 }) {
   const region = await getRegion(countryCode)
 
@@ -74,6 +76,7 @@ export default async function ProductsRow({
                   isFeatured
                   showTitle={showProductNames}
                   showPrice={showProductPrices}
+                  currentLocale={currentLocale}
                 />
               </div>
             </li>

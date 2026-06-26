@@ -12,8 +12,20 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
+    minimumCacheTTL: 31536000,
     remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "img.actify.icu",
+      },
+      {
+        protocol: "https",
+        hostname: "up.actify.icu",
+      },
+      {
+        protocol: "https",
+        hostname: "img.siraacc.cn",
+      },
       {
         protocol: "http",
         hostname: "localhost",
