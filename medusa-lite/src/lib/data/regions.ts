@@ -2,8 +2,9 @@
 
 import { CACHE_TAGS, getCatalogCacheOptions } from "./cache"
 import { StoreRegion } from "@/lib/types"
+import { getInternalBaseURL } from "@lib/util/env"
 
-const API_BASE = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:7890"
+const API_BASE = getInternalBaseURL()
 
 export const listRegions = async () => {
   const res = await fetch(`${API_BASE}/api/regions`, {

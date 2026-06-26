@@ -30,7 +30,8 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgres://${POSTGRES_USER:-medusa}:${POSTGRES_PASSWORD:-medusa_password}@db:5432/${POSTGRES_DB:-medusa_lite}?sslmode=disable
+      DATABASE_URL: postgres://${POSTGRES_USER:-medusa}:${POSTGRES_PASSWORD:-medusa_password}@db:5432/${POSTGRES_DB:-medusa_lite}?sslmode=disable&connection_limit=3&pool_timeout=20
+      INTERNAL_BASE_URL: ${INTERNAL_BASE_URL:-http://127.0.0.1:7890}
       NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:-http://localhost:7890}
       CONTENT_ADMIN_SECRET: ${CONTENT_ADMIN_SECRET}
       CONTENT_MANAGER_KEY: ${CONTENT_MANAGER_KEY}
@@ -40,6 +41,8 @@ services:
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
     ports:
       - "7890:7890"
+    volumes:
+      - medusa-lite-uploads:/app/public/uploads
     expose:
       - "7890"
     healthcheck:
@@ -51,3 +54,4 @@ services:
 
 volumes:
   medusa-lite-db-data:
+  medusa-lite-uploads:

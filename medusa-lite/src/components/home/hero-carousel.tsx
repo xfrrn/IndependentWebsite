@@ -16,6 +16,7 @@ export default function HeroCarousel({
   images: HeroCarouselImage[]
 }) {
   const [activeIndex, setActiveIndex] = useState(0)
+  const activeImage = images[activeIndex] ?? images[0]
 
   useEffect(() => {
     if (images.length <= 1) return
@@ -29,19 +30,17 @@ export default function HeroCarousel({
 
   return (
     <div className="absolute inset-0 overflow-hidden rounded-[2.25rem]">
-      {images.map((image, index) => (
+      {activeImage ? (
         <Image
-          key={`${image.src}-${index}`}
-          src={image.src}
-          alt={image.alt}
+          key={activeImage.src}
+          src={activeImage.src}
+          alt={activeImage.alt}
           fill
-          priority={index === 0}
+          priority={activeIndex === 0}
           sizes="(min-width: 1024px) 1120px, 100vw"
-          className={`object-cover transition-opacity duration-700 ease-out ${
-            index === activeIndex ? "opacity-100" : "opacity-0"
-          }`}
+          className="object-cover"
         />
-      ))}
+      ) : null}
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,250,242,0.02)_0%,rgba(52,45,36,0.08)_100%)]" />
       <div className="absolute bottom-5 left-1/2 flex -translate-x-1/2 gap-2">
         {images.map((image, index) => (

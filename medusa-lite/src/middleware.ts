@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { ADMIN_AUTH_COOKIE, isAdminSessionToken } from "@/lib/admin-auth"
 
-const APP_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:7890"
+const DEFAULT_COUNTRY_CODE = process.env.DEFAULT_COUNTRY_CODE || "gb"
 
 const REMOVED_COMMERCE_SEGMENTS = new Set([
   "account",
@@ -11,72 +11,6 @@ const REMOVED_COMMERCE_SEGMENTS = new Set([
 ])
 
 const CLEAN_URL_SEGMENTS = new Set(["shop"])
-
-type Region = {
-  countries?: Array<{ iso_2?: string | null }>
-}
-
-const regionMapCache = {
-  regionMap: new Map<string, Region>(),
-  regionMapUpdated: 0,
-}
-
-async function getRegionMap(cacheId: string) {
-  const { regionMap, regionMapUpdated } = regionMapCache
-
-  if (
-    !regionMap.keys().next().value ||
-    regionMapUpdated < Date.now() - 3600 * 1000
-  ) {
-    const res = await fetch(`${APP_URL}/api/regions`, {
-      next: { revalidate: 3600, tags: [`regions-${cacheId}`] },
-      cache: "force-cache",
-    })
-
-    const { regions } = (await res.json()) as { regions?: Region[] }
-
-    if (!regions?.length) {
-      throw new Error("No regions found. Please seed the database.")
-    }
-
-    regions.forEach((region) => {
-      region.countries?.forEach((c) => {
-        regionMapCache.regionMap.set(c.iso_2 ?? "", region)
-      })
-    })
-
-    regionMapCache.regionMapUpdated = Date.now()
-  }
-
-  return regionMapCache.regionMap
-}
-
-async function getCountryCode(
-  request: NextRequest,
-  regionMap: Map<string, Region>
-) {
-  try {
-    let countryCode
-
-    const vercelCountryCode = request.headers
-      .get("x-vercel-ip-country")
-      ?.toLowerCase()
-
-    const urlCountryCode = request.nextUrl.pathname.split("/")[1]?.toLowerCase()
-
-    if (urlCountryCode && regionMap.has(urlCountryCode)) {
-      countryCode = urlCountryCode
-    } else if (vercelCountryCode && regionMap.has(vercelCountryCode)) {
-      countryCode = vercelCountryCode
-    } else if (regionMap.keys().next().value) {
-      countryCode = regionMap.keys().next().value
-    }
-
-    return countryCode
-  } catch {
-    return undefined
-  }
-}
 
 export async function middleware(request: NextRequest) {
   const isAdminPage =
@@ -114,107 +48,51 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  let response = NextResponse.next()
-
-  const cacheIdCookie = request.cookies.get("_medusa_cache_id")
-  const cacheId = cacheIdCookie?.value || crypto.randomUUID()
-
-  const regionMap = await getRegionMap(cacheId)
-  const countryCode = regionMap && (await getCountryCode(request, regionMap))
+  if (request.nextUrl.pathname.includes(".")) {
+    return NextResponse.next()
+  }
 
   const pathSegments = request.nextUrl.pathname
     .split("/")
     .filter(Boolean)
     .map((segment) => segment.toLowerCase())
+  const firstSegment = pathSegments[0]
 
-  const urlHasCountryCode =
-    countryCode && request.nextUrl.pathname.split("/")[1] === countryCode
-
-  const firstContentSegment = urlHasCountryCode ? pathSegments[1] : pathSegments[0]
-  const contentSegments = urlHasCountryCode ? pathSegments.slice(1) : pathSegments
-
-  if (contentSegments[0] === "store") {
-    const response = NextResponse.redirect(new URL("/products", request.url), 307)
-    response.cookies.set("_medusa_cache_id", cacheId, {
-      maxAge: 60 * 60 * 24,
-    })
-    return response
-  }
-
-  if (contentSegments[0] === "categories" && contentSegments[1]) {
-    const response = NextResponse.redirect(
-      new URL(`/shop/category/${contentSegments.slice(1).join("/")}`, request.url),
-      307
-    )
-    response.cookies.set("_medusa_cache_id", cacheId, {
-      maxAge: 60 * 60 * 24,
-    })
-    return response
-  }
-
-  if (
-    countryCode &&
-    firstContentSegment &&
-    REMOVED_COMMERCE_SEGMENTS.has(firstContentSegment)
-  ) {
-    const response = NextResponse.redirect(
-      new URL("/products", request.url),
-      307
-    )
-    if (!cacheIdCookie) {
-      response.cookies.set("_medusa_cache_id", cacheId, {
-        maxAge: 60 * 60 * 24,
-      })
-    }
-    return response
-  }
-
-  if (urlHasCountryCode) {
-    const strippedPath = `/${pathSegments.slice(1).join("/")}`
-    const cleanUrl = new URL(
-      strippedPath === "/" ? "/" : strippedPath,
-      request.url
-    )
+  if (/^[a-z]{2}$/.test(firstSegment || "")) {
+    const cleanPath = `/${pathSegments.slice(1).join("/")}`
+    const cleanUrl = new URL(cleanPath === "/" ? "/" : cleanPath, request.url)
     cleanUrl.search = request.nextUrl.search
-    response = NextResponse.redirect(cleanUrl, 307)
-    response.cookies.set("_medusa_cache_id", cacheId, {
-      maxAge: 60 * 60 * 24,
-    })
-    return response
+    return NextResponse.redirect(cleanUrl, 307)
   }
 
-  if (request.nextUrl.pathname.includes(".")) {
+  if (firstSegment === "store") {
+    return NextResponse.redirect(new URL("/products", request.url), 307)
+  }
+
+  if (firstSegment === "categories" && pathSegments[1]) {
+    return NextResponse.redirect(
+      new URL(`/shop/category/${pathSegments.slice(1).join("/")}`, request.url),
+      307
+    )
+  }
+
+  if (firstSegment && REMOVED_COMMERCE_SEGMENTS.has(firstSegment)) {
+    return NextResponse.redirect(new URL("/products", request.url), 307)
+  }
+
+  if (firstSegment && CLEAN_URL_SEGMENTS.has(firstSegment)) {
     return NextResponse.next()
   }
 
-  if (firstContentSegment && CLEAN_URL_SEGMENTS.has(firstContentSegment)) {
-    response.cookies.set("_medusa_cache_id", cacheId, {
-      maxAge: 60 * 60 * 24,
-    })
-    return response
-  }
-
-  if (countryCode) {
-    const rewriteUrl = request.nextUrl.clone()
-    rewriteUrl.pathname = `/${countryCode}${request.nextUrl.pathname}`
-    response = NextResponse.rewrite(rewriteUrl)
-    response.cookies.set("_medusa_cache_id", cacheId, {
-      maxAge: 60 * 60 * 24,
-    })
-  } else {
-    return new NextResponse(
-      "No valid regions configured. Please run the seed script first.",
-      { status: 500 }
-    )
-  }
-
-  return response
+  const rewriteUrl = request.nextUrl.clone()
+  rewriteUrl.pathname = `/${DEFAULT_COUNTRY_CODE}${request.nextUrl.pathname}`
+  return NextResponse.rewrite(rewriteUrl)
 }
 
 export const config = {
   matcher: [
     "/admin/:path*",
     "/api/admin/:path*",
-    "/((?!api|_next/static|_next/image|favicon.ico|images|assets|png|svg|jpg|jpeg|gif|webp).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|uploads|images|assets|png|svg|jpg|jpeg|gif|webp).*)",
   ],
 }
