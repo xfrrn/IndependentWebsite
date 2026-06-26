@@ -17,7 +17,18 @@ export type TrafficOverview = {
   topPages: TrafficTopPage[]
 }
 
+let trafficTablePromise: Promise<void> | null = null
+
 export async function ensureTrafficTable() {
+  if (trafficTablePromise) {
+    return trafficTablePromise
+  }
+
+  trafficTablePromise = ensureTrafficTableOnce()
+  return trafficTablePromise
+}
+
+async function ensureTrafficTableOnce() {
   await prisma.$executeRaw`
     CREATE TABLE IF NOT EXISTS traffic_events (
       id TEXT PRIMARY KEY,

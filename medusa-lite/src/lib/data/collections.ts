@@ -1,43 +1,83 @@
 "use server"
 
-import { CACHE_TAGS, getCatalogCacheOptions } from "./cache"
 import { StoreCollection } from "@/lib/types"
-import { getInternalBaseURL } from "@lib/util/env"
-
-const API_BASE = getInternalBaseURL()
+import { prisma } from "@/lib/db"
 
 export const retrieveCollection = async (id: string) => {
-  const res = await fetch(`${API_BASE}/api/collections/${id}`, {
-    next: getCatalogCacheOptions([CACHE_TAGS.collections, `${CACHE_TAGS.collections}-${id}`]),
-    cache: "force-cache",
+  const collection = await prisma.collection.findUnique({
+    where: { id },
+    include: {
+      products: { include: { product: { include: { variants: true } } } },
+    },
   })
-  const { collection } = await res.json()
-  return collection as StoreCollection
+  return collection ? formatCollection(collection) : null
 }
 
 export const listCollections = async (
   queryParams: Record<string, string> = {}
 ): Promise<{ collections: StoreCollection[]; count: number }> => {
-  queryParams.limit = queryParams.limit || "100"
-  queryParams.offset = queryParams.offset || "0"
+  const limit = Number(queryParams.limit || "100")
+  const offset = Number(queryParams.offset || "0")
+  const handle = queryParams.handle
+  const where = handle ? { handle } : {}
 
-  const params = new URLSearchParams(queryParams)
-  const res = await fetch(`${API_BASE}/api/collections?${params}`, {
-    next: getCatalogCacheOptions(CACHE_TAGS.collections),
-    cache: "force-cache",
-  })
+  const [collections, count] = await Promise.all([
+    prisma.collection.findMany({
+      where,
+      include: {
+        products: { include: { product: { include: { variants: true } } } },
+      },
+      take: limit,
+      skip: offset,
+    }),
+    prisma.collection.count({ where }),
+  ])
 
-  const { collections } = await res.json()
-  return { collections, count: collections.length }
+  return { collections: collections.map(formatCollection), count }
 }
 
 export const getCollectionByHandle = async (handle: string): Promise<StoreCollection> => {
-  const params = new URLSearchParams({ handle })
-  const res = await fetch(`${API_BASE}/api/collections?${params}`, {
-    next: getCatalogCacheOptions(CACHE_TAGS.collections),
-    cache: "force-cache",
+  const collection = await prisma.collection.findUnique({
+    where: { handle },
+    include: {
+      products: { include: { product: { include: { variants: true } } } },
+    },
   })
 
-  const { collections } = await res.json()
-  return collections[0]
+  return collection ? formatCollection(collection) : (null as unknown as StoreCollection)
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function formatCollection(collection: any): StoreCollection {
+  return {
+    id: collection.id,
+    title: collection.title,
+    handle: collection.handle,
+    products:
+      collection.products?.map((pc: any) => ({
+        id: pc.product.id,
+        handle: pc.product.handle,
+        title: pc.product.title,
+        subtitle: pc.product.subtitle,
+        description: pc.product.description,
+        thumbnail: pc.product.thumbnail,
+        images: pc.product.images,
+        metadata: pc.product.metadata,
+        tags: pc.product.tags,
+        status: pc.product.status,
+        created_at: pc.product.createdAt?.toISOString(),
+        updated_at: pc.product.updatedAt?.toISOString(),
+        variants:
+          pc.product.variants?.map((variant: any) => ({
+            id: variant.id,
+            title: variant.title,
+            sku: variant.sku,
+            inventory_quantity: variant.inventoryQuantity,
+            calculated_price: variant.calculatedPrice,
+            images: variant.images,
+            options: variant.options,
+            metadata: variant.metadata,
+          })) ?? [],
+      })) ?? [],
+  }
 }

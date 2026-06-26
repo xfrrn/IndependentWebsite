@@ -1,9 +1,6 @@
 import "server-only"
 
-import { CACHE_TAGS, getCatalogCacheOptions } from "./cache"
-import { getInternalBaseURL } from "@lib/util/env"
-
-const API_BASE = getInternalBaseURL()
+import { prisma } from "@/lib/db"
 
 export async function getSiteContentSection<T>(
   section: string,
@@ -11,19 +8,15 @@ export async function getSiteContentSection<T>(
   locale?: string | null
 ): Promise<T> {
   try {
-    const params = new URLSearchParams({ section })
-    if (locale) params.set("content_locale", locale)
+    if (locale) {
+      const translation = await prisma.siteContentTranslation.findUnique({
+        where: { section_locale: { section, locale } },
+      })
+      if (translation) return (translation.data as T) ?? fallback
+    }
 
-    const response = await fetch(`${API_BASE}/api/site-content?${params}`, {
-      method: "GET",
-      next: getCatalogCacheOptions(CACHE_TAGS.siteContent),
-      cache: "force-cache",
-    })
-
-    if (!response.ok) return fallback
-
-    const payload = (await response.json()) as { data?: T | null }
-    return payload.data ?? fallback
+    const content = await prisma.siteContent.findUnique({ where: { section } })
+    return (content?.data as T | null) ?? fallback
   } catch {
     return fallback
   }
@@ -34,22 +27,10 @@ export async function getTranslatedSiteContentSection<T>(
   locale: string
 ): Promise<T | null> {
   try {
-    const params = new URLSearchParams({ section, content_locale: locale })
-
-    const response = await fetch(`${API_BASE}/api/site-content?${params}`, {
-      method: "GET",
-      next: getCatalogCacheOptions(CACHE_TAGS.siteContent),
-      cache: "force-cache",
+    const translation = await prisma.siteContentTranslation.findUnique({
+      where: { section_locale: { section, locale } },
     })
-
-    if (!response.ok) return null
-
-    const payload = (await response.json()) as {
-      data?: T | null
-      locale?: string | null
-    }
-
-    return payload.locale === locale ? payload.data ?? null : null
+    return (translation?.data as T | null) ?? null
   } catch {
     return null
   }
@@ -60,19 +41,26 @@ export async function saveSiteContentSection(
   data: unknown,
   locale?: string | null
 ) {
-  const response = await fetch(`${API_BASE}/api/site-content`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "x-content-admin-secret": process.env.CONTENT_ADMIN_SECRET || "",
-    },
-    body: JSON.stringify({ section, locale: locale || undefined, data }),
-    cache: "no-store",
-  })
-
-  if (!response.ok) {
-    const text = await response.text()
-    throw new Error(text || `Failed to save content (${response.status})`)
+  if (locale) {
+    const [, item] = await prisma.$transaction([
+      prisma.siteContent.upsert({
+        where: { section },
+        update: {},
+        create: { section, data },
+      }),
+      prisma.siteContentTranslation.upsert({
+        where: { section_locale: { section, locale } },
+        update: { data },
+        create: { section, locale, data },
+      }),
+    ])
+    return { item }
   }
-  return response.json()
+
+  const item = await prisma.siteContent.upsert({
+    where: { section },
+    update: { data },
+    create: { section, data },
+  })
+  return { item }
 }

@@ -1,13 +1,10 @@
 "use server"
 
-import { CACHE_TAGS, getCatalogCacheOptions } from "./cache"
 import { getRegion, retrieveRegion } from "./regions"
 import { sortProducts } from "@lib/util/sort-products"
-import { getInternalBaseURL } from "@lib/util/env"
 import { StoreProduct, StoreProductVariant } from "@/lib/types"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
-
-const API_BASE = getInternalBaseURL()
+import { prisma } from "@/lib/db"
 
 export const listProducts = async ({
   pageParam = 1,
@@ -44,30 +41,40 @@ export const listProducts = async ({
     return { response: { products: [], count: 0 }, nextPage: null }
   }
 
-  const params = new URLSearchParams({
-    limit: String(limit),
-    offset: String(offset),
-  })
-  if (queryParams?.fields) params.set("fields", queryParams.fields)
-  if (queryParams?.handle) params.set("handle", queryParams.handle)
+  const where: any = { status: "published" }
+  if (queryParams?.handle) where.handle = queryParams.handle
   if (queryParams?.id) {
     const ids = Array.isArray(queryParams.id) ? queryParams.id : [queryParams.id]
-    ids.forEach((id: string) => params.append("id", id))
+    where.id = { in: ids }
   }
   if (queryParams?.category_id) {
-    const ids = Array.isArray(queryParams.category_id) ? queryParams.category_id : [queryParams.category_id]
-    ids.forEach((id: string) => params.append("category_id", id))
+    const ids = Array.isArray(queryParams.category_id)
+      ? queryParams.category_id
+      : [queryParams.category_id]
+    where.categories = { some: { categoryId: { in: ids } } }
   }
 
-  const res = await fetch(`${API_BASE}/api/products?${params}`, {
-    next: getCatalogCacheOptions(CACHE_TAGS.products),
-    cache: "force-cache",
-  })
-
-  const { products, count } = await res.json()
+  const [products, count] = await Promise.all([
+    prisma.product.findMany({
+      where,
+      include: {
+        variants: true,
+        categories: { include: { category: true } },
+        collections: { include: { collection: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      skip: offset,
+    }),
+    prisma.product.count({ where }),
+  ])
   const nextPage = count > offset + limit ? pageParam + 1 : null
 
-  return { response: { products, count }, nextPage, queryParams }
+  return {
+    response: { products: products.map(formatProduct), count },
+    nextPage,
+    queryParams,
+  }
 }
 
 export const listProductsWithSort = async ({
@@ -99,4 +106,53 @@ export const listProductsWithSort = async ({
   const paginatedProducts = sortedProducts.slice(pageParam, pageParam + limit)
 
   return { response: { products: paginatedProducts as any, count }, nextPage, queryParams }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function formatProduct(product: any): StoreProduct {
+  return {
+    id: product.id,
+    handle: product.handle,
+    title: product.title,
+    subtitle: product.subtitle,
+    description: product.description,
+    thumbnail: product.thumbnail,
+    images: product.images,
+    metadata: product.metadata,
+    tags: product.tags,
+    status: product.status,
+    created_at: product.createdAt.toISOString(),
+    updated_at: product.updatedAt.toISOString(),
+    variants: product.variants.map(formatVariant),
+    categories:
+      product.categories?.map((pc: any) => ({
+        id: pc.category.id,
+        name: pc.category.name,
+        handle: pc.category.handle,
+        description: pc.category.description,
+        metadata: pc.category.metadata,
+        is_active: pc.category.isActive,
+      })) ?? [],
+    collection: product.collections?.[0]?.collection
+      ? {
+          id: product.collections[0].collection.id,
+          title: product.collections[0].collection.title,
+          handle: product.collections[0].collection.handle,
+        }
+      : undefined,
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function formatVariant(variant: any): StoreProductVariant {
+  return {
+    id: variant.id,
+    title: variant.title,
+    sku: variant.sku,
+    inventory_quantity: variant.inventoryQuantity,
+    calculated_price: variant.calculatedPrice,
+    images: variant.images,
+    options: variant.options,
+    metadata: variant.metadata,
+  }
 }

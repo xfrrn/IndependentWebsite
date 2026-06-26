@@ -4,9 +4,9 @@ import {
   FOOTER_CONTENT,
   type ContactImagesContent,
 } from "@lib/data/homepage"
-import { getLocale } from "@lib/data/locale-actions"
 import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
 import { getSiteContentSection } from "@lib/data/site-content"
+import { normalizeLocale } from "@lib/data/supported-locales"
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import FooterSocialLinks from "./footer-social-links"
@@ -54,7 +54,8 @@ function applySharedContactImages(
 }
 
 export default async function Footer() {
-  const currentLocale = await getLocale()
+  // ponytail: keep public pages cacheable; use URL locale later if SSR footer language matters.
+  const currentLocale = normalizeLocale()
   const [content, contactImages] = await Promise.all([
     getLocalizedHomeContentSection(
       "footer_content",
