@@ -6,7 +6,7 @@ import ShopSortBar from "@components/shop/shop-sort-bar"
 import { PRODUCT_LIST_FIELDS } from "@lib/data/product-fields"
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
-import { getLocale } from "@lib/data/locale-actions"
+import { normalizeLocale } from "@lib/data/supported-locales"
 import { matchesScenarioKey } from "@lib/util/product-meta"
 import { sortProducts } from "@lib/util/shop-sort"
 
@@ -42,6 +42,8 @@ type Props = {
   searchParams: Promise<{ sort?: string }>
 }
 
+export const revalidate = 300
+
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
   const page = SCENARIO_PAGES[params.slug]
@@ -61,7 +63,8 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 export default async function ScenarioLandingPage(props: Props) {
   const params = await props.params
   const searchParams = await props.searchParams
-  const locale = await getLocale()
+  // ponytail: keep public scenario pages cacheable; use URL locale if SSR translations matter.
+  const locale = normalizeLocale()
   const page = SCENARIO_PAGES[params.slug]
 
   if (!page) {

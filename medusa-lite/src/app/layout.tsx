@@ -1,5 +1,4 @@
 import { getBaseURL } from "@lib/util/env"
-import { getLocale } from "@lib/data/locale-actions"
 import { getLocaleDirection, normalizeLocale } from "@lib/data/supported-locales"
 import { Metadata } from "next"
 import "../styles/globals.css"
@@ -9,7 +8,8 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout(props: { children: React.ReactNode }) {
-  const locale = normalizeLocale(await getLocale())
+  // ponytail: avoid cookie reads in the root layout so public pages can cache.
+  const locale = normalizeLocale()
 
   return (
     <html

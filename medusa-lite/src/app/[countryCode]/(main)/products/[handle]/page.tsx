@@ -6,8 +6,8 @@ import { cache } from "react"
 import { PRODUCT_UI_CONTENT } from "@lib/data/homepage"
 import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
 import { getProductByHandle } from "@lib/data/products"
-import { getLocale } from "@lib/data/locale-actions"
 import { getRegion } from "@lib/data/regions"
+import { normalizeLocale } from "@lib/data/supported-locales"
 import {
   getLocalizedProductDescription,
   getLocalizedProductTitle,
@@ -16,6 +16,8 @@ import {
 type Props = {
   params: Promise<{ countryCode: string; handle: string }>
 }
+
+export const revalidate = 300
 
 function getPageLabels(locale?: string | null) {
   if (locale?.startsWith("zh")) {
@@ -53,7 +55,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     return { title: "Product not found" }
   }
 
-  const locale = await getLocale()
+  const locale = normalizeLocale()
   const productTitle = getLocalizedProductTitle(product, locale)
   const productDescription = getLocalizedProductDescription(product, locale)
 
@@ -70,7 +72,8 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
 export default async function ProductPage(props: Props) {
   const params = await props.params
-  const locale = await getLocale()
+  // ponytail: keep public product pages cacheable; use URL locale if SSR translations matter.
+  const locale = normalizeLocale()
   const [region, productUiContent, product] = await Promise.all([
     getRegion(params.countryCode),
     getLocalizedHomeContentSection(

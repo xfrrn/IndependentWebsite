@@ -25,10 +25,21 @@ function isTrackablePath(path: string) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as {
+    const text = await request.text()
+    if (!text) {
+      return new NextResponse(null, { status: 204 })
+    }
+
+    let body: {
       path?: unknown
       title?: unknown
       referrer?: unknown
+    }
+
+    try {
+      body = JSON.parse(text)
+    } catch {
+      return new NextResponse(null, { status: 204 })
     }
 
     const path = typeof body.path === "string" ? body.path.trim() : ""

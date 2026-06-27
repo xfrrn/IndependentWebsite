@@ -1,24 +1,35 @@
-export const dynamic = "force-dynamic"
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
 
+export const revalidate = 300
+
+const CACHE_HEADERS = {
+  "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=86400",
+}
+
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ handle: string }> }
 ) {
   const { handle } = await params
+  const includeProducts = request.nextUrl.searchParams.get("include_products") !== "0"
 
   const category = await prisma.category.findUnique({
     where: { handle },
     include: {
       parent: true,
       children: true,
-      products: { include: { product: { include: { variants: true } } } },
+      products: includeProducts
+        ? { include: { product: { include: { variants: true } } } }
+        : false,
     },
   })
 
   if (!category) {
-    return NextResponse.json({ message: "Category not found" }, { status: 404 })
+    return NextResponse.json(
+      { message: "Category not found" },
+      { status: 404, headers: CACHE_HEADERS }
+    )
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -59,7 +70,10 @@ export async function GET(
     }
   }
 
-  return NextResponse.json({
-    product_category: formatCategory(category),
-  })
+  return NextResponse.json(
+    {
+      product_category: formatCategory(category),
+    },
+    { headers: CACHE_HEADERS }
+  )
 }

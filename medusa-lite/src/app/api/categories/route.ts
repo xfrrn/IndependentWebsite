@@ -1,12 +1,23 @@
-export const dynamic = "force-dynamic"
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
 
+export const revalidate = 300
+
+const CACHE_HEADERS = {
+  "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=86400",
+}
+
+function numberParam(value: string | null, fallback: number) {
+  const parsed = parseInt(value || "", 10)
+  return Number.isFinite(parsed) ? parsed : fallback
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl
-  const limit = parseInt(searchParams.get("limit") || "100")
-  const offset = parseInt(searchParams.get("offset") || "0")
+  const limit = Math.min(Math.max(numberParam(searchParams.get("limit"), 100), 1), 100)
+  const offset = Math.max(numberParam(searchParams.get("offset"), 0), 0)
   const handle = searchParams.get("handle")
+  const includeProducts = searchParams.get("include_products") === "1"
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const where: any = { isActive: true }
@@ -17,7 +28,9 @@ export async function GET(request: NextRequest) {
     include: {
       parent: true,
       children: true,
-      products: { include: { product: { include: { variants: true } } } },
+      products: includeProducts
+        ? { include: { product: { include: { variants: true } } } }
+        : false,
     },
     orderBy: { rank: "asc" },
     take: limit,
@@ -71,10 +84,13 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  return NextResponse.json({
-    product_categories: categories.map(formatCategory),
-    count: categories.length,
-    offset,
-    limit,
-  })
+  return NextResponse.json(
+    {
+      product_categories: categories.map(formatCategory),
+      count: categories.length,
+      offset,
+      limit,
+    },
+    { headers: CACHE_HEADERS }
+  )
 }

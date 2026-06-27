@@ -1,6 +1,12 @@
-export const dynamic = "force-dynamic"
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
+
+export const dynamic = "force-dynamic"
+export const revalidate = 300
+
+const CACHE_HEADERS = {
+  "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=86400",
+}
 
 export async function GET(
   _request: Request,
@@ -9,15 +15,21 @@ export async function GET(
   const { id } = await params
   const region = await prisma.region.findUnique({ where: { id } })
   if (!region) {
-    return NextResponse.json({ message: "Region not found" }, { status: 404 })
+    return NextResponse.json(
+      { message: "Region not found" },
+      { status: 404, headers: CACHE_HEADERS }
+    )
   }
-  return NextResponse.json({
-    region: {
-      id: region.id,
-      name: region.name,
-      currency_code: region.currencyCode,
-      countries: region.countries as { iso_2: string; iso_3?: string; name: string; display_name?: string }[],
-      automatic_taxes: region.automaticTaxes,
+  return NextResponse.json(
+    {
+      region: {
+        id: region.id,
+        name: region.name,
+        currency_code: region.currencyCode,
+        countries: region.countries as { iso_2: string; iso_3?: string; name: string; display_name?: string }[],
+        automatic_taxes: region.automaticTaxes,
+      },
     },
-  })
+    { headers: CACHE_HEADERS }
+  )
 }

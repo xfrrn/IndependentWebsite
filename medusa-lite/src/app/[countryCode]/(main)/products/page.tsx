@@ -4,11 +4,11 @@ import { notFound } from "next/navigation"
 
 import { StoreProduct } from "@/lib/types"
 import { PRODUCTS_PAGE_CONTENT } from "@lib/data/homepage"
-import { getLocale } from "@lib/data/locale-actions"
 import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
 import { PRODUCT_LIST_FIELDS } from "@lib/data/product-fields"
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
+import { normalizeLocale } from "@lib/data/supported-locales"
 import {
   getLocalizedProductDescription,
   getLocalizedProductTitle,
@@ -24,6 +24,8 @@ export const metadata: Metadata = {
   title: "Kids Toys | Products",
   description: "Browse age-clear, parent-trusted toys.",
 }
+
+export const revalidate = 300
 
 function matchesQuery(product: StoreProduct, q: string, locale?: string | null) {
   const needle = q.toLowerCase()
@@ -41,7 +43,8 @@ function matchesQuery(product: StoreProduct, q: string, locale?: string | null) 
 export default async function ProductsPage(props: Props) {
   const params = await props.params
   const searchParams = await props.searchParams
-  const locale = await getLocale()
+  // ponytail: keep public product listings cacheable; use URL locale if SSR translations matter.
+  const locale = normalizeLocale()
   const content = await getLocalizedHomeContentSection(
     "products_page_content",
     PRODUCTS_PAGE_CONTENT,

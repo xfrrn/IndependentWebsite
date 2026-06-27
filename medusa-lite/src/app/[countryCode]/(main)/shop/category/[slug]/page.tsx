@@ -5,11 +5,11 @@ import ShopLandingPage from "@components/shop/shop-landing-page"
 import ShopSortBar from "@components/shop/shop-sort-bar"
 import { getCategoryByHandle } from "@lib/data/categories"
 import { CATEGORY_PAGE_CONTENT } from "@lib/data/homepage"
-import { getLocale } from "@lib/data/locale-actions"
 import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
 import { PRODUCT_LIST_FIELDS } from "@lib/data/product-fields"
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
+import { normalizeLocale } from "@lib/data/supported-locales"
 import { sortProducts } from "@lib/util/shop-sort"
 import { Pagination } from "@modules/store/components/pagination"
 
@@ -20,9 +20,11 @@ type Props = {
 
 const PRODUCT_LIMIT = 24
 
+export const revalidate = 300
+
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
-  const locale = await getLocale()
+  const locale = normalizeLocale()
   const content = await getLocalizedHomeContentSection(
     "category_page_content",
     CATEGORY_PAGE_CONTENT,
@@ -50,7 +52,8 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 export default async function CategoryLandingPage(props: Props) {
   const params = await props.params
   const searchParams = await props.searchParams
-  const locale = await getLocale()
+  // ponytail: keep public category pages cacheable; use URL locale if SSR translations matter.
+  const locale = normalizeLocale()
   const content = await getLocalizedHomeContentSection(
     "category_page_content",
     CATEGORY_PAGE_CONTENT,
