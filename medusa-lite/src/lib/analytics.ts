@@ -78,19 +78,16 @@ export async function recordPageView(input: {
   userAgent?: string | null
   ip?: string | null
 }) {
-  await ensureTrafficTable()
-
-  await prisma.$executeRaw`
-    INSERT INTO traffic_events (id, path, title, referrer, user_agent, ip)
-    VALUES (
-      ${randomUUID()},
-      ${input.path},
-      ${input.title ?? null},
-      ${input.referrer ?? null},
-      ${input.userAgent ?? null},
-      ${input.ip ?? null}
-    )
-  `
+  await prisma.trafficEvent.create({
+    data: {
+      id: randomUUID(),
+      path: input.path,
+      title: input.title ?? null,
+      referrer: input.referrer ?? null,
+      userAgent: input.userAgent ?? null,
+      ip: input.ip ?? null,
+    },
+  })
 }
 
 export async function getTrafficOverview(): Promise<TrafficOverview> {

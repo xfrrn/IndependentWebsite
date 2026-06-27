@@ -34,10 +34,10 @@ export async function POST(request: NextRequest) {
     const path = typeof body.path === "string" ? body.path.trim() : ""
 
     if (!isTrackablePath(path)) {
-      return NextResponse.json({ ok: true })
+      return new NextResponse(null, { status: 204 })
     }
 
-    await recordPageView({
+    const event = {
       path,
       title: typeof body.title === "string" ? body.title.slice(0, 300) : null,
       referrer:
@@ -46,11 +46,18 @@ export async function POST(request: NextRequest) {
       ip:
         request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
         request.headers.get("x-real-ip"),
-    })
+    }
 
-    return NextResponse.json({ ok: true })
+    // ponytail: delayed best-effort analytics, use a queue if exact counts matter.
+    setTimeout(() => {
+      recordPageView(event).catch((error) => {
+        console.error("Failed to record page view", error)
+      })
+    }, 1000)
+
+    return new NextResponse(null, { status: 204 })
   } catch (error) {
     console.error("Failed to record page view", error)
-    return NextResponse.json({ ok: true })
+    return new NextResponse(null, { status: 204 })
   }
 }

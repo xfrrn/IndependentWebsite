@@ -160,6 +160,14 @@ export const listProductsWithSort = async ({
 }> => {
   const limit = asLimit(queryParams?.limit, 12)
 
+  if (sortBy === "created_at") {
+    return listProducts({
+      pageParam: page,
+      queryParams: { ...queryParams, limit },
+      countryCode,
+    })
+  }
+
   const { response: { products, count } } = await listProducts({
     pageParam: 0,
     queryParams: { ...queryParams, limit: 100 },

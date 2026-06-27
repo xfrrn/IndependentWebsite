@@ -30,7 +30,7 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgres://${POSTGRES_USER:-medusa}:${POSTGRES_PASSWORD:-medusa_password}@db:5432/${POSTGRES_DB:-medusa_lite}?sslmode=disable&connection_limit=3&pool_timeout=20
+      DATABASE_URL: postgres://${POSTGRES_USER:-medusa}:${POSTGRES_PASSWORD:-medusa_password}@db:5432/${POSTGRES_DB:-medusa_lite}?sslmode=disable&connection_limit=10&pool_timeout=5
       INTERNAL_BASE_URL: ${INTERNAL_BASE_URL:-http://127.0.0.1:7890}
       NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL:-http://localhost:7890}
       CONTENT_ADMIN_SECRET: ${CONTENT_ADMIN_SECRET}

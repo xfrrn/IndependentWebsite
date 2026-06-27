@@ -1,6 +1,7 @@
 ﻿import Image from "next/image"
 import Link from "next/link"
 import { Metadata } from "next"
+import { cache } from "react"
 
 import { PRODUCT_UI_CONTENT } from "@lib/data/homepage"
 import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
@@ -40,9 +41,9 @@ function getPageLabels(locale?: string | null) {
   }
 }
 
-async function fetchProduct(handle: string) {
+const fetchProduct = cache(async (handle: string) => {
   return getProductByHandle(handle)
-}
+})
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
@@ -70,21 +71,20 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 export default async function ProductPage(props: Props) {
   const params = await props.params
   const locale = await getLocale()
-  const [region, productUiContent] = await Promise.all([
+  const [region, productUiContent, product] = await Promise.all([
     getRegion(params.countryCode),
     getLocalizedHomeContentSection(
       "product_ui_content",
       PRODUCT_UI_CONTENT,
       locale
     ),
+    fetchProduct(params.handle),
   ])
   const labels = getPageLabels(locale)
 
   if (!region) {
     return null
   }
-
-  const product = await fetchProduct(params.handle)
 
   if (!product) {
     return (
@@ -135,6 +135,7 @@ export default async function ProductPage(props: Props) {
                   src={product.thumbnail}
                   alt={productTitle}
                   fill
+                  priority
                   sizes="(min-width: 768px) 60vw, 100vw"
                   className="object-cover"
                 />

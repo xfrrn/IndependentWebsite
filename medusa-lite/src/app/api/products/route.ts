@@ -1,11 +1,21 @@
-export const dynamic = "force-dynamic"
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
 
+export const revalidate = 300
+
+const CACHE_HEADERS = {
+  "Cache-Control": "public, s-maxage=300, stale-while-revalidate=86400",
+}
+
+function numberParam(value: string | null, fallback: number) {
+  const parsed = parseInt(value || "", 10)
+  return Number.isFinite(parsed) ? parsed : fallback
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl
-  const limit = parseInt(searchParams.get("limit") || "12")
-  const offset = parseInt(searchParams.get("offset") || "0")
+  const limit = Math.min(Math.max(numberParam(searchParams.get("limit"), 12), 1), 48)
+  const offset = Math.max(numberParam(searchParams.get("offset"), 0), 0)
   const handle = searchParams.get("handle")
   const ids = searchParams.getAll("id")
   const categoryId = searchParams.get("category_id")
@@ -41,13 +51,16 @@ export async function GET(request: NextRequest) {
 
   const nextPage = offset + limit < count ? offset + limit : null
 
-  return NextResponse.json({
-    products: products.map(formatProduct),
-    count,
-    offset,
-    limit,
-    next: nextPage,
-  })
+  return NextResponse.json(
+    {
+      products: products.map(formatProduct),
+      count,
+      offset,
+      limit,
+      next: nextPage,
+    },
+    { headers: CACHE_HEADERS }
+  )
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

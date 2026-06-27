@@ -1,8 +1,10 @@
-export const dynamic = "force-dynamic"
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
 
 const ADMIN_SECRET = process.env.CONTENT_ADMIN_SECRET || ""
+const CACHE_HEADERS = {
+  "Cache-Control": "public, s-maxage=300, stale-while-revalidate=86400",
+}
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl
@@ -11,13 +13,16 @@ export async function GET(request: NextRequest) {
 
   if (!section) {
     const items = await prisma.siteContent.findMany({ orderBy: { section: "asc" } })
-    return NextResponse.json({
-      items: items.map((item) => ({
-        section: item.section,
-        data: item.data,
-        updated_at: item.updatedAt.toISOString(),
-      })),
-    })
+    return NextResponse.json(
+      {
+        items: items.map((item) => ({
+          section: item.section,
+          data: item.data,
+          updated_at: item.updatedAt.toISOString(),
+        })),
+      },
+      { headers: CACHE_HEADERS }
+    )
   }
 
   if (locale) {
@@ -25,25 +30,34 @@ export async function GET(request: NextRequest) {
       where: { section_locale: { section, locale } },
     })
     if (translation) {
-      return NextResponse.json({
-        section: translation.section,
-        locale: translation.locale,
-        data: translation.data,
-        updated_at: translation.updatedAt.toISOString(),
-      })
+      return NextResponse.json(
+        {
+          section: translation.section,
+          locale: translation.locale,
+          data: translation.data,
+          updated_at: translation.updatedAt.toISOString(),
+        },
+        { headers: CACHE_HEADERS }
+      )
     }
   }
 
   const content = await prisma.siteContent.findUnique({ where: { section } })
   if (!content) {
-    return NextResponse.json({ section, data: null, updated_at: null })
+    return NextResponse.json(
+      { section, data: null, updated_at: null },
+      { headers: CACHE_HEADERS }
+    )
   }
 
-  return NextResponse.json({
-    section: content.section,
-    data: content.data,
-    updated_at: content.updatedAt.toISOString(),
-  })
+  return NextResponse.json(
+    {
+      section: content.section,
+      data: content.data,
+      updated_at: content.updatedAt.toISOString(),
+    },
+    { headers: CACHE_HEADERS }
+  )
 }
 
 export async function POST(request: NextRequest) {

@@ -35,4 +35,4 @@ COPY --from=builder /app/node_modules ./node_modules
 
 EXPOSE 7890
 
-CMD ["sh", "-c", "npx prisma db push --skip-generate && npx tsx prisma/seed.ts && node server.js"]
+CMD ["node", "server.js"]
