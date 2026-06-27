@@ -383,6 +383,21 @@ export async function deleteProduct(formData: FormData) {
   redirect("/admin/products?deleted=1")
 }
 
+export async function bulkDeleteProducts(formData: FormData) {
+  await requireAdmin()
+
+  const ids = formData.getAll("ids").map(String).filter(Boolean)
+  if (!ids.length) {
+    redirect("/admin/products?error=required")
+  }
+
+  await prisma.product.deleteMany({ where: { id: { in: ids } } })
+
+  revalidatePath("/admin/products")
+  revalidatePath("/products")
+  redirect("/admin/products?deleted=1")
+}
+
 export async function updateCategory(formData: FormData) {
   await requireAdmin()
 
@@ -491,6 +506,26 @@ export async function deleteCategory(formData: FormData) {
     data: { parentId: null },
   })
   await prisma.category.delete({ where: { id } })
+
+  revalidatePath("/admin/categories")
+  revalidatePath("/")
+  revalidateTag(CACHE_TAGS.categories)
+  redirect("/admin/categories?deleted=1")
+}
+
+export async function bulkDeleteCategories(formData: FormData) {
+  await requireAdmin()
+
+  const ids = formData.getAll("ids").map(String).filter(Boolean)
+  if (!ids.length) {
+    redirect("/admin/categories?error=required")
+  }
+
+  await prisma.category.updateMany({
+    where: { parentId: { in: ids } },
+    data: { parentId: null },
+  })
+  await prisma.category.deleteMany({ where: { id: { in: ids } } })
 
   revalidatePath("/admin/categories")
   revalidatePath("/")
