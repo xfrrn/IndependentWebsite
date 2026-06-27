@@ -44,7 +44,7 @@ docker compose restart db
 docker compose restart
 ```
 
-开发环境使用 `Dockerfile` + `docker-compose.yml`，端口 `7890`，数据库映射到 `5433`。
+开发环境使用 `Dockerfile` + `docker-compose.yml`，端口 `7890`，数据库映射到 `5434`。
 
 ### 生产环境
 
