@@ -14,25 +14,51 @@ import {
 
 export const dynamic = "force-dynamic"
 
+const PAGE_SIZE = 20
+
 type AdminProductsProps = {
-  searchParams?: Promise<{ error?: string; imported?: string }>
+  searchParams?: Promise<{
+    error?: string
+    imported?: string
+    page?: string
+    q?: string
+  }>
 }
 
 export default async function AdminProducts({ searchParams }: AdminProductsProps) {
   const query = await searchParams
   const error = query?.error
   const imported = query?.imported
+  const q = (query?.q || "").trim()
+  const page = pageNumber(query?.page)
   const bulkFormId = "bulk-products"
-  const products = await prisma.product.findMany({
-    include: { variants: true, categories: { include: { category: true } } },
-    orderBy: { createdAt: "desc" },
-  })
+  const search = { contains: q, mode: "insensitive" as const }
+  const where = q
+    ? {
+        OR: [
+          { title: search },
+          { handle: search },
+          { categories: { some: { category: { name: search } } } },
+        ],
+      }
+    : {}
+  const [products, totalProducts] = await Promise.all([
+    prisma.product.findMany({
+      where,
+      include: { variants: true, categories: { include: { category: true } } },
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+    prisma.product.count({ where }),
+  ])
+  const totalPages = Math.max(1, Math.ceil(totalProducts / PAGE_SIZE))
 
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-neutral-800">商品</h1>
-        <span className="text-sm text-neutral-500">共 {products.length} 个商品</span>
+        <span className="text-sm text-neutral-500">共 {totalProducts} 个商品</span>
       </div>
 
       <div className="mb-6 grid gap-4 lg:grid-cols-2">
@@ -112,7 +138,26 @@ export default async function AdminProducts({ searchParams }: AdminProductsProps
       </div>
 
       <form id={bulkFormId} action={bulkDeleteProducts} />
-      <div className="mb-3 flex justify-end">
+      <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <form className="flex flex-col gap-2 md:flex-row md:items-center">
+          <input
+            name="q"
+            defaultValue={q}
+            placeholder="搜索商品、标识、分类"
+            className="h-10 rounded-md border border-neutral-300 px-3 text-sm text-neutral-900 md:w-80"
+          />
+          <button className="h-10 rounded-md border border-neutral-200 px-4 text-sm font-medium text-neutral-700 hover:bg-neutral-50">
+            搜索
+          </button>
+          {q ? (
+            <Link
+              href="/admin/products"
+              className="px-1 text-sm font-medium text-neutral-500 hover:text-neutral-800"
+            >
+              清除
+            </Link>
+          ) : null}
+        </form>
         <BulkDeleteButton
           form={bulkFormId}
           label="批量删除"
@@ -182,6 +227,75 @@ export default async function AdminProducts({ searchParams }: AdminProductsProps
           </tbody>
         </table>
       </div>
+
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        href={(nextPage) => productPageHref(nextPage, query)}
+      />
+    </div>
+  )
+}
+
+function pageNumber(value?: string) {
+  const page = Number.parseInt(value || "1", 10)
+
+  return Number.isFinite(page) && page > 0 ? page : 1
+}
+
+function productPageHref(
+  page: number,
+  query?: { error?: string; imported?: string; q?: string }
+) {
+  const params = new URLSearchParams()
+
+  if (query?.error) params.set("error", query.error)
+  if (query?.imported) params.set("imported", query.imported)
+  if (query?.q) params.set("q", query.q)
+  if (page > 1) params.set("page", String(page))
+
+  const queryString = params.toString()
+  return queryString ? `/admin/products?${queryString}` : "/admin/products"
+}
+
+function Pagination({
+  page,
+  totalPages,
+  href,
+}: {
+  page: number
+  totalPages: number
+  href: (page: number) => string
+}) {
+  if (totalPages <= 1) {
+    return null
+  }
+
+  return (
+    <div className="mt-4 flex items-center justify-end gap-3 text-sm">
+      <Link
+        href={href(Math.max(1, page - 1))}
+        className={`rounded-md border border-neutral-200 px-3 py-2 ${
+          page <= 1
+            ? "pointer-events-none text-neutral-300"
+            : "text-neutral-700 hover:bg-neutral-50"
+        }`}
+      >
+        上一页
+      </Link>
+      <span className="text-neutral-500">
+        第 {Math.min(page, totalPages)} / {totalPages} 页
+      </span>
+      <Link
+        href={href(Math.min(totalPages, page + 1))}
+        className={`rounded-md border border-neutral-200 px-3 py-2 ${
+          page >= totalPages
+            ? "pointer-events-none text-neutral-300"
+            : "text-neutral-700 hover:bg-neutral-50"
+        }`}
+      >
+        下一页
+      </Link>
     </div>
   )
 }

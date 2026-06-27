@@ -1,7 +1,6 @@
 ﻿import { listCollections } from "@lib/data/collections"
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
-import { HttpTypes } from "@medusajs/types"
 import ProductPreview from "@modules/products/components/product-preview"
 
 const SECTION_COPY = {
@@ -72,7 +71,7 @@ export default async function FeaturedCollection({
                   </span>
                 ) : null}
                 <div className="rounded-3xl border border-black/5 bg-white p-4 shadow-[0_18px_40px_-30px_rgba(0,0,0,0.3)]">
-                  <ProductPreview product={product as HttpTypes.StoreProduct} region={region} isFeatured />
+                  <ProductPreview product={product} region={region} isFeatured />
                 </div>
               </li>
             )

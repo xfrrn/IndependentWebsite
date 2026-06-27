@@ -20,6 +20,74 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Docker
+
+### 开发环境
+
+```bash
+# 启动（首次或需要重新构建镜像时）
+docker compose up -d --build
+
+# 启动（镜像已存在时）
+docker compose up -d
+
+# 查看日志
+docker compose logs -f app
+
+# 重启应用
+docker compose restart app
+
+# 重启数据库
+docker compose restart db
+
+# 重启所有服务
+docker compose restart
+```
+
+开发环境使用 `Dockerfile` + `docker-compose.yml`，端口 `7890`，数据库映射到 `5433`。
+
+### 生产环境
+
+```bash
+# 启动（首次或需要重新构建镜像时）
+docker compose -f docker-compose.prod.yml up -d --build
+
+# 启动（镜像已存在时）
+docker compose -f docker-compose.prod.yml up -d
+
+# 查看日志
+docker compose -f docker-compose.prod.yml logs -f app
+
+# 重启应用
+docker compose -f docker-compose.prod.yml restart app
+
+# 重启所有服务
+docker compose -f docker-compose.prod.yml restart
+```
+
+生产环境使用 `Dockerfile.prod` + `docker-compose.prod.yml`，多阶段构建，端口 `7890`，数据库不对外暴露。
+
+### 常用操作
+
+```bash
+# 停止所有容器
+docker compose down
+
+# 停止并删除数据卷（⚠️ 会清除数据库和上传文件）
+docker compose down -v
+
+# 重新构建并启动（代码或依赖变更后）
+docker compose up -d --build
+
+# 进入应用容器
+docker compose exec app sh
+
+# 查看容器状态
+docker compose ps
+```
+
+> 生产环境命令需加 `-f docker-compose.prod.yml`，下同。
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

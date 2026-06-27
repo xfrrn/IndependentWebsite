@@ -2,7 +2,7 @@ import Link from "next/link"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 
-import { HttpTypes } from "@medusajs/types"
+import { StoreProduct } from "@/lib/types"
 import { PRODUCTS_PAGE_CONTENT } from "@lib/data/homepage"
 import { getLocale } from "@lib/data/locale-actions"
 import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   description: "Browse age-clear, parent-trusted toys.",
 }
 
-function matchesQuery(product: HttpTypes.StoreProduct, q: string, locale?: string | null) {
+function matchesQuery(product: StoreProduct, q: string, locale?: string | null) {
   const needle = q.toLowerCase()
   const title = getLocalizedProductTitle(product, locale)
   const description = getLocalizedProductDescription(product, locale)
@@ -106,7 +106,7 @@ export default async function ProductsPage(props: Props) {
                 key={product.id}
                 className="rounded-3xl border border-[color:var(--border-soft)] bg-[var(--bg-card)] p-4 shadow-[var(--shadow-soft)]"
               >
-                <ProductPreview product={product} region={region} />
+                <ProductPreview product={product} region={region} currentLocale={locale} />
               </li>
             ))}
           </ul>

@@ -102,7 +102,7 @@ export default async function Home(props: {
           countryCode={params.countryCode}
           currentLocale={currentLocale}
         />
-        <AgeShopGrid currentLocale={currentLocale} />
+        <AgeShopGrid currentLocale={currentLocale} categories={categories} />
       </main>
     </div>
   )

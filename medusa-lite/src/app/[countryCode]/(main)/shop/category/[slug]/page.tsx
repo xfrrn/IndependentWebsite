@@ -98,6 +98,7 @@ export default async function CategoryLandingPage(props: Props) {
       region={region}
       homeHref="/"
       homeLabel={locale?.startsWith("zh") ? "首页" : locale?.startsWith("ar") ? "الرئيسية" : "Home"}
+      currentLocale={locale}
       actions={
         <ShopSortBar
           countryCode={params.countryCode}

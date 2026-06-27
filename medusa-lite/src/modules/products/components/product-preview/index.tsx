@@ -1,23 +1,21 @@
 import { Text } from "@medusajs/ui"
 import { getProductPrice } from "@lib/util/get-product-price"
-import { getLocale } from "@lib/data/locale-actions"
 import { getLocalizedProductTitle } from "@lib/util/localized-product-title"
-import { HttpTypes } from "@medusajs/types"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { StoreProduct, StoreRegion } from "@/lib/types"
+import Link from "next/link"
 import Thumbnail from "../thumbnail"
 import PreviewPrice from "./price"
 
-export default async function ProductPreview({
+export default function ProductPreview({
   product,
   isFeatured,
-  region,
   showTitle = true,
   showPrice = true,
   currentLocale,
 }: {
-  product: HttpTypes.StoreProduct
+  product: StoreProduct
   isFeatured?: boolean
-  region: HttpTypes.StoreRegion
+  region: StoreRegion
   showTitle?: boolean
   showPrice?: boolean
   currentLocale?: string | null
@@ -38,12 +36,13 @@ export default async function ProductPreview({
     : { cheapestPrice: null }
   const productTitle = getLocalizedProductTitle(
     product,
-    currentLocale ?? (await getLocale())
+    currentLocale
   )
 
   return (
-    <LocalizedClientLink
+    <Link
       href={`/products/${product.handle}`}
+      prefetch={false}
       className="group block ui-link ui-focus"
     >
       <div data-testid="product-wrapper" className="relative">
@@ -72,6 +71,6 @@ export default async function ProductPreview({
           </div>
         ) : null}
       </div>
-    </LocalizedClientLink>
+    </Link>
   )
 }

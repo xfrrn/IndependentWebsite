@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 
-import { HttpTypes } from "@medusajs/types"
+import { StoreProduct } from "@/lib/types"
 import { PRODUCT_UI_CONTENT } from "@lib/data/homepage"
 import { getLocale } from "@lib/data/locale-actions"
 import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
@@ -20,7 +20,7 @@ export default async function ProductCard({
   product,
   priceLabel,
 }: {
-  product: HttpTypes.StoreProduct
+  product: StoreProduct
   countryCode: string
   priceLabel: string
 }) {
@@ -40,6 +40,7 @@ export default async function ProductCard({
   return (
     <Link
       href={`/products/${product.handle}`}
+      prefetch={false}
       className="group ui-card ui-card-hover flex h-full flex-col overflow-hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--accent)]"
     >
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-[var(--bg-panel)]">

@@ -26,6 +26,7 @@ model Product {
   categories  ProductCategoryOnProduct[]
   collections ProductCollectionOnProduct[]
 
+  @@index([status, createdAt])
   @@map("products")
 }
 
@@ -72,6 +73,7 @@ model ProductCategoryOnProduct {
   category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   @@id([productId, categoryId])
+  @@index([categoryId])
   @@map("product_categories")
 }
 
@@ -95,6 +97,7 @@ model ProductCollectionOnProduct {
   collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
 
   @@id([productId, collectionId])
+  @@index([collectionId])
   @@map("product_collections")
 }
 

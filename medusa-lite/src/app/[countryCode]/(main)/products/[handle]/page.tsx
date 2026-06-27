@@ -4,7 +4,7 @@ import { Metadata } from "next"
 
 import { PRODUCT_UI_CONTENT } from "@lib/data/homepage"
 import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
-import { listProducts } from "@lib/data/products"
+import { getProductByHandle } from "@lib/data/products"
 import { getLocale } from "@lib/data/locale-actions"
 import { getRegion } from "@lib/data/regions"
 import {
@@ -40,21 +40,13 @@ function getPageLabels(locale?: string | null) {
   }
 }
 
-async function fetchProduct(handle: string, countryCode: string) {
-  const { response } = await listProducts({
-    countryCode,
-    queryParams: {
-      handle,
-      fields: "*variants.calculated_price,+metadata,+tags,*images",
-    },
-  })
-
-  return response.products[0]
+async function fetchProduct(handle: string) {
+  return getProductByHandle(handle)
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
-  const product = await fetchProduct(params.handle, params.countryCode)
+  const product = await fetchProduct(params.handle)
 
   if (!product) {
     return { title: "Product not found" }
@@ -92,7 +84,7 @@ export default async function ProductPage(props: Props) {
     return null
   }
 
-  const product = await fetchProduct(params.handle, params.countryCode)
+  const product = await fetchProduct(params.handle)
 
   if (!product) {
     return (

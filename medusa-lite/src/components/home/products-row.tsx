@@ -1,4 +1,3 @@
-import { HttpTypes } from "@medusajs/types"
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
 import ProductPreview from "@modules/products/components/product-preview"
@@ -71,7 +70,7 @@ export default async function ProductsRow({
             <li key={product.id} className="group relative">
               <div className="ui-card ui-card-hover bg-[var(--bg-card)] p-4 transition duration-300 ease-out group-hover:border-[color:var(--accent)]/20">
                 <ProductPreview
-                  product={product as HttpTypes.StoreProduct}
+                  product={product}
                   region={region}
                   isFeatured
                   showTitle={showProductNames}

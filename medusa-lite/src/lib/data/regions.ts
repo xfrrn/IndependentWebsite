@@ -1,17 +1,29 @@
 "use server"
 
+import { unstable_cache } from "next/cache"
 import { StoreRegion } from "@/lib/types"
 import { prisma } from "@/lib/db"
+import { CACHE_REVALIDATE_SECONDS, CACHE_TAGS } from "./cache"
 
-export const listRegions = async () => {
+const listRegionsCached = unstable_cache(async () => {
   const regions = await prisma.region.findMany()
   return regions.map(formatRegion)
-}
+}, ["list-regions"], {
+  revalidate: CACHE_REVALIDATE_SECONDS,
+  tags: [CACHE_TAGS.regions],
+})
 
-export const retrieveRegion = async (id: string) => {
+export const listRegions = async () => listRegionsCached()
+
+const retrieveRegionCached = unstable_cache(async (id: string) => {
   const region = await prisma.region.findUnique({ where: { id } })
   return region ? formatRegion(region) : null
-}
+}, ["retrieve-region"], {
+  revalidate: CACHE_REVALIDATE_SECONDS,
+  tags: [CACHE_TAGS.regions],
+})
+
+export const retrieveRegion = async (id: string) => retrieveRegionCached(id)
 
 const regionMap = new Map<string, StoreRegion>()
 

@@ -269,6 +269,7 @@ export default function PrimaryNav({
               >
                 <Link
                   href={href}
+                  prefetch={false}
                   aria-expanded={
                     item.groups ? openItem === item.label : undefined
                   }
@@ -340,6 +341,7 @@ export default function PrimaryNav({
                               <Link
                                 key={link.label}
                                 href={link.href}
+                                prefetch={false}
                                 className="flex items-center gap-2 rounded-xl bg-[var(--bg-surface)] p-2 transition duration-200 ease-out hover:bg-[var(--accent-soft)] hover:text-[color:var(--accent-strong)]"
                               >
                                 {link.image ? (
@@ -362,6 +364,7 @@ export default function PrimaryNav({
                   ) : (
                     <Link
                       href={href}
+                      prefetch={false}
                       className="mt-2 inline-flex text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--text-body)] ui-link"
                     >
                       {content.mobileGoToPrefix} {item.label}

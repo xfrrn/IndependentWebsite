@@ -1,7 +1,7 @@
 ﻿import Link from "next/link"
 import { ReactNode } from "react"
 
-import { HttpTypes } from "@medusajs/types"
+import { StoreProduct, StoreRegion } from "@/lib/types"
 import ProductPreview from "@modules/products/components/product-preview"
 
 export default function ShopLandingPage({
@@ -15,17 +15,19 @@ export default function ShopLandingPage({
   footer,
   homeHref,
   homeLabel = "Home",
+  currentLocale,
 }: {
   eyebrow: string
   title: string
   description: string
   emptyMessage: string
-  products: HttpTypes.StoreProduct[]
-  region: HttpTypes.StoreRegion
+  products: StoreProduct[]
+  region: StoreRegion
   actions?: ReactNode
   footer?: ReactNode
   homeHref: string
   homeLabel?: string
+  currentLocale?: string | null
 }) {
   return (
     <div className="min-h-screen bg-[var(--bg-canvas)]">
@@ -61,7 +63,7 @@ export default function ShopLandingPage({
                   key={product.id}
                   className="rounded-3xl border border-[color:var(--border-soft)] bg-[var(--bg-card)] p-4 shadow-[0_18px_40px_-30px_rgba(92,72,45,0.18)]"
                 >
-                  <ProductPreview product={product} region={region} />
+                  <ProductPreview product={product} region={region} currentLocale={currentLocale} />
                 </li>
               ))}
             </ul>

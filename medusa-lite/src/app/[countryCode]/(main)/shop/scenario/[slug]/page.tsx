@@ -6,6 +6,7 @@ import ShopSortBar from "@components/shop/shop-sort-bar"
 import { PRODUCT_LIST_FIELDS } from "@lib/data/product-fields"
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
+import { getLocale } from "@lib/data/locale-actions"
 import { matchesScenarioKey } from "@lib/util/product-meta"
 import { sortProducts } from "@lib/util/shop-sort"
 
@@ -60,6 +61,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 export default async function ScenarioLandingPage(props: Props) {
   const params = await props.params
   const searchParams = await props.searchParams
+  const locale = await getLocale()
   const page = SCENARIO_PAGES[params.slug]
 
   if (!page) {
@@ -96,6 +98,7 @@ export default async function ScenarioLandingPage(props: Props) {
       products={sorted}
       region={region}
       homeHref="/"
+      currentLocale={locale}
       actions={
         <ShopSortBar
           countryCode={params.countryCode}

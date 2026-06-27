@@ -87,6 +87,7 @@ export default async function AgeLandingPage(props: Props) {
       region={region}
       homeHref="/"
       homeLabel={locale?.startsWith("zh") ? "首页" : locale?.startsWith("ar") ? "الرئيسية" : "Home"}
+      currentLocale={locale}
       actions={
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2">
