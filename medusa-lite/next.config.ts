@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: "standalone",
+  allowedDevOrigins: ["www.siraacc.cn", "siraacc.cn"],
   experimental: {
     serverActions: {
       bodySizeLimit: "10mb",
@@ -13,6 +14,7 @@ const nextConfig: NextConfig = {
   },
   images: {
     unoptimized: true,
+    qualities: [50, 75],
     minimumCacheTTL: 31536000,
     remotePatterns: [
       {
