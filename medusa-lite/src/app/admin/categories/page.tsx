@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db"
 import Link from "next/link"
+import SubmitButton from "@components/forms/submit-button"
 import {
   bulkDeleteCategories,
   createCategory,
@@ -90,9 +91,12 @@ export default async function AdminCategories({ searchParams }: AdminCategoriesP
               className="h-10 w-full rounded-md border border-neutral-300 px-3 text-sm text-neutral-900"
             />
           </label>
-          <button className="h-10 rounded-md bg-neutral-900 px-4 text-sm font-medium text-white hover:bg-neutral-800">
+          <SubmitButton
+            pendingLabel="新增中..."
+            className="h-10 rounded-md bg-neutral-900 px-4 text-sm font-medium text-white hover:bg-neutral-800"
+          >
             新增分类
-          </button>
+          </SubmitButton>
         </div>
       </form>
 
@@ -105,9 +109,12 @@ export default async function AdminCategories({ searchParams }: AdminCategoriesP
             placeholder="搜索分类、标识、父级"
             className="h-10 rounded-md border border-neutral-300 px-3 text-sm text-neutral-900 md:w-80"
           />
-          <button className="h-10 rounded-md border border-neutral-200 px-4 text-sm font-medium text-neutral-700 hover:bg-neutral-50">
+          <SubmitButton
+            pendingLabel="搜索中..."
+            className="h-10 rounded-md border border-neutral-200 px-4 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
+          >
             搜索
-          </button>
+          </SubmitButton>
           {q ? (
             <Link
               href="/admin/categories"

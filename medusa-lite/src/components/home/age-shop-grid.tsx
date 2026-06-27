@@ -84,7 +84,6 @@ export default async function AgeShopGrid({
             <Link
               key={card.title}
               href={card.href}
-              prefetch={false}
               className="group relative flex flex-col items-center text-center"
             >
               <div className="pointer-events-none absolute top-6 h-28 w-28 rounded-full bg-[radial-gradient(circle,rgba(212,175,55,0.38)_0%,rgba(212,175,55,0)_72%)] opacity-0 blur-2xl transition duration-300 ease-out group-hover:opacity-100" />

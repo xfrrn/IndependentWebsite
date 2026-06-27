@@ -1,5 +1,6 @@
 import { loginAdmin } from "../auth-actions"
 import { getAdminEmail } from "@/lib/admin-auth"
+import SubmitButton from "@components/forms/submit-button"
 
 type SearchParams = Promise<{
   error?: string
@@ -65,12 +66,13 @@ export default async function AdminLogin({
             required
           />
         </label>
-        <button
+        <SubmitButton
           type="submit"
+          pendingLabel="登录中..."
           className="h-11 w-full rounded-md bg-neutral-900 text-sm font-medium text-white hover:bg-neutral-800"
         >
           登录
-        </button>
+        </SubmitButton>
       </form>
     </main>
   )

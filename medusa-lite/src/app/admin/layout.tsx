@@ -3,6 +3,7 @@ import { cookies } from "next/headers"
 
 import { logoutAdmin } from "./auth-actions"
 import { ADMIN_AUTH_COOKIE, isAdminSessionToken } from "@/lib/admin-auth"
+import SubmitButton from "@components/forms/submit-button"
 
 const NAV_ITEMS = [
   { href: "/admin", label: "概览", icon: "D" },
@@ -42,9 +43,12 @@ export default async function AdminLayout({
           ))}
         </nav>
         <form action={logoutAdmin} className="mt-6">
-          <button className="w-full rounded-lg px-3 py-2 text-left text-sm text-neutral-600 hover:bg-neutral-100">
+          <SubmitButton
+            pendingLabel="退出中..."
+            className="w-full rounded-lg px-3 py-2 text-left text-sm text-neutral-600 hover:bg-neutral-100"
+          >
             退出登录
-          </button>
+          </SubmitButton>
         </form>
       </aside>
       <main className="flex-1 p-8">{children}</main>

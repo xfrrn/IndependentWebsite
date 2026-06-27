@@ -49,7 +49,6 @@ export default function MegaMenu({
                         <li key={link.label}>
                           <Link
                             href={link.href}
-                            prefetch={false}
                             className="group/link flex items-center gap-3 rounded-2xl p-2 text-sm text-[color:var(--text-body)] transition duration-200 ease-out hover:bg-[var(--accent-soft)] hover:text-[color:var(--accent-strong)] ui-focus"
                           >
                             {link.image ? (

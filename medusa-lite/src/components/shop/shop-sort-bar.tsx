@@ -47,7 +47,6 @@ export default function ShopSortBar({
                 pathname,
                 query: buildQuery(option.value),
               }}
-              prefetch={false}
               className={`rounded-full border px-3 py-1 text-xs transition ${
                 current === option.value
                   ? "border-[color:var(--accent)] bg-[color:var(--accent)] text-white"

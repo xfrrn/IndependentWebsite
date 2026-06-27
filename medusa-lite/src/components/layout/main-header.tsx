@@ -1,6 +1,6 @@
 "use client"
 
-import { FormEvent, useEffect, useState } from "react"
+import { FormEvent, useEffect, useState, useTransition } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -42,6 +42,7 @@ export default function MainHeader({
   const router = useRouter()
   const [query, setQuery] = useState("")
   const [contactModal, setContactModal] = useState<ContactModal | null>(null)
+  const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
     if (!contactModal) return
@@ -65,7 +66,9 @@ export default function MainHeader({
     event.preventDefault()
     const trimmed = query.trim()
     if (!trimmed) return
-    router.push(`/products?q=${encodeURIComponent(trimmed)}`)
+    startTransition(() => {
+      router.push(`/products?q=${encodeURIComponent(trimmed)}`)
+    })
   }
 
   return (
@@ -91,9 +94,11 @@ export default function MainHeader({
           className="flex flex-1 items-center gap-2 rounded-full border border-[color:var(--border-soft)] bg-[rgba(20,18,15,0.88)] px-4 py-2 shadow-[0_18px_38px_-28px_rgba(0,0,0,0.9)] transition duration-300 ease-out focus-within:border-[color:var(--accent)] focus-within:shadow-[0_18px_42px_-28px_rgba(212,175,55,0.34)]"
         >
           <button
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--accent)] text-white transition duration-300 ease-out hover:bg-[color:var(--accent-strong)]"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--accent)] text-white transition duration-300 ease-out hover:bg-[color:var(--accent-strong)] disabled:cursor-wait disabled:opacity-60"
             type="submit"
             aria-label={content.searchAriaLabel}
+            aria-busy={isPending}
+            disabled={isPending}
           >
             <svg
               viewBox="0 0 24 24"
@@ -107,11 +112,12 @@ export default function MainHeader({
             </svg>
           </button>
           <input
-            className="w-full bg-transparent text-sm text-[color:var(--text-strong)] placeholder:text-[color:var(--text-muted)] focus:outline-none"
+            className="w-full bg-transparent text-sm text-[color:var(--text-strong)] placeholder:text-[color:var(--text-muted)] disabled:cursor-wait disabled:opacity-70 focus:outline-none"
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder={content.searchPlaceholder}
+            disabled={isPending}
           />
         </form>
 

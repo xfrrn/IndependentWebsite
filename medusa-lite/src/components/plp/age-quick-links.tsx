@@ -35,7 +35,6 @@ export default function AgeQuickLinks({
             pathname: "/products",
             query: buildQuery(searchParams, age),
           }}
-          prefetch={false}
           className={`rounded-2xl border px-4 py-3 text-center text-sm transition ${
             searchParams.age === age
               ? "border-emerald-200 bg-emerald-50 text-emerald-700"

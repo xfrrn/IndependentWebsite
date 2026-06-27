@@ -42,7 +42,6 @@ export default function SortBar({
                 pathname: "/products",
                 query: buildQuery(searchParams, option.value),
               }}
-              prefetch={false}
               className={`rounded-full border px-3 py-1 text-xs transition ${
                 (searchParams.sort ?? "recommended") === option.value
                   ? "border-[color:var(--accent)] bg-[color:var(--accent)] text-white"

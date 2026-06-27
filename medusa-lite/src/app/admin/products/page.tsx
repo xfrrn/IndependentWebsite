@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db"
 import Link from "next/link"
+import SubmitButton from "@components/forms/submit-button"
 import {
   bulkDeleteProducts,
   createProduct,
@@ -98,9 +99,12 @@ export default async function AdminProducts({ searchParams }: AdminProductsProps
               className="h-10 w-full rounded-md border border-neutral-300 px-3 text-sm text-neutral-900"
             />
           </label>
-          <button className="h-10 rounded-md bg-neutral-900 px-4 text-sm font-medium text-white hover:bg-neutral-800">
+          <SubmitButton
+            pendingLabel="新增中..."
+            className="h-10 rounded-md bg-neutral-900 px-4 text-sm font-medium text-white hover:bg-neutral-800"
+          >
             新增商品
-          </button>
+          </SubmitButton>
         </form>
 
         <form
@@ -131,9 +135,12 @@ export default async function AdminProducts({ searchParams }: AdminProductsProps
           <p className="text-sm text-neutral-500">
             表头：图片、名称、分类；图片填 URL。
           </p>
-          <button className="h-10 rounded-md bg-emerald-700 px-4 text-sm font-medium text-white hover:bg-emerald-800">
+          <SubmitButton
+            pendingLabel="导入中..."
+            className="h-10 rounded-md bg-emerald-700 px-4 text-sm font-medium text-white hover:bg-emerald-800"
+          >
             导入 Excel
-          </button>
+          </SubmitButton>
         </form>
       </div>
 
@@ -146,9 +153,12 @@ export default async function AdminProducts({ searchParams }: AdminProductsProps
             placeholder="搜索商品、标识、分类"
             className="h-10 rounded-md border border-neutral-300 px-3 text-sm text-neutral-900 md:w-80"
           />
-          <button className="h-10 rounded-md border border-neutral-200 px-4 text-sm font-medium text-neutral-700 hover:bg-neutral-50">
+          <SubmitButton
+            pendingLabel="搜索中..."
+            className="h-10 rounded-md border border-neutral-200 px-4 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
+          >
             搜索
-          </button>
+          </SubmitButton>
           {q ? (
             <Link
               href="/admin/products"

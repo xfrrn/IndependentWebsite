@@ -2,6 +2,7 @@
 
 import { clx } from "@medusajs/ui"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useTransition } from "react"
 
 export function Pagination({
   page,
@@ -15,6 +16,7 @@ export function Pagination({
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const [isPending, startTransition] = useTransition()
 
   // Helper function to generate an array of numbers within a range
   const arrayRange = (start: number, stop: number) =>
@@ -24,7 +26,9 @@ export function Pagination({
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams)
     params.set("page", newPage.toString())
-    router.push(`${pathname}?${params.toString()}`)
+    startTransition(() => {
+      router.push(`${pathname}?${params.toString()}`)
+    })
   }
 
   // Function to render a page button
@@ -35,10 +39,11 @@ export function Pagination({
   ) => (
     <button
       key={p}
-      className={clx("txt-xlarge-plus text-ui-fg-muted", {
+      className={clx("txt-xlarge-plus text-ui-fg-muted disabled:cursor-wait disabled:opacity-50", {
         "text-ui-fg-base hover:text-ui-fg-subtle": isCurrent,
       })}
-      disabled={isCurrent}
+      disabled={isCurrent || isPending}
+      aria-busy={isPending}
       onClick={() => handlePageChange(p)}
     >
       {label}

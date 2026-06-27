@@ -16,6 +16,7 @@ import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
 import { getSiteContentSection } from "@lib/data/site-content"
 import { normalizeLocale, SUPPORTED_LOCALES } from "@lib/data/supported-locales"
 import { isContentManagerAuthorized } from "@lib/util/content-manager-auth"
+import SubmitButton from "@components/forms/submit-button"
 
 import {
   saveAgeHighlights,
@@ -155,12 +156,13 @@ function SectionCard({
 
 function SaveButton({ label }: { label: string }) {
   return (
-    <button
+    <SubmitButton
       type="submit"
+      pendingLabel="保存中..."
       className="inline-flex items-center justify-center rounded-full bg-[color:var(--accent)] px-5 py-3 text-sm font-semibold text-[color:var(--accent-strong)] transition duration-300 ease-out hover:-translate-y-0.5 hover:bg-[#dfead8]"
     >
       {label}
-    </button>
+    </SubmitButton>
   )
 }
 

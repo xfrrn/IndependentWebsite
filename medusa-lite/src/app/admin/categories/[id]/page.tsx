@@ -2,6 +2,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { prisma } from "@/lib/db"
+import SubmitButton from "@components/forms/submit-button"
 import { deleteCategory, updateCategory } from "../../edit-actions"
 
 export const dynamic = "force-dynamic"
@@ -133,9 +134,12 @@ export default async function AdminCategoryDetail({
             />
           </Section>
 
-          <button className="rounded-md bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-neutral-800">
+          <SubmitButton
+            pendingLabel="保存中..."
+            className="rounded-md bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-neutral-800"
+          >
             保存分类
-          </button>
+          </SubmitButton>
         </form>
 
         <div className="space-y-6">
@@ -181,9 +185,12 @@ export default async function AdminCategoryDetail({
 
       <form action={deleteCategory} className="mt-8 border-t border-rose-100 pt-6">
         <input type="hidden" name="id" value={category.id} />
-        <button className="rounded-md border border-rose-200 px-5 py-2.5 text-sm font-medium text-rose-700 hover:bg-rose-50">
+        <SubmitButton
+          pendingLabel="删除中..."
+          className="rounded-md border border-rose-200 px-5 py-2.5 text-sm font-medium text-rose-700 hover:bg-rose-50"
+        >
           删除分类
-        </button>
+        </SubmitButton>
       </form>
     </div>
   )

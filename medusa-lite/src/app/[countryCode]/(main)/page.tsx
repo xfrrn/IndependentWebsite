@@ -63,7 +63,7 @@ export default async function Home(props: {
   ])
   // ponytail: keep the homepage cacheable; use URL-based locale later if SSR language matters.
   const currentLocale = normalizeLocale()
-  const [headerContent, navContent, contactImages] = await Promise.all([
+  const [headerContent, navContent, contactImages, categories] = await Promise.all([
     getLocalizedHomeContentSection(
       "header_content",
       HEADER_CONTENT,
@@ -74,8 +74,8 @@ export default async function Home(props: {
       "contact_images",
       CONTACT_IMAGES_CONTENT
     ),
+    listCategories(),
   ])
-  const categories = await listCategories()
   const headerContentWithSharedImages = applySharedContactImages(
     headerContent,
     contactImages
