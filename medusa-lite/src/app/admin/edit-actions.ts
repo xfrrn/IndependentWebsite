@@ -3,10 +3,13 @@
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { revalidatePath, revalidateTag } from "next/cache"
+import * as XLSX from "xlsx"
 
 import { prisma } from "@/lib/db"
 import { ADMIN_AUTH_COOKIE, isAdminSessionToken } from "@/lib/admin-auth"
 import { CACHE_TAGS } from "@/lib/data/cache"
+
+type CatalogDb = Pick<typeof prisma, "category" | "product">
 
 async function requireAdmin() {
   const cookieStore = await cookies()
@@ -44,6 +47,91 @@ function readLines(value: string) {
 
 function saveErrorCode(error: unknown) {
   return (error as { code?: string }).code === "P2002" ? "duplicate" : "save"
+}
+
+function slugify(value: string) {
+  const slug = value
+    .trim()
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+
+  return (
+    slug ||
+    `item-${Array.from(value)
+      .map((char) => char.codePointAt(0)?.toString(36) || "")
+      .join("")
+      .slice(0, 24)}`
+  )
+}
+
+async function uniqueCategoryHandle(db: CatalogDb, base: string) {
+  let handle = base
+  let index = 2
+
+  while (await db.category.findUnique({ where: { handle } })) {
+    handle = `${base}-${index++}`
+  }
+
+  return handle
+}
+
+async function productHandleForTitle(db: CatalogDb, title: string) {
+  const base = slugify(title)
+  let handle = base
+  let index = 2
+
+  while (true) {
+    const existing = await db.product.findUnique({
+      where: { handle },
+      select: { title: true },
+    })
+
+    if (!existing || existing.title === title) {
+      return handle
+    }
+
+    handle = `${base}-${index++}`
+  }
+}
+
+function hasColumn(row: Record<string, unknown>, names: string[]) {
+  const normalizedNames = names.map((name) =>
+    name.replace(/\s+/g, "").toLowerCase()
+  )
+
+  return Object.keys(row).some((key) =>
+    normalizedNames.includes(key.replace(/\s+/g, "").toLowerCase())
+  )
+}
+
+function rowValue(row: Record<string, unknown>, names: string[]) {
+  const normalizedNames = names.map((name) =>
+    name.replace(/\s+/g, "").toLowerCase()
+  )
+
+  for (const [key, value] of Object.entries(row)) {
+    const normalizedKey = key.replace(/\s+/g, "").toLowerCase()
+
+    if (normalizedNames.includes(normalizedKey)) {
+      return String(value || "").trim()
+    }
+  }
+
+  return ""
+}
+
+function splitCategories(value: string) {
+  return Array.from(
+    new Set(
+      value
+        .split(/[,，;；\n]/)
+        .map((item) => item.trim())
+        .filter(Boolean)
+    )
+  )
 }
 
 export async function updateProduct(formData: FormData) {
@@ -163,6 +251,121 @@ export async function createProduct(formData: FormData) {
   revalidatePath("/admin/products")
   revalidatePath("/products")
   redirect(`/admin/products/${product.id}?saved=1`)
+}
+
+export async function importProducts(formData: FormData) {
+  await requireAdmin()
+
+  const file = formData.get("file")
+
+  if (!(file instanceof File) || file.size === 0) {
+    redirect("/admin/products?error=import")
+  }
+
+  let rows: Record<string, unknown>[]
+
+  try {
+    const workbook = XLSX.read(Buffer.from(await file.arrayBuffer()), {
+      type: "buffer",
+    })
+    const sheet = workbook.Sheets[workbook.SheetNames[0]]
+    rows = sheet ? XLSX.utils.sheet_to_json(sheet, { defval: "" }) : []
+  } catch {
+    redirect("/admin/products?error=import")
+  }
+
+  if (
+    rows.length > 0 &&
+    (!hasColumn(rows[0], ["图片", "图片url", "image", "image url"]) ||
+      !hasColumn(rows[0], ["名称", "商品名称", "name", "title"]) ||
+      !hasColumn(rows[0], ["分类", "category", "categories"]))
+  ) {
+    redirect("/admin/products?error=import")
+  }
+
+  let imported = 0
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      const lastCategory = await tx.category.findFirst({
+        orderBy: { rank: "desc" },
+        select: { rank: true },
+      })
+      let nextRank = (lastCategory?.rank ?? 0) + 1
+
+      for (const row of rows) {
+        const imageUrl = rowValue(row, ["图片", "图片url", "image", "image url"])
+        const title = rowValue(row, ["名称", "商品名称", "name", "title"])
+        const categoryNames = splitCategories(
+          rowValue(row, ["分类", "category", "categories"])
+        )
+
+        if (!title) {
+          continue
+        }
+
+        const categories = []
+
+        for (const name of categoryNames) {
+          const existing = await tx.category.findFirst({ where: { name } })
+
+          categories.push(
+            existing ||
+              (await tx.category.create({
+                data: {
+                  name,
+                  handle: await uniqueCategoryHandle(tx, slugify(name)),
+                  metadata: {},
+                  isActive: true,
+                  rank: nextRank++,
+                },
+              }))
+          )
+        }
+
+        const handle = await productHandleForTitle(tx, title)
+        const images = imageUrl ? [{ url: imageUrl }] : []
+
+        await tx.product.upsert({
+          where: { handle },
+          create: {
+            title,
+            handle,
+            thumbnail: imageUrl || null,
+            images,
+            status: "published",
+            tags: [],
+            metadata: {},
+            categories: {
+              create: categories.map((category) => ({
+                categoryId: category.id,
+              })),
+            },
+          },
+          update: {
+            title,
+            thumbnail: imageUrl || null,
+            images,
+            categories: {
+              deleteMany: {},
+              create: categories.map((category) => ({
+                categoryId: category.id,
+              })),
+            },
+          },
+        })
+        imported++
+      }
+    })
+  } catch {
+    redirect("/admin/products?error=import")
+  }
+
+  revalidatePath("/admin/products")
+  revalidatePath("/products")
+  revalidatePath("/")
+  revalidateTag(CACHE_TAGS.categories, "max")
+  redirect(`/admin/products?imported=${imported}`)
 }
 
 export async function deleteProduct(formData: FormData) {

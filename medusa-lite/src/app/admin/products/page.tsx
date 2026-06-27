@@ -1,16 +1,18 @@
 import { prisma } from "@/lib/db"
 import Link from "next/link"
-import { createProduct, deleteProduct } from "../edit-actions"
+import { createProduct, deleteProduct, importProducts } from "../edit-actions"
 import { DeleteButton } from "../delete-button"
 
 export const dynamic = "force-dynamic"
 
 type AdminProductsProps = {
-  searchParams?: Promise<{ error?: string }>
+  searchParams?: Promise<{ error?: string; imported?: string }>
 }
 
 export default async function AdminProducts({ searchParams }: AdminProductsProps) {
-  const error = (await searchParams)?.error
+  const query = await searchParams
+  const error = query?.error
+  const imported = query?.imported
   const products = await prisma.product.findMany({
     include: { variants: true, categories: { include: { category: true } } },
     orderBy: { createdAt: "desc" },
@@ -36,6 +38,16 @@ export default async function AdminProducts({ searchParams }: AdminProductsProps
         {error === "save" ? (
           <p className="text-sm text-red-600 md:col-span-3">保存失败，请检查内容后重试。</p>
         ) : null}
+        {error === "import" ? (
+          <p className="text-sm text-red-600 md:col-span-3">
+            导入失败，请上传包含“图片、名称、分类”表头的 Excel 文件。
+          </p>
+        ) : null}
+        {imported ? (
+          <p className="text-sm text-emerald-700 md:col-span-3">
+            已导入 {imported} 个商品。
+          </p>
+        ) : null}
         <input
           name="title"
           required
@@ -51,6 +63,25 @@ export default async function AdminProducts({ searchParams }: AdminProductsProps
         <button className="rounded-md bg-neutral-900 px-4 text-sm font-medium text-white hover:bg-neutral-800">
           新增商品
         </button>
+      </form>
+
+      <form
+        action={importProducts}
+        className="mb-6 flex flex-col gap-3 rounded-2xl border border-neutral-200 bg-white p-4 md:flex-row md:items-center"
+      >
+        <input
+          type="file"
+          name="file"
+          required
+          accept=".xlsx,.xls"
+          className="text-sm text-neutral-700 file:mr-4 file:rounded-md file:border-0 file:bg-neutral-100 file:px-4 file:py-2 file:text-sm file:font-medium file:text-neutral-800 hover:file:bg-neutral-200"
+        />
+        <button className="rounded-md bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-800">
+          导入 Excel
+        </button>
+        <span className="text-sm text-neutral-500">
+          表头：图片、名称、分类；图片填 URL。
+        </span>
       </form>
 
       <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
