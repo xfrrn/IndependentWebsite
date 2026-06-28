@@ -10,7 +10,7 @@ const REMOVED_COMMERCE_SEGMENTS = new Set([
   "order",
 ])
 
-const CLEAN_URL_SEGMENTS = new Set(["shop"])
+const CLEAN_URL_SEGMENTS = new Set(["products", "shop"])
 
 export async function middleware(request: NextRequest) {
   const isAdminPage =
