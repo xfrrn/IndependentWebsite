@@ -42,6 +42,7 @@ export default function FilterPanel({
                 pathname: "/products",
                 query: buildQuery(searchParams, "age", age),
               }}
+              prefetch={false}
               className={`rounded-full border px-3 py-1 text-xs transition ${
                 searchParams.age === age
                   ? "border-emerald-300 bg-emerald-50 text-emerald-700"
@@ -64,6 +65,7 @@ export default function FilterPanel({
                 pathname: "/products",
                 query: buildQuery(searchParams, "type", type),
               }}
+              prefetch={false}
               className={`rounded-full border px-3 py-1 text-xs transition ${
                 searchParams.type === type
                   ? "border-blue-300 bg-blue-50 text-blue-700"
@@ -86,6 +88,7 @@ export default function FilterPanel({
                 pathname: "/products",
                 query: buildQuery(searchParams, "skill", skill),
               }}
+              prefetch={false}
               className={`rounded-full border px-3 py-1 text-xs transition ${
                 searchParams.skill === skill
                   ? "border-amber-300 bg-amber-50 text-amber-700"
@@ -108,6 +111,7 @@ export default function FilterPanel({
                 pathname: "/products",
                 query: buildQuery(searchParams, "price", range.label),
               }}
+              prefetch={false}
               className={`rounded-full border px-3 py-1 text-xs transition ${
                 searchParams.price === range.label
                   ? "border-rose-300 bg-rose-50 text-rose-700"

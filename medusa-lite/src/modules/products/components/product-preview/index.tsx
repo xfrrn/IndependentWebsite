@@ -42,6 +42,7 @@ export default function ProductPreview({
   return (
     <Link
       href={`/products/${product.handle}`}
+      prefetch={false}
       className="group block ui-link ui-focus"
     >
       <div data-testid="product-wrapper" className="relative">

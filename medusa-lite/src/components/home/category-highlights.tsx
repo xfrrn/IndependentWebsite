@@ -37,6 +37,7 @@ export default async function CategoryHighlights({
             <Link
               key={card.title}
               href={card.href}
+              prefetch={false}
               aria-label={card.ctaLabel}
               className="group relative overflow-hidden rounded-3xl border border-[color:var(--border-soft)] bg-[var(--bg-card)] shadow-[0_16px_36px_-28px_rgba(85,63,39,0.18)] transition duration-300 ease-out hover:-translate-y-1 hover:border-[color:var(--accent)]/20 hover:shadow-[0_24px_50px_-32px_rgba(92,72,45,0.24)]"
             >
