@@ -19,7 +19,7 @@ type Props = {
   searchParams: Promise<{ page?: string; sort?: string }>
 }
 
-const PRODUCT_LIMIT = 24
+const PRODUCT_LIMIT = 20
 
 export const revalidate = 300
 
