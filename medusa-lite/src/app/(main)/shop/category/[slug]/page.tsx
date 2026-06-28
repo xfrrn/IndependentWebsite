@@ -1,7 +1,8 @@
 import CountryPage, {
   generateMetadata as generateCountryMetadata,
 } from "../../../../[countryCode]/(main)/shop/category/[slug]/page"
-import { getDefaultCountryCode } from "@lib/data/default-country-code"
+
+const DEFAULT_COUNTRY_CODE = process.env.DEFAULT_COUNTRY_CODE || "gb"
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -9,11 +10,7 @@ type Props = {
 }
 
 async function withCountryCode(params: Props["params"]) {
-  const [countryCode, resolvedParams] = await Promise.all([
-    getDefaultCountryCode(),
-    params,
-  ])
-  return { ...resolvedParams, countryCode }
+  return { ...(await params), countryCode: DEFAULT_COUNTRY_CODE }
 }
 
 export async function generateMetadata(props: Props) {

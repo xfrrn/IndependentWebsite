@@ -1,5 +1,6 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { cache } from "react"
 
 import ShopLandingPage from "@components/shop/shop-landing-page"
 import ShopSortBar from "@components/shop/shop-sort-bar"
@@ -22,15 +23,19 @@ const PRODUCT_LIMIT = 24
 
 export const revalidate = 300
 
+const fetchCategory = cache(async (slug: string) => getCategoryByHandle([slug]))
+
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
   const locale = normalizeLocale()
-  const content = await getLocalizedHomeContentSection(
-    "category_page_content",
-    CATEGORY_PAGE_CONTENT,
-    locale
-  )
-  const category = await getCategoryByHandle([params.slug])
+  const [content, category] = await Promise.all([
+    getLocalizedHomeContentSection(
+      "category_page_content",
+      CATEGORY_PAGE_CONTENT,
+      locale
+    ),
+    fetchCategory(params.slug),
+  ])
 
   if (!category) {
     return {
@@ -54,18 +59,20 @@ export default async function CategoryLandingPage(props: Props) {
   const searchParams = await props.searchParams
   // ponytail: keep public category pages cacheable; use URL locale if SSR translations matter.
   const locale = normalizeLocale()
-  const content = await getLocalizedHomeContentSection(
-    "category_page_content",
-    CATEGORY_PAGE_CONTENT,
-    locale
-  )
-  const category = await getCategoryByHandle([params.slug])
+  const [content, category, region] = await Promise.all([
+    getLocalizedHomeContentSection(
+      "category_page_content",
+      CATEGORY_PAGE_CONTENT,
+      locale
+    ),
+    fetchCategory(params.slug),
+    getRegion(params.countryCode),
+  ])
 
   if (!category) {
     notFound()
   }
 
-  const region = await getRegion(params.countryCode)
   if (!region) {
     notFound()
   }
