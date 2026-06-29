@@ -139,6 +139,32 @@ export const listProducts = async ({
   return listProductsCached(pageParam, stableJson(queryParams ?? {}), countryCode, regionId)
 }
 
+export const listAllProducts = async ({
+  queryParams,
+  countryCode,
+  regionId,
+}: {
+  queryParams?: Record<string, unknown>
+  countryCode?: string
+  regionId?: string
+}) => {
+  const firstPage = await listProducts({
+    queryParams: { ...queryParams, limit: asLimit(queryParams?.limit, 24) },
+    countryCode,
+    regionId,
+  })
+
+  if (firstPage.response.count <= firstPage.response.products.length) {
+    return firstPage
+  }
+
+  return listProducts({
+    queryParams: { ...queryParams, limit: firstPage.response.count },
+    countryCode,
+    regionId,
+  })
+}
+
 export const getProductByHandle = async (handle: string): Promise<StoreProduct | null> => {
   return getProductByHandleCached(handle)
 }

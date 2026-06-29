@@ -65,9 +65,9 @@ export default async function ProductsRow({
           </div>
         </div>
 
-        <ul className="grid grid-cols-2 gap-6 md:grid-cols-4">
+        <ul className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-4">
           {sorted.map((product) => (
-            <li key={product.id} className="group relative">
+            <li key={product.id} className="group relative min-w-0">
               <div className="ui-card ui-card-hover bg-[var(--bg-card)] p-4 transition duration-300 ease-out group-hover:border-[color:var(--accent)]/20">
                 <ProductPreview
                   product={product}

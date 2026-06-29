@@ -6,7 +6,7 @@ import { StoreProduct } from "@/lib/types"
 import { PRODUCTS_PAGE_CONTENT } from "@lib/data/homepage"
 import { getLocalizedHomeContentSection } from "@lib/data/localized-homepage"
 import { PRODUCT_LIST_FIELDS } from "@lib/data/product-fields"
-import { listProducts } from "@lib/data/products"
+import { listAllProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
 import { normalizeLocale } from "@lib/data/supported-locales"
 import {
@@ -58,7 +58,7 @@ export default async function ProductsPage(props: Props) {
 
   const {
     response: { products },
-  } = await listProducts({
+  } = await listAllProducts({
     regionId: region.id,
     queryParams: {
       limit: 24,

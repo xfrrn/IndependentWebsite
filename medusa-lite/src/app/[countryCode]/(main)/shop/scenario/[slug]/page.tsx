@@ -4,7 +4,7 @@ import { notFound } from "next/navigation"
 import ShopLandingPage from "@components/shop/shop-landing-page"
 import ShopSortBar from "@components/shop/shop-sort-bar"
 import { PRODUCT_LIST_FIELDS } from "@lib/data/product-fields"
-import { listProducts } from "@lib/data/products"
+import { listAllProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
 import { normalizeLocale } from "@lib/data/supported-locales"
 import { matchesScenarioKey } from "@lib/util/product-meta"
@@ -78,7 +78,7 @@ export default async function ScenarioLandingPage(props: Props) {
 
   const {
     response: { products },
-  } = await listProducts({
+  } = await listAllProducts({
     regionId: region.id,
     queryParams: {
       limit: 24,

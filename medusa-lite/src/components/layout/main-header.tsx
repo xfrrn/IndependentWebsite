@@ -30,6 +30,18 @@ type ContactModal = {
   imageAlt: string
 }
 
+type HeaderLink = HeaderContent["links"][number]
+
+function isWhatsappLink(item: HeaderLink) {
+  return `${item.label} ${item.href} ${item.modalImageSrc || ""} ${item.modalImageAlt || ""}`
+    .toLowerCase()
+    .includes("whatsapp")
+}
+
+function opensExternalPage(href: string) {
+  return /^https?:\/\//.test(href)
+}
+
 export default function MainHeader({
   content,
   locales,
@@ -123,7 +135,7 @@ export default function MainHeader({
 
         <div className="hidden items-center justify-end gap-5 text-xs text-[color:var(--text-body)] md:flex">
           {content.links.map((item) =>
-            item.modalImageSrc ? (
+            item.modalImageSrc && !isWhatsappLink(item) ? (
               <button
                 key={item.label}
                 type="button"
@@ -146,6 +158,8 @@ export default function MainHeader({
               <Link
                 key={item.label}
                 href={item.href}
+                target={opensExternalPage(item.href) ? "_blank" : undefined}
+                rel={opensExternalPage(item.href) ? "noopener noreferrer" : undefined}
                 className={`flex flex-col items-end ui-link ${item.href === "#" ? "pointer-events-none opacity-50" : ""}`}
               >
                 <span className="uppercase tracking-[0.2em] text-[10px]">
@@ -164,7 +178,7 @@ export default function MainHeader({
         <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-[color:var(--text-body)] md:hidden">
           <div className="flex flex-wrap items-center gap-4">
             {content.links.map((item) =>
-              item.modalImageSrc ? (
+              item.modalImageSrc && !isWhatsappLink(item) ? (
                 <button
                   key={item.label}
                   type="button"
@@ -184,6 +198,8 @@ export default function MainHeader({
                 <Link
                   key={item.label}
                   href={item.href}
+                  target={opensExternalPage(item.href) ? "_blank" : undefined}
+                  rel={opensExternalPage(item.href) ? "noopener noreferrer" : undefined}
                   className={`text-sm uppercase tracking-[0.18em] text-[color:var(--text-body)] ${item.href === "#" ? "pointer-events-none opacity-50" : ""}`}
                 >
                   {item.label}

@@ -3,7 +3,7 @@ import { Metadata } from "next"
 import Link from "next/link"
 
 import { PRODUCT_LIST_FIELDS } from "@lib/data/product-fields"
-import { listProducts } from "@lib/data/products"
+import { listAllProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
 import ShopLandingPage from "@components/shop/shop-landing-page"
 import { AGE_PAGE_CONTENT } from "@lib/data/homepage"
@@ -60,7 +60,7 @@ export default async function AgeLandingPage(props: Props) {
 
   const {
     response: { products },
-  } = await listProducts({
+  } = await listAllProducts({
     regionId: region.id,
     queryParams: {
       limit: 24,
